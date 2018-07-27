@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
 
 	spec.require_paths = ["lib"]
 
-	spec.add_dependency "http-hpack", "~> 1.0"
+	spec.add_dependency "http-hpack", "~> 0.1.0"
 
 	spec.add_development_dependency "bundler", "~> 1.16"
 	spec.add_development_dependency "rake", "~> 10.0"
