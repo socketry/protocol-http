@@ -31,7 +31,6 @@ require_relative 'ping_frame'
 require_relative 'goaway_frame'
 require_relative 'window_update_frame'
 require_relative 'continuation_frame'
-require_relative 'alternative_service_frame'
 
 module HTTP
 	module Protocol
