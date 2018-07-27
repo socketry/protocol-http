@@ -38,29 +38,44 @@ module HTTP
 					end
 				end
 				
+				def write(io)
+					super
+					
+					if continuation = self.continuation
+						continuation.write(io)
+					end
+				end
+				
 				attr_accessor :continuation
 				
-				def each
-					return to_enum unless block_given?
+				def pack(data, **options)
+					maximum_length = options[:maximum_length]
 					
-					current = self
-					
-					while current
-						yield current
+					if maximum_length and data.bytesize > maximum_length
+						super(data.byteslice(0, maximum_length), **options)
 						
-						current = current.continuation
+						remainder = data.byteslice(maximum_length, data.bytesize-maximum_length)
+						
+						@continuation = ContinuationFrame.new
+						@continuation.pack(remainder, maximum_length: maximum_length)
+					else
+						super data, **options
+						
+						@continuation = nil
 					end
 				end
 			end
 			
+			# The CONTINUATION frame is used to continue a sequence of header block fragments. Any number of CONTINUATION frames can be sent, as long as the preceding frame is on the same stream and is a HEADERS, PUSH_PROMISE, or CONTINUATION frame without the END_HEADERS flag set.
+			#
+			# +---------------------------------------------------------------+
+			# |                   Header Block Fragment (*)                 ...
+			# +---------------------------------------------------------------+
+			#
 			class ContinuationFrame < Frame
-				prepend Continued
+				include Continued
 				
 				TYPE = 0x9
-				
-				def data
-					@payload
-				end
 			end
 		end
 	end

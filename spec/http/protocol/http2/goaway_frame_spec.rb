@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,33 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
-require_relative 'padded'
+require 'http/protocol/http2/goaway_frame'
+require_relative 'frame_examples'
 
-module HTTP
-	module Protocol
-		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
-			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
-			# +---------------------------------------------------------------+
-			#
-			class DataFrame < Frame
-				prepend Padded
-				
-				TYPE = 0x0
-				
-				def end_stream?
-					flag_set?(END_STREAM)
-				end
-			end
+RSpec.describe HTTP::Protocol::HTTP2::GoawayFrame do
+	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	
+	let(:data) {"Hikikomori desu!"}
+	
+	describe '#pack' do
+		it "packs data" do
+			subject.pack 3, 2, data
+			
+			expect(subject.length).to be == 8+data.bytesize
+		end
+	end
+	
+	describe '#unpack' do
+		it "unpacks data" do
+			subject.pack 3, 2, data
+			
+			expect(subject.unpack).to be == [3, 2, data]
 		end
 	end
 end

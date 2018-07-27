@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,33 +18,46 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
-require_relative 'padded'
+require 'http/protocol/http2/headers_frame'
+require_relative 'frame_examples'
 
-module HTTP
-	module Protocol
-		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
-			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
-			# +---------------------------------------------------------------+
-			#
-			class DataFrame < Frame
-				prepend Padded
-				
-				TYPE = 0x0
-				
-				def end_stream?
-					flag_set?(END_STREAM)
-				end
-			end
+RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
+	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	
+	let(:priority) {HTTP::Protocol::HTTP2::Priority.new(true, 42, 7)}
+	let(:data) {"Hello World!"}
+	
+	describe '#pack' do
+		it "adds appropriate padding" do
+			subject.pack nil, data
+			
+			expect(subject.length).to be == 256
+			expect(subject).to_not be_priority
+		end
+		
+		it "packs priority with no padding" do
+			subject.pack priority, data, padding_length: 0
+			
+			expect(priority.pack.size).to be == 5
+			expect(subject.length).to be == (5 + data.bytesize)
+		end
+	end
+	
+	describe '#unpack' do
+		it "removes padding" do
+			subject.pack nil, data
+			
+			expect(subject.unpack).to be == [nil, data]
+		end
+	end
+	
+	describe '#continuation' do
+		it "generates chain of frames" do
+			subject.pack nil, "Hello World", maximum_length: 8
+			
+			expect(subject.length).to eq 8
+			expect(subject.continuation).to_not be_nil
+			expect(subject.continuation.length).to eq 3
 		end
 	end
 end

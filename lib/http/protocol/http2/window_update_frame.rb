@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +19,37 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'padded'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
-			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
-			# +---------------------------------------------------------------+
+			# The WINDOW_UPDATE frame is used to implement flow control.
 			#
-			class DataFrame < Frame
-				prepend Padded
+			# +-+-------------------------------------------------------------+
+			# |R|              Window Size Increment (31)                     |
+			# +-+-------------------------------------------------------------+
+			#
+			class WindowUpdateFrame < Frame
+				TYPE = 0x8
+				FORMAT = "N"
 				
-				TYPE = 0x0
+				# # Maximum window increment value (2^31)
+				# MAX_WINDOWINC = 0x7fffffff
+				# 
+				# attr :increment
+				# 
+				# def common_header
+				# 	if self.incremnet > MAXIMUM_WINDOW_INCREMENT
+				# if frame[:type] == :window_update && frame[:increment] > MAX_WINDOWINC
+				# 	fail CompressionError, "Window increment (#{frame[:increment]}) is too large"
+				# end
 				
-				def end_stream?
-					flag_set?(END_STREAM)
+				def pack(window_size_increment)
+					super [window_size_increment].pack(FORMAT)
+				end
+				
+				def unpack
+					super.unpack(FORMAT).first
 				end
 			end
 		end

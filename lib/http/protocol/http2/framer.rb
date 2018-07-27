@@ -19,31 +19,57 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
-require_relative 'padded'
+require_relative '../error'
+
+require_relative 'data_frame'
+require_relative 'headers_frame'
+require_relative 'priority_frame'
+require_relative 'reset_stream_frame'
+require_relative 'settings_frame'
+require_relative 'push_promise_frame'
+require_relative 'ping_frame'
+require_relative 'goaway_frame'
+require_relative 'window_update_frame'
+require_relative 'continuation_frame'
+require_relative 'alternative_service_frame'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
-			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
-			# +---------------------------------------------------------------+
-			#
-			class DataFrame < Frame
-				prepend Padded
+			# HTTP/2 frame type mapping as defined by the spec
+			FRAMES = [
+				DataFrame,
+				HeadersFrame,
+				PriorityFrame,
+				ResetStreamFrame,
+				SettingsFrame,
+				PushPromiseFrame,
+				PingFrame,
+				GoawayFrame,
+				WindowUpdateFrame,
+				ContinuationFrame,
+			].freeze
+			
+			class Framer
+				def initialize(io, frames = FRAMES)
+					@io = io
+					@frames = frames
+				end
 				
-				TYPE = 0x0
+				def read_frame
+					length, type, flags, stream_id = read_header
+					
+					payload = @io.read(length) if length > 0
+					
+					klass = @frames[type] || Frame
+					
+					return klass.new(length, type, flags, stream_id, payload)
+				end
 				
-				def end_stream?
-					flag_set?(END_STREAM)
+				private
+				
+				def read_header
+					return Frame.parse_header(@io.read(9))
 				end
 			end
 		end

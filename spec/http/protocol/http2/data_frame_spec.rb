@@ -19,8 +19,11 @@
 # THE SOFTWARE.
 
 require 'http/protocol/http2/data_frame'
+require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
+	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	
 	context 'wire representation' do
 		let(:io) {StringIO.new}
 		
@@ -31,10 +34,10 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 		end
 		
 		it "should write frame to buffer" do
-			subject.length = payload.bytesize
-			subject.flags |= HTTP::Protocol::HTTP2::END_STREAM
+			subject.set_flags(HTTP::Protocol::HTTP2::END_STREAM)
 			subject.stream_id = 1
 			subject.payload = payload
+			subject.length = payload.bytesize
 			
 			subject.write(io)
 			
@@ -54,20 +57,20 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 		end
 	end
 	
-	describe '#data=' do
+	describe '#pack' do
 		it "adds appropriate padding" do
-			subject.data = "Hello World!"
+			subject.pack "Hello World!"
 			
 			expect(subject.length).to be == 256
 			expect(subject.payload[0].ord).to be == (256 - 12 - 1)
 		end
 	end
 	
-	describe '#data' do
+	describe '#unpack' do
 		it "removes padding" do
-			subject.data = "Hello World!"
+			subject.pack "Hello World!"
 			
-			expect(subject.data).to be == "Hello World!"
+			expect(subject.unpack).to be == "Hello World!"
 		end
 	end
 end

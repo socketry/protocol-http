@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +19,34 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'padded'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
+			# The GOAWAY frame is used to initiate shutdown of a connection or to signal serious error conditions. GOAWAY allows an endpoint to gracefully stop accepting new streams while still finishing processing of previously established streams. This enables administrative actions, like server maintenance.
+			#
+			# +-+-------------------------------------------------------------+
+			# |R|                  Last-Stream-ID (31)                        |
+			# +-+-------------------------------------------------------------+
+			# |                      Error Code (32)                          |
 			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
+			# |                  Additional Debug Data (*)                    |
 			# +---------------------------------------------------------------+
 			#
-			class DataFrame < Frame
-				prepend Padded
+			class GoawayFrame < Frame
+				TYPE = 0x7
+				FORMAT = "NN"
 				
-				TYPE = 0x0
+				def unpack
+					data = super
+					
+					last_stream_id, error_code = data.unpack(FORMAT)
+					
+					return last_stream_id, error_code, data.slice(8, data.bytesize-8)
+				end
 				
-				def end_stream?
-					flag_set?(END_STREAM)
+				def pack(last_stream_id, error_code, data)
+					super [last_stream_id, error_code].pack(FORMAT) + data
 				end
 			end
 		end

@@ -19,22 +19,20 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'padded'
-require_relative 'headers'
-
-require_relative 'continuation_frame'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			class HeadersFrame < Frame
-				prepend Padded, Continued
-				
-				TYPE = 0x1
-				
-				def end_stream?
-					@flags & END_STREAM
-				end
+			# The PING frame is a mechanism for measuring a minimal round-trip time from the sender, as well as determining whether an idle connection is still functional. PING frames can be sent from any endpoint.
+			#
+			# +---------------------------------------------------------------+
+			# |                                                               |
+			# |                      Opaque Data (64)                         |
+			# |                                                               |
+			# +---------------------------------------------------------------+
+			#
+			class PingFrame < Frame
+				TYPE = 0x6
 			end
 		end
 	end

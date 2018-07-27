@@ -30,6 +30,8 @@ module HTTP
 			PRIORITY = 0x20
 			
 			class Frame
+				include Comparable
+				
 				# Stream Identifier cannot be bigger than this:
 				# https://http2.github.io/http2-spec/#rfc.section.4.1
 				VALID_STREAM_ID = 0..0x7fffffff
@@ -49,6 +51,14 @@ module HTTP
 					@payload = payload
 				end
 				
+				def <=> other
+					to_ary <=> other.to_ary
+				end
+				
+				def to_ary
+					[@length, @type, @flags, @stream_id, @payload]
+				end
+				
 				# The generic frame header uses the following binary representation:
 				#
 				# +-----------------------------------------------+
@@ -66,6 +76,31 @@ module HTTP
 				attr_accessor :flags
 				attr_accessor :stream_id
 				attr_accessor :payload
+				
+				def unpack
+					@payload
+				end
+				
+				def pack(payload, maximum_length: nil)
+					@payload = payload
+					@length = payload.bytesize
+					
+					if maximum_length and @length > maximum_length
+						raise ProtocolError, "Frame length #{@length} bigger than maximum allowed: #{maximum_length}"
+					end
+				end
+				
+				def set_flags(mask)
+					@flags |= mask
+				end
+				
+				def clear_flags(mask)
+					@flags &= ~mask
+				end
+				
+				def flag_set?(mask)
+					@flags & mask != 0
+				end
 				
 				HEADER_FORMAT = 'CnCCN'.freeze
 				STREAM_ID_MASK  = 0x7fffffff
@@ -96,15 +131,16 @@ module HTTP
 				# Decodes common 9-byte header.
 				#
 				# @param buffer [String]
-				def parse_header(buffer)
-					length_hi, length_lo, @type, @flags, stream_id = buffer.unpack(HEADER_FORMAT)
-					@length = (length_hi << LENGTH_HISHIFT) | length_lo
-					@stream_id = stream_id & STREAM_ID_MASK
+				def self.parse_header(buffer)
+					length_hi, length_lo, type, flags, stream_id = buffer.unpack(HEADER_FORMAT)
+					length = (length_hi << LENGTH_HISHIFT) | length_lo
+					stream_id = stream_id & STREAM_ID_MASK
+					
+					return length, type, flags, stream_id
 				end
 				
-				# Read the header from the stream.
 				def read_header(io)
-					parse_header(io.read(9))
+					@length, @type, @flags, @stream_id = Frame.parse_header(io.read(9))
 				end
 				
 				def read_payload(io)
@@ -125,7 +161,7 @@ module HTTP
 				end
 				
 				def write(io)
-					unless @length == @payload.bytesize
+					if @payload and @length != @payload.bytesize
 						raise ProtocolError, "Invalid payload size: #{@length} != #{@payload.bytesize}"
 					end
 					

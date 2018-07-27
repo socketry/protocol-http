@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +20,70 @@
 
 require_relative 'frame'
 require_relative 'padded'
+require_relative 'continuation_frame'
+require_relative 'priority_frame'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
+			# The HEADERS frame is used to open a stream, and additionally carries a header block fragment. HEADERS frames can be sent on a stream in the "idle", "reserved (local)", "open", or "half-closed (remote)" state.
 			# 
 			# +---------------+
 			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
+			# +-+-------------+-----------------------------------------------+
+			# |E|                 Stream Dependency? (31)                     |
+			# +-+-------------+-----------------------------------------------+
+			# |  Weight? (8)  |
+			# +-+-------------+-----------------------------------------------+
+			# |                   Header Block Fragment (*)                 ...
 			# +---------------------------------------------------------------+
 			# |                           Padding (*)                       ...
 			# +---------------------------------------------------------------+
 			#
-			class DataFrame < Frame
-				prepend Padded
+			class HeadersFrame < Frame
+				include Continued, Padded
 				
-				TYPE = 0x0
+				TYPE = 0x1
+				
+				def initialize(*)
+					super
+					
+					@priority = nil
+				end
+				
+				def priority?
+					flag_set?(PRIORITY)
+				end
+				
+				def end_headers?
+					flag_set?(END_HEADERS)
+				end
 				
 				def end_stream?
 					flag_set?(END_STREAM)
+				end
+				
+				def unpack
+					data = super
+					
+					if priority?
+						priority = Priority.unpack(data)
+						data = data.byteslice(5, data.bytesize - 5)
+					end
+					
+					return priority, data
+				end
+				
+				def pack(priority, data, *args)
+					buffer = String.new.b
+					
+					if priority
+						buffer << priority.pack
+					end
+					
+					buffer << data
+					
+					super(buffer, *args)
 				end
 			end
 		end

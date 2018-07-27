@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +19,50 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'padded'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
-			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
-			# +---------------------------------------------------------------+
+			Priority = Struct.new(:exclusive, :stream_dependency, :weight) do
+				FORMAT = "NC".freeze
+				EXCLUSIVE = 1 << 31
+				
+				def self.unpack(data)
+					stream_dependency, weight = data.unpack(FORMAT)
+					
+					return self.new(stream_dependency & EXCLUSIVE != 0, stream_dependency & ~EXCLUSIVE, weight)
+				end
+				
+				def pack
+					if exclusive
+						stream_dependency = self.stream_dependency | EXCLUSIVE
+					end
+					
+					return [stream_dependency, self.weight].pack(FORMAT)
+				end
+			end
+			
+			# The PRIORITY frame specifies the sender-advised priority of a stream. It can be sent in any stream state, including idle or closed streams.
 			#
-			class DataFrame < Frame
-				prepend Padded
+			# +-+-------------------------------------------------------------+
+			# |E|                  Stream Dependency (31)                     |
+			# +-+-------------+-----------------------------------------------+
+			# |   Weight (8)  |
+			# +-+-------------+
+			#
+			class PriorityFrame < Frame
+				TYPE = 0x2
 				
-				TYPE = 0x0
+				def priority
+					Priority.unpack(@payload)
+				end
 				
-				def end_stream?
-					flag_set?(END_STREAM)
+				def pack priority
+					super priority.pack
+				end
+				
+				def unpack
+					Priority.unpack(super)
 				end
 			end
 		end

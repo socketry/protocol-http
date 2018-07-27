@@ -1,5 +1,4 @@
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# Copyrigh, 2013, by Ilya Grigorik.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +19,42 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'padded'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			# DATA frames convey arbitrary, variable-length sequences of octets associated with a stream. One or more DATA frames are used, for instance, to carry HTTP request or response payloads.
-			# 
-			# DATA frames MAY also contain padding. Padding can be added to DATA frames to obscure the size of messages.
-			# 
-			# +---------------+
-			# |Pad Length? (8)|
-			# +---------------+-----------------------------------------------+
-			# |                            Data (*)                         ...
+			NO_ERROR = 0
+			PROTOCOL_ERROR = 1
+			INTERNAL_ERROR = 2
+			FLOW_CONTROL_ERROR = 3
+			TIMEOUT = 4
+			STREAM_CLOSED = 5
+			FRAME_SIZE_ERROR = 6
+			REFUSED_STREAM = 7
+			CANCEL = 8
+			COMPRESSION_ERROR = 9
+			CONNECT_ERROR = 10
+			ENHANCE_YOUR_CALM = 11
+			INADEQUATE_SECURITY = 12
+			HTTP_1_1_REQUIRED = 13
+			
+			# The RST_STREAM frame allows for immediate termination of a stream. RST_STREAM is sent to request cancellation of a stream or to indicate that an error condition has occurred.
+			#
 			# +---------------------------------------------------------------+
-			# |                           Padding (*)                       ...
+			# |                        Error Code (32)                        |
 			# +---------------------------------------------------------------+
 			#
-			class DataFrame < Frame
-				prepend Padded
+			class ResetStreamFrame < Frame
+				TYPE = 0x3
+				FORMAT = "N".freeze
 				
-				TYPE = 0x0
+				def unpack
+					@payload.unpack(FORMAT).first
+				end
 				
-				def end_stream?
-					flag_set?(END_STREAM)
+				def pack(error_code = NO_ERROR)
+					@payload = [error_code].pack(FORMAT)
+					@length = @payload.bytesize
 				end
 			end
 		end

@@ -37,36 +37,41 @@ module HTTP
 				# +---------------------------------------------------------------+
 				
 				def padded?
-					@flags & PADDED
-				end
-				
-				def assign(string, padding_length)
-					if padding_length > 0
-						@flags |= PADDED
-						@payload = String.new.b
-						
-						@payload << padding_length.chr
-						@payload << string
-						
-						@payload << "\0" * padding_length
-					else
-						@flags &= ~PADDED
-						@payload = string
-					end
-					
-					@length = @payload.bytesize
+					flag_set?(PADDED)
 				end
 				
 				# We will round up frames to the given length:
 				MODULUS = 0xFF
 				
-				def data= string
-					padding_length = (MODULUS - string.bytesize) % MODULUS
+				def pack(data, modulus: MODULUS, padding_length: nil, maximum_length: nil)
+					padding_length ||= (MODULUS - data.bytesize) % MODULUS
 					
-					assign(string, padding_length)
+					if maximum_length
+						maximum_padding_length = maximum_length - data.bytesize
+						
+						if padding_length > maximum_padding_length
+							padding_length = maximum_padding_length
+						end
+					end
+					
+					if padding_length > 0
+						set_flags(PADDED)
+						
+						buffer = String.new.b
+						
+						buffer << padding_length.chr
+						buffer << data
+						buffer << "\0" * padding_length
+						
+						super buffer
+					else
+						clear_flags(PADDED)
+						
+						super data
+					end
 				end
 				
-				def data
+				def unpack
 					if padded?
 						padding_length = @payload[0].ord
 						data_length = @payload.bytesize - 1 - padding_length

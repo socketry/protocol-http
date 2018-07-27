@@ -18,55 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'http/protocol/http2/data_frame'
+require 'http/protocol/http2/settings_frame'
+require_relative 'frame_examples'
 
-RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
-	context 'wire representation' do
-		let(:io) {StringIO.new}
-		let(:payload) {'Hello World!'}
-		
-		let(:data) do
-			[0, 12, 0x0, 0x1, 0x1].pack('CnCCNC*') + payload
-		end
-		
-		it "should write frame to buffer" do
-			subject.length = payload.bytesize
-			subject.flags |= HTTP::Protocol::HTTP2::END_STREAM
-			subject.stream_id = 1
-			subject.payload = payload
+RSpec.describe HTTP::Protocol::HTTP2::SettingsFrame do
+	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	
+	let(:settings) {[[1, 2], [3, 4], [5, 6]]}
+	
+	describe '#pack' do
+		it "packs priority" do
+			subject.pack settings
 			
-			subject.write(io)
-			
-			expect(io.string).to be == data
-		end
-		
-		it "should read frame from buffer" do
-			io.write(data)
-			io.seek(0)
-			
-			subject.read(io)
-			
-			expect(subject.length) == payload.bytesize
-			expect(subject.flags) == HTTP::Protocol::HTTP2::END_STREAM
-			expect(subject.stream_id) == 1
-			expect(subject.payload) == payload
+			expect(subject.length).to be == 6*settings.count
 		end
 	end
 	
-	describe '#data=' do
-		it "adds appropriate padding" do
-			subject.data = "Hello World!"
+	describe '#unpack' do
+		it "unpacks priority" do
+			subject.pack settings
 			
-			expect(subject.length).to be == 256
-			expect(subject.payload[0].ord).to be == (256 - 12 - 1)
-		end
-	end
-	
-	describe '#data' do
-		it "removes padding" do
-			subject.data = "Hello World!"
-			
-			expect(subject.data).to be == "Hello World!"
+			expect(subject.unpack).to be == settings
 		end
 	end
 end
