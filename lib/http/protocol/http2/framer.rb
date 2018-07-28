@@ -63,7 +63,7 @@ module HTTP
 					
 					# Allocate the frame:
 					klass = @frames[type] || Frame
-					frame = klass.new(length, type, flags, stream_id)
+					frame = klass.new(stream_id, flags, type, length)
 					
 					# Read the payload:
 					frame.read(@io)

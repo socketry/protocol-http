@@ -60,6 +60,14 @@ module HTTP
 				def apply(connection)
 					connection.receive_reset_stream(self)
 				end
+				
+				def read_payload(io)
+					super
+					
+					if @length != 4
+						raise FrameSizeError, "Invalid frame length"
+					end
+				end
 			end
 		end
 	end

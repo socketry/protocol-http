@@ -44,7 +44,7 @@ module HTTP
 				LENGTH_LOMASK  = 0xFFFF
 				
 				# @param length [Integer] the length of the payload, or nil if the header has not been read yet.
-				def initialize(length = nil, type = self.class.const_get(:TYPE), flags = 0, stream_id = 0, payload = nil)
+				def initialize(stream_id = 0, flags = 0, type = self.class.const_get(:TYPE), length = nil, payload = nil)
 					@length = length
 					@type = type
 					@flags = flags

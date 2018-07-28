@@ -68,6 +68,14 @@ module HTTP
 				def apply(connection)
 					connection.receive_priority(self)
 				end
+				
+				def read_payload(io)
+					super
+					
+					if @length != 5
+						raise FrameSizeError, "Invalid frame length"
+					end
+				end
 			end
 		end
 	end

@@ -18,55 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
+require_relative 'connection'
 
 module HTTP
 	module Protocol
 		module HTTP2
-			ACKNOWLEDGEMENT = 0x1
-			
-			module Acknowledgement
-				def acknowledgement?
-					flag_set?(ACKNOWLEDGEMENT)
-				end
-				
-				def acknowledge
-					frame = self.class.new
-					frame.pack self.unpack
-					
-					frame.set_flags(ACKNOWLEDGEMENT)
-					
-					return frame
-				end
-			end
-			
-			# The PING frame is a mechanism for measuring a minimal round-trip time from the sender, as well as determining whether an idle connection is still functional. PING frames can be sent from any endpoint.
-			#
-			# +---------------------------------------------------------------+
-			# |                                                               |
-			# |                      Opaque Data (64)                         |
-			# |                                                               |
-			# +---------------------------------------------------------------+
-			#
-			class PingFrame < Frame
-				TYPE = 0x6
-				
-				include Acknowledgement
-				
-				def connection?
-					true
-				end
-				
-				def apply(connection)
-					connection.receive_ping(self)
-				end
-				
-				def read_payload(io)
-					super
-					
-					if @length > 8
-						raise FrameSizeError, "Invalid frame length"
-					end
+			class Client < Connection
+				def initialize(framer, local_settings = Settings.new)
+					super(framer, 1, local_settings)
 				end
 			end
 		end

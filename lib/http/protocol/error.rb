@@ -35,7 +35,13 @@ module HTTP
 		# recover from this exception, or any exceptions subclassed from it.
 		class ProtocolError < Error
 		end
-
+		
+		# When the frame payload does not match expectations.
+		#
+		# @see ProtocolError
+		class FrameSizeError < ProtocolError
+		end
+		
 		# Raised on invalid flow control frame or command.
 		#
 		# @see ProtocolError
