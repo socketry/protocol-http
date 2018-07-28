@@ -85,6 +85,10 @@ module HTTP
 					
 					super(buffer, *args)
 				end
+				
+				def apply(connection)
+					connection.receive_headers(self)
+				end
 			end
 		end
 	end

@@ -55,6 +55,10 @@ module HTTP
 				def connection?
 					true
 				end
+				
+				def apply(connection)
+					connection.receive_ping(self)
+				end
 			end
 		end
 	end

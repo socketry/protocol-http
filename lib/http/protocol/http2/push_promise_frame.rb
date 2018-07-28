@@ -57,6 +57,10 @@ module HTTP
 				def pack(stream_id, data, *args)
 					super([stream_id].pack(FORMAT) + data, *args)
 				end
+				
+				def apply(connection)
+					connection.receive_push_promise(self)
+				end
 			end
 		end
 	end

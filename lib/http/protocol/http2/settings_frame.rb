@@ -84,6 +84,10 @@ module HTTP
 				def pack(settings)
 					super settings.map{|s| s.pack(FORMAT)}.join
 				end
+				
+				def apply(connection)
+					connection.receive_settings(self)
+				end
 			end
 		end
 	end

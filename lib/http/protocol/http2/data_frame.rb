@@ -45,6 +45,10 @@ module HTTP
 				def end_stream?
 					flag_set?(END_STREAM)
 				end
+				
+				def apply(connection)
+					connection.receive_data(self)
+				end
 			end
 		end
 	end

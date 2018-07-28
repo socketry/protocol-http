@@ -51,6 +51,10 @@ module HTTP
 				def unpack
 					super.unpack(FORMAT).first
 				end
+				
+				def apply(connection)
+					connection.receive_window_update(self)
+				end
 			end
 		end
 	end

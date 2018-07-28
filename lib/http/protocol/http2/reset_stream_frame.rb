@@ -56,6 +56,10 @@ module HTTP
 					@payload = [error_code].pack(FORMAT)
 					@length = @payload.bytesize
 				end
+				
+				def apply(connection)
+					connection.receive_reset_stream(self)
+				end
 			end
 		end
 	end

@@ -64,6 +64,10 @@ module HTTP
 				def unpack
 					Priority.unpack(super)
 				end
+				
+				def apply(connection)
+					connection.receive_priority(self)
+				end
 			end
 		end
 	end

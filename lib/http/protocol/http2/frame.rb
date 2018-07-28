@@ -177,6 +177,10 @@ module HTTP
 					self.write_header(io)
 					self.write_payload(io)
 				end
+				
+				def apply(connection)
+					connection.receive(self)
+				end
 			end
 		end
 	end

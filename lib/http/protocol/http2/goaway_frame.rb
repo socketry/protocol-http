@@ -52,6 +52,10 @@ module HTTP
 				def pack(last_stream_id, error_code, data)
 					super [last_stream_id, error_code].pack(FORMAT) + data
 				end
+				
+				def apply(connection)
+					connection.receive_goaway(self)
+				end
 			end
 		end
 	end
