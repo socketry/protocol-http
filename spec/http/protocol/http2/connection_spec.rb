@@ -49,6 +49,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 		let(:headers) {[[':method', 'GET'], [':path', '/'], [':authority', 'localhost']]}
 		
 		it "can create new stream and send response" do
+			client.streams[stream.id] = stream
 			stream.send_headers(nil, headers)
 			expect(stream.id).to eq 1
 			
@@ -56,13 +57,18 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			server.read_frame
 			expect(server.streams).to_not be_empty
 			
-			expect(server.streams[1].headers).to eq headers
-			expect(server.streams[1].state).to eq :active
+			# expect(server.streams[1].headers).to eq headers
+			expect(server.streams[1].state).to eq :open
 			
 			stream.send_data(nil)
+			expect(stream.state).to eq :half_closed_local
 			
 			server.read_frame
-			expect(server.streams[1].state).to eq :half_closed
+			expect(server.streams[1].state).to eq :half_closed_remote
+			
+			server.streams[1].send_headers(nil, [[':status', '200']], HTTP::Protocol::HTTP2::END_STREAM)
+			client.read_frame
+			expect(stream.state).to eq :closed
 		end
 	end
 end

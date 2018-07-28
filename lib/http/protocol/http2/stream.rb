@@ -33,30 +33,43 @@ module HTTP
 			# diagram below) and provide your application logic to handle request
 			# and response processing.
 			#
-			#                         +--------+
-			#                    PP   |        |   PP
-			#                ,--------|  idle  |--------.
-			#               /         |        |         \
-			#              v          +--------+          v
-			#       +----------+          |           +----------+
-			#       |          |          | H         |          |
-			#   ,---|:reserved |          |           |:reserved |---.
-			#   |   | (local)  |          v           | (remote) |   |
-			#   |   +----------+      +--------+      +----------+   |
-			#   |      | :active      |        |      :active |      |
-			#   |      |      ,-------|:active |-------.      |      |
-			#   |      | H   /   ES   |        |   ES   \   H |      |
-			#   |      v    v         +--------+         v    v      |
-			#   |   +-----------+          |          +-----------+  |
-			#   |   |:half_close|          |          |:half_close|  |
-			#   |   |  (remote) |          |          |  (local)  |  |
-			#   |   +-----------+          |          +-----------+  |
-			#   |        |                 v                |        |
-			#   |        |    ES/R    +--------+    ES/R    |        |
-			#   |        `----------->|        |<-----------'        |
-			#   | R                   | :close |                   R |
-			#   `-------------------->|        |<--------------------'
-			#                         +--------+
+			#                          +--------+
+			#                  send PP |        | recv PP
+			#                 ,--------|  idle  |--------.
+			#                /         |        |         \
+			#               v          +--------+          v
+			#        +----------+          |           +----------+
+			#        |          |          | send H /  |          |
+			# ,------| reserved |          | recv H    | reserved |------.
+			# |      | (local)  |          |           | (remote) |      |
+			# |      +----------+          v           +----------+      |
+			# |          |             +--------+             |          |
+			# |          |     recv ES |        | send ES     |          |
+			# |   send H |     ,-------|  open  |-------.     | recv H   |
+			# |          |    /        |        |        \    |          |
+			# |          v   v         +--------+         v   v          |
+			# |      +----------+          |           +----------+      |
+			# |      |   half   |          |           |   half   |      |
+			# |      |  closed  |          | send R /  |  closed  |      |
+			# |      | (remote) |          | recv R    | (local)  |      |
+			# |      +----------+          |           +----------+      |
+			# |           |                |                 |           |
+			# |           | send ES /      |       recv ES / |           |
+			# |           | send R /       v        send R / |           |
+			# |           | recv R     +--------+   recv R   |           |
+			# | send R /  `----------->|        |<-----------'  send R / |
+			# | recv R                 | closed |               recv R   |
+			# `----------------------->|        |<----------------------'
+			#                          +--------+
+			# 
+			#    send:   endpoint sends this frame
+			#    recv:   endpoint receives this frame
+			# 
+			#    H:  HEADERS frame (with implied CONTINUATIONs)
+			#    PP: PUSH_PROMISE frame (with implied CONTINUATIONs)
+			#    ES: END_STREAM flag
+			#    R:  RST_STREAM frame
+			#
 			class Stream
 				# Stream ID (odd for client initiated streams, even otherwise).
 				attr :id
@@ -83,10 +96,7 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
-					@headers = []
 				end
-				
-				attr :headers
 				
 				def write_frame(frame)
 					@connection.write_frame(frame)
@@ -96,31 +106,58 @@ module HTTP
 					@state == :closed
 				end
 				
-				def send_headers(priority, headers, flags = 0)
+				private def write_headers(priority, headers, flags = 0)
+					data = @connection.encode_headers(headers)
+					
+					frame = HeadersFrame.new(@id, flags)
+					frame.pack(priority, data, maximum_size: @connection.maximum_frame_size)
+					
+					write_frame(frame)
+					
+					return frame
+				end
+				
+				def send_headers(*args)
 					if @state == :idle
-						data = @connection.encode_headers(headers)
-						
-						frame = HeadersFrame.new(@id, flags)
-						frame.pack(priority, data, maximum_size: @connection.maximum_frame_size)
-						
-						write_frame(frame)
+						frame = write_headers(*args)
 						
 						if frame.end_stream?
-							@state = :half_closed
+							@state = :half_closed_local
 						else
-							@state = :active
+							@state = :open
+						end
+					elsif @state == :half_closed_remote
+						frame = write_headers(*args)
+						
+						if frame.end_stream?
+							@state = :closed
 						end
 					else
 						raise ProtocolError, "Cannot send headers in state: #{@state}"
 					end
 				end
 				
-				def send_data(data, flags = 0)
-					if @state == :active
-						frame = DataFrame.new(@id, flags)
-						frame.pack(data)
+				private def write_data(data, flags = 0, **options)
+					frame = DataFrame.new(@id, flags)
+					frame.pack(data, **options)
+					write_frame(frame)
+					
+					return frame
+				end
+				
+				def send_data(*args)
+					if @state == :open
+						frame = write_data(*args)
 						
-						write_frame(frame)
+						if frame.end_stream?
+							@state = :half_closed_local
+						end
+					elsif @state == :half_closed_remote
+						frame = write_data(*args)
+						
+						if frame.end_stream?
+							@state = :closed
+						end
 					else
 						raise ProtocolError, "Cannot send data in state: #{@state}"
 					end
@@ -134,38 +171,67 @@ module HTTP
 						# Clear any unsent frames?
 						
 						write_frame(frame)
+						
+						@state = :closed
 					else
 						raise ProtocolError, "Cannot reset stream in state: #{@state}"
 					end
 				end
 				
-				def update_active_state(frame)
-					if frame.end_stream?
-						@state = :half_closed
-					else
-						@state = :active
+				def active!
+					@state = :active
+				end
+				
+				def half_closed!
+					@state = :half_closed
+				end
+				
+				def closed!
+					@state = :closed
+				end
+				
+				private def process_headers(frame)
+					# Receiving request headers:
+					priority, data = frame.unpack
+					
+					if priority
+						@priority = priority
 					end
+					
+					return @connection.decode_headers(data)
 				end
 				
 				def receive_headers(frame)
 					if @state == :idle
-						@priority, data = frame.unpack
+						if frame.end_stream?
+							@state = :half_closed_remote
+						else
+							@state = :open
+						end
 						
-						headers = @connection.decode_headers(data)
+						return process_headers(frame)
+					elsif @state == :half_closed_local
+						if frame.end_stream?
+							@state = :closed
+						end
 						
-						@headers += headers
-						
-						update_active_state(frame)
-						
-						return headers
+						return process_headers(frame)
 					else
 						raise ProtocolError, "Cannot receive headers in state: #{@state}"
 					end
 				end
 				
 				def receive_data(frame)
-					if @state == :active
-						update_active_state(frame)
+					if @state == :open
+						if frame.end_stream?
+							@state = :half_closed_remote
+						end
+						
+						return frame.unpack
+					elsif @state == :half_closed_local
+						if frame.end_stream?
+							@state = :closed
+						end
 						
 						return frame.unpack
 					else
