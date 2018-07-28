@@ -57,7 +57,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			server.read_frame
 			expect(server.streams).to_not be_empty
 			
-			# expect(server.streams[1].headers).to eq headers
+			expect(server.streams[1].headers).to eq headers
 			expect(server.streams[1].state).to eq :open
 			
 			stream.send_data(nil)

@@ -96,7 +96,10 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
+					@headers = nil
 				end
+				
+				attr :headers
 				
 				def write_frame(frame)
 					@connection.write_frame(frame)
@@ -209,13 +212,13 @@ module HTTP
 							@state = :open
 						end
 						
-						return process_headers(frame)
+						@headers = process_headers(frame)
 					elsif @state == :half_closed_local
 						if frame.end_stream?
 							@state = :closed
 						end
 						
-						return process_headers(frame)
+						@headers = process_headers(frame)
 					else
 						raise ProtocolError, "Cannot receive headers in state: #{@state}"
 					end
