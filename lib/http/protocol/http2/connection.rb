@@ -34,6 +34,7 @@ module HTTP
 					
 					@framer = framer
 					@next_stream_id = next_stream_id
+					@last_stream_id = 0
 					
 					@local_settings = local_settings
 					@remote_settings = Settings.new
@@ -48,6 +49,10 @@ module HTTP
 					
 					@remote_window_limit = @remote_settings.initial_window_size
 					@remote_window = @remote_window_limit
+				end
+				
+				def maximum_frame_size
+					@remote_settings.maximum_frame_size
 				end
 				
 				# Connection state (:new, :closed).
@@ -102,6 +107,22 @@ module HTTP
 					frame.apply(self)
 					
 					return frame
+				rescue ProtocolError => error
+					send_goaway(error.code || PROTOCOL_ERROR, error.message)
+					raise
+				end
+				
+				def send_goaway(error_code = 0, message = nil)
+					frame = GoawayFrame.new
+					frame.pack @last_stream_id, error_code, message
+					
+					write_frame(frame)
+					
+					@state = :closed
+				end
+				
+				def write_frame(frame)
+					@framer.write_frame(frame)
 				end
 				
 				def send_ping(data)
@@ -109,7 +130,7 @@ module HTTP
 						frame = PingFrame.new
 						frame.pack data
 						
-						@framer.write_frame(frame)
+						write_frame(frame)
 					else
 						raise ProtocolError, "Cannot send ping in state #{@state}"
 					end
@@ -120,7 +141,7 @@ module HTTP
 						unless frame.acknowledgement?
 							reply = frame.acknowledge
 							
-							@framer.write_frame(frame)
+							write_frame(frame)
 						end
 					else
 						raise ProtocolError, "Cannot receive ping in state #{@state}"
@@ -139,6 +160,10 @@ module HTTP
 					end
 				end
 				
+				def create_stream(stream_id)
+					Stream.new(self, stream_id)
+				end
+				
 				def receive_headers(frame)
 					if stream = @streams[frame.stream_id]
 						stream.receive_headers(frame)
@@ -146,8 +171,14 @@ module HTTP
 						if stream.closed?
 							@streams.delete(stream.id)
 						end
-					else
-						raise ProtocolError, "Bad stream"
+					elsif frame.stream_id > @last_stream_id
+						stream = create_stream(frame.stream_id)
+						stream.receive_headers(frame)
+						
+						@streams[stream.id] = stream
+						
+						# Not quite right as not tracking streams initated on this end.
+						@last_stream_id = stream.id
 					end
 				end
 				

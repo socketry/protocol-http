@@ -28,8 +28,8 @@ module HTTP
 				ENABLE_PUSH = 0x2
 				MAX_CONCURRENT_STREAMS = 0x3
 				INITIAL_WINDOW_SIZE = 0x4
-				MAX_FRAME_SIZE = 0x5
-				MAX_HEADER_LIST_SIZE = 0x6
+				MAXIMUM_FRAME_SIZE = 0x5
+				MAXIMUM_HEADER_LIST_SIZE = 0x6
 				
 				# Allows the sender to inform the remote endpoint of the maximum size of the header compression table used to decode header blocks, in octets.
 				attr_accessor :header_table_size
@@ -38,24 +38,24 @@ module HTTP
 				attr_accessor :enable_push
 				
 				# Indicates the maximum number of concurrent streams that the sender will allow.
-				attr_accessor :max_concurrent_streams
+				attr_accessor :maximum_concurrent_streams
 				
 				# Indicates the sender's initial window size (in octets) for stream-level flow control.
 				attr_accessor :initial_window_size
 				
 				# Indicates the size of the largest frame payload that the sender is willing to receive, in octets.
-				attr_accessor :max_frame_size
+				attr_accessor :maximum_frame_size
 				
 				# This advisory setting informs a peer of the maximum size of header list that the sender is prepared to accept, in octets.
-				attr_accessor :max_header_list_size
+				attr_accessor :maximum_header_list_size
 				
 				def initialize
 					@header_table_size = 4096
 					@enable_push = 1
-					@max_concurrent_streams = 128
+					@maximum_concurrent_streams = 128
 					@initial_window_size = 2**16 - 1
-					@max_frame_size = 2**14
-					@max_header_list_size = 0xFFFFFFFF
+					@maximum_frame_size = 2**14
+					@maximum_header_list_size = 0xFFFFFFFF
 				end
 			end
 			

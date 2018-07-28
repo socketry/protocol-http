@@ -49,16 +49,20 @@ module HTTP
 				attr_accessor :continuation
 				
 				def pack(data, **options)
-					maximum_length = options[:maximum_length]
+					maximum_size = options[:maximum_size]
 					
-					if maximum_length and data.bytesize > maximum_length
-						super(data.byteslice(0, maximum_length), **options)
+					if maximum_size and data.bytesize > maximum_size
+						clear_flags(END_HEADERS)
 						
-						remainder = data.byteslice(maximum_length, data.bytesize-maximum_length)
+						super(data.byteslice(0, maximum_size), **options)
+						
+						remainder = data.byteslice(maximum_size, data.bytesize-maximum_size)
 						
 						@continuation = ContinuationFrame.new
-						@continuation.pack(remainder, maximum_length: maximum_length)
+						@continuation.pack(remainder, maximum_size: maximum_size)
 					else
+						set_flags(END_HEADERS)
+						
 						super data, **options
 						
 						@continuation = nil

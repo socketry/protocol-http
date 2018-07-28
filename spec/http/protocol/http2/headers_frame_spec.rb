@@ -41,7 +41,7 @@ RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
 		end
 		
 		it "packs priority with no padding" do
-			subject.pack priority, data, padding_length: 0
+			subject.pack priority, data, padding_size: 0
 			
 			expect(priority.pack.size).to be == 5
 			expect(subject.length).to be == (5 + data.bytesize)
@@ -58,7 +58,7 @@ RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
 	
 	describe '#continuation' do
 		it "generates chain of frames" do
-			subject.pack nil, "Hello World", maximum_length: 8
+			subject.pack nil, "Hello World", maximum_size: 8
 			
 			expect(subject.length).to eq 8
 			expect(subject.continuation).to_not be_nil

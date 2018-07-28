@@ -24,18 +24,18 @@ require_relative 'frame'
 module HTTP
 	module Protocol
 		module HTTP2
+			# Certain frames can have padding:
+			# https://http2.github.io/http2-spec/#padding
+			#
+			# +---------------+
+			# |Pad Length? (8)|
+			# +---------------+-----------------------------------------------+
+			# |                            Data (*)                         ...
+			# +---------------------------------------------------------------+
+			# |                           Padding (*)                       ...
+			# +---------------------------------------------------------------+
+			#
 			module Padded
-				# Certain frames can have padding:
-				# https://http2.github.io/http2-spec/#padding
-				#
-				# +---------------+
-				# |Pad Length? (8)|
-				# +---------------+-----------------------------------------------+
-				# |                            Data (*)                         ...
-				# +---------------------------------------------------------------+
-				# |                           Padding (*)                       ...
-				# +---------------------------------------------------------------+
-				
 				def padded?
 					flag_set?(PADDED)
 				end
@@ -43,25 +43,25 @@ module HTTP
 				# We will round up frames to the given length:
 				MODULUS = 0xFF
 				
-				def pack(data, modulus: MODULUS, padding_length: nil, maximum_length: nil)
-					padding_length ||= (MODULUS - data.bytesize) % MODULUS
+				def pack(data, modulus: MODULUS, padding_size: nil, maximum_size: nil)
+					padding_size ||= (MODULUS - data.bytesize) % MODULUS
 					
-					if maximum_length
-						maximum_padding_length = maximum_length - data.bytesize
+					if maximum_size
+						maximum_padding_size = maximum_size - data.bytesize
 						
-						if padding_length > maximum_padding_length
-							padding_length = maximum_padding_length
+						if padding_size > maximum_padding_size
+							padding_size = maximum_padding_size
 						end
 					end
 					
-					if padding_length > 0
+					if padding_size > 0
 						set_flags(PADDED)
 						
 						buffer = String.new.b
 						
-						buffer << padding_length.chr
+						buffer << padding_size.chr
 						buffer << data
-						buffer << "\0" * padding_length
+						buffer << "\0" * padding_size
 						
 						super buffer
 					else
@@ -73,14 +73,14 @@ module HTTP
 				
 				def unpack
 					if padded?
-						padding_length = @payload[0].ord
-						data_length = @payload.bytesize - 1 - padding_length
+						padding_size = @payload[0].ord
+						data_size = @payload.bytesize - 1 - padding_size
 						
-						if data_length < 0
-							raise ProtocolError, "Invalid padding length: #{padding_length}"
+						if data_size < 0
+							raise ProtocolError, "Invalid padding length: #{padding_size}"
 						end
 						
-						return @payload.byteslice(1, data_length)
+						return @payload.byteslice(1, data_size)
 					else
 						return @payload
 					end

@@ -83,9 +83,15 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
-					@headers = nil
+					@headers = []
 					
 					@queue = []
+				end
+				
+				attr :headers
+				
+				def write_frame(frame)
+					@connection.write_frame(frame)
 				end
 				
 				def closed?
@@ -97,9 +103,9 @@ module HTTP
 						data = @connection.encode_headers(headers)
 						
 						frame = HeadersFrame.new(@id, flags)
-						frame.pack(priority, data, maximum_length: @connection.maximum_frame_length)
+						frame.pack(priority, data, maximum_size: @connection.maximum_frame_size)
 						
-						send(frame)
+						write_frame(frame)
 						
 						if frame.end_stream?
 							@state = :half_closed
@@ -116,7 +122,7 @@ module HTTP
 						frame = DataFrame.new(@id, flags)
 						frame.pack(data)
 						
-						send(frame)
+						write_frame(frame)
 					else
 						raise ProtocolError, "Cannot send data in state: #{@state}"
 					end
@@ -129,7 +135,7 @@ module HTTP
 						
 						# Clear any unsent frames?
 						
-						send(frame)
+						write_frame(frame)
 					else
 						raise ProtocolError, "Cannot reset stream in state: #{@state}"
 					end
@@ -141,6 +147,7 @@ module HTTP
 						
 						headers = @connection.decode_headers(data)
 						
+						@headers += headers
 						@state = :active
 						
 						return headers

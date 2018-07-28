@@ -20,6 +20,7 @@
 
 require 'http/protocol/http2/client'
 require 'http/protocol/http2/server'
+require 'http/protocol/http2/stream'
 
 require 'socket'
 
@@ -30,7 +31,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	let(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.last))}
 	
 	context HTTP::Protocol::HTTP2::PingFrame do
-		it "it can send ping and receive pong" do
+		it "can send ping and receive pong" do
 			expect(server).to receive(:receive_ping).once.and_call_original
 			
 			client.send_ping("12345678")
@@ -40,6 +41,22 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			expect(client).to receive(:receive_ping).once.and_call_original
 			
 			frame = client.read_frame
+		end
+	end
+	
+	context HTTP::Protocol::HTTP2::Stream do
+		let(:stream) {HTTP::Protocol::HTTP2::Stream.new(client)}
+		let(:headers) {[[':method', 'GET'], [':path', '/'], [':authority', 'localhost']]}
+		
+		it "can create new stream" do
+			stream.send_headers(nil, headers)
+			expect(stream.id).to eq 1
+			
+			expect(server).to receive(:receive_headers).once.and_call_original
+			server.read_frame
+			expect(server.streams).to_not be_empty
+			
+			expect(server.streams[1].headers).to eq headers
 		end
 	end
 end

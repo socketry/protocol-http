@@ -82,12 +82,12 @@ module HTTP
 					@payload
 				end
 				
-				def pack(payload, maximum_length: nil)
+				def pack(payload, maximum_size: nil)
 					@payload = payload
 					@length = payload.bytesize
 					
-					if maximum_length and @length > maximum_length
-						raise ProtocolError, "Frame length #{@length} bigger than maximum allowed: #{maximum_length}"
+					if maximum_size and @length > maximum_size
+						raise ProtocolError, "Frame length #{@length} bigger than maximum allowed: #{maximum_size}"
 					end
 				end
 				

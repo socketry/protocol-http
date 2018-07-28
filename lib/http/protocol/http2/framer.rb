@@ -61,6 +61,8 @@ module HTTP
 					# Read the header:
 					length, type, flags, stream_id = read_header
 					
+					# puts "Reading frame: #{type} #{length}"
+					
 					# Allocate the frame:
 					klass = @frames[type] || Frame
 					frame = klass.new(stream_id, flags, type, length)
@@ -72,7 +74,9 @@ module HTTP
 				end
 				
 				def write_frame(frame)
+					# puts "Write frame: #{frame.inspect}"
 					frame.write(@io)
+					@io.flush
 				end
 				
 				def read_header

@@ -22,17 +22,17 @@ require 'http/protocol/http2/window_update_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::WindowUpdateFrame do
-	let(:window_length) {1024}
+	let(:window_size_increment) {1024}
 	
 	it_behaves_like HTTP::Protocol::HTTP2::Frame do
 		before do
-			subject.pack window_length
+			subject.pack window_size_increment
 		end
 	end
 	
 	describe '#pack' do
 		it "packs data" do
-			subject.pack window_length
+			subject.pack window_size_increment
 			
 			expect(subject.length).to be == 4
 		end
@@ -40,9 +40,9 @@ RSpec.describe HTTP::Protocol::HTTP2::WindowUpdateFrame do
 	
 	describe '#unpack' do
 		it "unpacks data" do
-			subject.pack window_length
+			subject.pack window_size_increment
 			
-			expect(subject.unpack).to be == window_length
+			expect(subject.unpack).to be == window_size_increment
 		end
 	end
 end

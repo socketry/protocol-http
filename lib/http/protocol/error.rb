@@ -34,6 +34,13 @@ module HTTP
 		# which signals termination of the current connection. You *cannot*
 		# recover from this exception, or any exceptions subclassed from it.
 		class ProtocolError < Error
+			def initialize(message, code = nil)
+				super(message)
+				
+				@code = code
+			end
+			
+			attr :code
 		end
 		
 		# When the frame payload does not match expectations.
