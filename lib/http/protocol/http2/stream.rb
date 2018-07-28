@@ -143,9 +143,9 @@ module HTTP
 					end
 				end
 				
-				private def write_data(data, flags = 0, **options)
+				private def write_data(data, flags = 0, *args)
 					frame = DataFrame.new(@id, flags)
-					frame.pack(data, **options)
+					frame.pack(data, *args)
 					write_frame(frame)
 					
 					return frame
