@@ -22,10 +22,15 @@ require 'http/protocol/http2/push_promise_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::PushPromiseFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:stream_id) {5}
 	let(:data) {"Hello World!"}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.set_flags(HTTP::Protocol::HTTP2::END_HEADERS)
+			subject.pack stream_id, data
+		end
+	end
 	
 	describe '#pack' do
 		it "packs stream_id and data with padding" do

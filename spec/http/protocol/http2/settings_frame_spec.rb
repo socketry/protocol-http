@@ -22,9 +22,13 @@ require 'http/protocol/http2/settings_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::SettingsFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:settings) {[[1, 2], [3, 4], [5, 6]]}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack settings
+		end
+	end
 	
 	describe '#pack' do
 		it "packs priority" do

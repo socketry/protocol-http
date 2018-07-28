@@ -43,7 +43,8 @@ module HTTP
 				LENGTH_HISHIFT = 16
 				LENGTH_LOMASK  = 0xFFFF
 				
-				def initialize(length = 0, type = self.class.const_get(:TYPE), flags = 0, stream_id = 0, payload = nil)
+				# @param length [Integer] the length of the payload, or nil if the header has not been read yet.
+				def initialize(length = nil, type = self.class.const_get(:TYPE), flags = 0, stream_id = 0, payload = nil)
 					@length = length
 					@type = type
 					@flags = flags
@@ -102,6 +103,14 @@ module HTTP
 					@flags & mask != 0
 				end
 				
+				# Check if frame is a connection frame: SETTINGS, PING, GOAWAY, and any
+				# frame addressed to stream ID = 0.
+				#
+				# @return [Boolean]
+				def connection?
+					@stream_id.zero?
+				end
+				
 				HEADER_FORMAT = 'CnCCN'.freeze
 				STREAM_ID_MASK  = 0x7fffffff
 				
@@ -120,11 +129,11 @@ module HTTP
 					
 					[
 						# These are guaranteed correct due to the length check above.
-						self.length >> LENGTH_HISHIFT,
-						self.length & LENGTH_LOMASK,
-						self.type,
-						self.flags,
-						self.stream_id
+						@length >> LENGTH_HISHIFT,
+						@length & LENGTH_LOMASK,
+						@type,
+						@flags,
+						@stream_id
 					].pack(HEADER_FORMAT)
 				end
 				
@@ -148,7 +157,7 @@ module HTTP
 				end
 				
 				def read(io)
-					read_header(io)
+					read_header(io) unless @length
 					read_payload(io)
 				end
 				

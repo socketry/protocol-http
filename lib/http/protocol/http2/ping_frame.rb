@@ -23,6 +23,22 @@ require_relative 'frame'
 module HTTP
 	module Protocol
 		module HTTP2
+			ACKNOWLEDGEMENT = 0x1
+			
+			module Acknowledgement
+				def acknowledgement?
+					flag_set?(ACKNOWLEDGEMENT)
+				end
+				
+				def acknowledge
+					frame = self.new
+					
+					frame.set_flags(ACKNOWLEDGEMENT)
+					
+					return frame
+				end
+			end
+			
 			# The PING frame is a mechanism for measuring a minimal round-trip time from the sender, as well as determining whether an idle connection is still functional. PING frames can be sent from any endpoint.
 			#
 			# +---------------------------------------------------------------+
@@ -33,6 +49,12 @@ module HTTP
 			#
 			class PingFrame < Frame
 				TYPE = 0x6
+				
+				include Acknowledgement
+				
+				def connection?
+					true
+				end
 			end
 		end
 	end

@@ -22,10 +22,15 @@ require 'http/protocol/http2/headers_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:priority) {HTTP::Protocol::HTTP2::Priority.new(true, 42, 7)}
 	let(:data) {"Hello World!"}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.set_flags(HTTP::Protocol::HTTP2::END_HEADERS)
+			subject.pack priority, data
+		end
+	end
 	
 	describe '#pack' do
 		it "adds appropriate padding" do

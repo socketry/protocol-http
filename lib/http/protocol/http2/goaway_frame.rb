@@ -37,6 +37,10 @@ module HTTP
 				TYPE = 0x7
 				FORMAT = "NN"
 				
+				def connection?
+					true
+				end
+				
 				def unpack
 					data = super
 					

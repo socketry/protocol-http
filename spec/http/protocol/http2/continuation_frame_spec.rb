@@ -22,9 +22,13 @@ require 'http/protocol/http2/continuation_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::ContinuationFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:data) {"Hello World!"}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack data
+		end
+	end
 	
 	describe '#pack' do
 		it "packs data" do

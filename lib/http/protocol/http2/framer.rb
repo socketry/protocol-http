@@ -53,19 +53,27 @@ module HTTP
 				def initialize(io, frames = FRAMES)
 					@io = io
 					@frames = frames
+					
+					@buffer = String.new.b
 				end
 				
 				def read_frame
+					# Read the header:
 					length, type, flags, stream_id = read_header
 					
-					payload = @io.read(length) if length > 0
-					
+					# Allocate the frame:
 					klass = @frames[type] || Frame
+					frame = klass.new(length, type, flags, stream_id)
 					
-					return klass.new(length, type, flags, stream_id, payload)
+					# Read the payload:
+					frame.read(@io)
+					
+					return frame
 				end
 				
-				private
+				def write_frame(frame)
+					frame.write(@io)
+				end
 				
 				def read_header
 					return Frame.parse_header(@io.read(9))

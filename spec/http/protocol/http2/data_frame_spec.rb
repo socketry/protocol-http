@@ -22,7 +22,11 @@ require 'http/protocol/http2/data_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack "Hello World!"
+		end
+	end
 	
 	context 'wire representation' do
 		let(:io) {StringIO.new}

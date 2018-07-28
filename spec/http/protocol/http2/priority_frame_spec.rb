@@ -22,9 +22,13 @@ require 'http/protocol/http2/priority_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::PriorityFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:priority) {HTTP::Protocol::HTTP2::Priority.new(true, 42, 7)}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack priority
+		end
+	end
 	
 	describe '#pack' do
 		it "packs priority" do

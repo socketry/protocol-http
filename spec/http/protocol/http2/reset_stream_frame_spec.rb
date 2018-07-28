@@ -22,9 +22,13 @@ require 'http/protocol/http2/reset_stream_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::ResetStreamFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:error) {HTTP::Protocol::HTTP2::INTERNAL_ERROR}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack error
+		end
+	end
 	
 	describe '#pack' do
 		it "packs error" do

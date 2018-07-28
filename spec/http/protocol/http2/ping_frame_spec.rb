@@ -22,7 +22,11 @@ require 'http/protocol/http2/ping_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::PingFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack "Hello World!"
+		end
+	end
 	
 	let(:data) {"PingPong"}
 	

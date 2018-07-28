@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
+require_relative 'ping_frame'
 
 module HTTP
 	module Protocol
@@ -70,10 +70,11 @@ module HTTP
 			class SettingsFrame < Frame
 				TYPE = 0x6
 				FORMAT = "nN".freeze
-				ACKNOWLEDGEMENT = 0x1
 				
-				def acknowledgement?
-					flag_set?(ACKNOWLEDGEMENT)
+				include Acknowledgement
+				
+				def connection?
+					true
 				end
 				
 				def unpack

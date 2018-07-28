@@ -22,9 +22,13 @@ require 'http/protocol/http2/goaway_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::GoawayFrame do
-	it_behaves_like HTTP::Protocol::HTTP2::Frame
-	
 	let(:data) {"Hikikomori desu!"}
+	
+	it_behaves_like HTTP::Protocol::HTTP2::Frame do
+		before do
+			subject.pack 1, 2, data
+		end
+	end
 	
 	describe '#pack' do
 		it "packs data" do
