@@ -38,12 +38,21 @@ module HTTP
 			# +---------------------------------------------------------------+
 			#
 			class DataFrame < Frame
-				prepend Padded
+				include Padded
 				
 				TYPE = 0x0
 				
 				def end_stream?
 					flag_set?(END_STREAM)
+				end
+				
+				def pack(data)
+					if data
+						super
+					else
+						@length = 0
+						set_flags(END_STREAM)
+					end
 				end
 				
 				def apply(connection)

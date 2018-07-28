@@ -84,8 +84,6 @@ module HTTP
 					
 					@priority = nil
 					@headers = []
-					
-					@queue = []
 				end
 				
 				attr :headers
@@ -141,6 +139,14 @@ module HTTP
 					end
 				end
 				
+				def update_active_state(frame)
+					if frame.end_stream?
+						@state = :half_closed
+					else
+						@state = :active
+					end
+				end
+				
 				def receive_headers(frame)
 					if @state == :idle
 						@priority, data = frame.unpack
@@ -148,7 +154,8 @@ module HTTP
 						headers = @connection.decode_headers(data)
 						
 						@headers += headers
-						@state = :active
+						
+						update_active_state(frame)
 						
 						return headers
 					else
@@ -158,6 +165,8 @@ module HTTP
 				
 				def receive_data(frame)
 					if @state == :active
+						update_active_state(frame)
+						
 						return frame.unpack
 					else
 						raise ProtocolError, "Cannot receive data in state: #{@state}"
