@@ -96,10 +96,13 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
+					
 					@headers = nil
+					@data = nil
 				end
 				
 				attr :headers
+				attr :data
 				
 				def write_frame(frame)
 					@connection.write_frame(frame)
@@ -201,7 +204,7 @@ module HTTP
 						@priority = priority
 					end
 					
-					return @connection.decode_headers(data)
+					@connection.decode_headers(data)
 				end
 				
 				def receive_headers(frame)
@@ -230,13 +233,13 @@ module HTTP
 							@state = :half_closed_remote
 						end
 						
-						return frame.unpack
+						@data = frame.unpack
 					elsif @state == :half_closed_local
 						if frame.end_stream?
 							@state = :closed
 						end
 						
-						return frame.unpack
+						@data = frame.unpack
 					else
 						raise ProtocolError, "Cannot receive data in state: #{@state}"
 					end
