@@ -22,13 +22,13 @@ require 'http/protocol/http2/ping_frame'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::PingFrame do
+	let(:data) {"PingPong"}
+	
 	it_behaves_like HTTP::Protocol::HTTP2::Frame do
 		before do
-			subject.pack "Hello World!"
+			subject.pack data
 		end
 	end
-	
-	let(:data) {"PingPong"}
 	
 	describe '#pack' do
 		it "packs data" do
