@@ -56,17 +56,16 @@ module HTTP
 				end
 				
 				# Connection state (:new, :closed).
-				attr :state
+				attr_accessor :state
 
 				# Size of current connection flow control window (by default, set to
 				# infinity, but is automatically updated on receipt of peer settings).
-				attr :local_window
-				attr :remote_window
-				alias window local_window
+				attr_accessor :local_window
+				attr_accessor :remote_window
 
 				# Current settings value for local and peer
-				attr :local_settings
-				attr :remote_settings
+				attr_accessor :local_settings
+				attr_accessor :remote_settings
 
 				# Pending settings value
 				#  Sent but not ack'ed settings
@@ -103,6 +102,9 @@ module HTTP
 				
 				def read_frame
 					frame = @framer.read_frame
+					# puts "#{self.class}: read #{frame.inspect}"
+					
+					yield frame if block_given?
 					
 					frame.apply(self)
 					
@@ -110,6 +112,13 @@ module HTTP
 				rescue ProtocolError => error
 					send_goaway(error.code || PROTOCOL_ERROR, error.message)
 					raise
+				end
+				
+				def send_settings
+					frame = SettingsFrame.new
+					frame.pack
+					
+					write_frame(frame)
 				end
 				
 				def send_goaway(error_code = 0, message = nil)
@@ -122,6 +131,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
+					# puts "#{self.class}: write #{frame.inspect}"
 					@framer.write_frame(frame)
 				end
 				
@@ -136,12 +146,32 @@ module HTTP
 					end
 				end
 				
+				def process_settings(frame)
+					unless frame.acknowledgement?
+						reply = frame.acknowledge
+						
+						write_frame(reply)
+					end
+				end
+				
+				def receive_settings(frame)
+					if @state == :new
+						process_settings(frame)
+						
+						@state = :open
+					elsif @state != :closed
+						process_settings(frame)
+					else
+						raise ProtocolError, "Cannot receive settings in state #{@state}"
+					end
+				end
+				
 				def receive_ping(frame)
 					if @state != :closed
 						unless frame.acknowledgement?
 							reply = frame.acknowledge
 							
-							write_frame(frame)
+							write_frame(reply)
 						end
 					else
 						raise ProtocolError, "Cannot receive ping in state #{@state}"

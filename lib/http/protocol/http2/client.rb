@@ -27,6 +27,16 @@ module HTTP
 				def initialize(framer, local_settings = Settings.new)
 					super(framer, 1, local_settings)
 				end
+				
+				def send_connection_preface
+					if @state == :new
+						@framer.write_connection_preface
+						
+						send_settings
+					else
+						raise ProtocolError, "Cannot send connection preface in state #{@state}"
+					end
+				end
 			end
 		end
 	end

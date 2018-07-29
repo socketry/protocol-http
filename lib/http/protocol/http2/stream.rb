@@ -175,25 +175,12 @@ module HTTP
 						frame.pack(error_code)
 						
 						# Clear any unsent frames?
-						
 						write_frame(frame)
 						
 						@state = :closed
 					else
 						raise ProtocolError, "Cannot reset stream in state: #{@state}"
 					end
-				end
-				
-				def active!
-					@state = :active
-				end
-				
-				def half_closed!
-					@state = :half_closed
-				end
-				
-				def closed!
-					@state = :closed
 				end
 				
 				private def process_headers(frame)

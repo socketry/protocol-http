@@ -18,30 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'connection'
+require 'http/protocol/http2/client'
+require 'http/protocol/http2/stream'
 
-module HTTP
-	module Protocol
-		module HTTP2
-			class Server < Connection
-				def initialize(framer, local_settings = Settings.new)
-					super(framer, 2, local_settings)
-				end
-				
-				def read_connection_preface
-					if @state == :new
-						@framer.read_connection_preface
-						
-						read_frame do |frame|
-							raise ProtocolError, "First frame (#{frame.class}) must be settings" unless frame.is_a? SettingsFrame
-						end
-						
-						send_settings
-					else
-						raise ProtocolError, "Cannot send connection preface in state #{@state}"
-					end
-				end
-			end
-		end
+require 'socket'
+
+RSpec.describe HTTP::Protocol::HTTP2::Client do
+	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	
+	subject!{HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
+	let(:framer) {HTTP::Protocol::HTTP2::Framer.new(io.last)}
+	
+	it "should send connection preface followed by settings frame" do
+		subject.send_connection_preface
+		
+		expect(framer.read_connection_preface).to include("PRI")
+		
+		frame = framer.read_frame
+		
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
 	end
 end

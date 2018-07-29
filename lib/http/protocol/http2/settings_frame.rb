@@ -68,7 +68,7 @@ module HTTP
 			# +---------------------------------------------------------------+
 			#
 			class SettingsFrame < Frame
-				TYPE = 0x6
+				TYPE = 0x4
 				FORMAT = "nN".freeze
 				
 				include Acknowledgement
@@ -81,7 +81,7 @@ module HTTP
 					super.scan(/....../).map{|s| s.unpack(FORMAT)}
 				end
 				
-				def pack(settings)
+				def pack(settings = [])
 					super settings.map{|s| s.pack(FORMAT)}.join
 				end
 				

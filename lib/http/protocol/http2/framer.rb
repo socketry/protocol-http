@@ -49,6 +49,9 @@ module HTTP
 				ContinuationFrame,
 			].freeze
 			
+			# Default connection "fast-fail" preamble string as defined by the spec.
+			CONNECTION_PREFACE_MAGIC = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".freeze
+			
 			class Framer
 				def initialize(io, frames = FRAMES)
 					@io = io
@@ -57,11 +60,25 @@ module HTTP
 					@buffer = String.new.b
 				end
 				
+				def write_connection_preface
+					@io.write(CONNECTION_PREFACE_MAGIC)
+				end
+				
+				def read_connection_preface
+					string = @io.read(CONNECTION_PREFACE_MAGIC.bytesize)
+					
+					unless string == CONNECTION_PREFACE_MAGIC
+						raise ProtocolError, "Invalid connection preface: #{string.inspect}"
+					end
+					
+					return string
+				end
+				
 				def read_frame
 					# Read the header:
 					length, type, flags, stream_id = read_header
 					
-					# puts "Reading frame: #{type} #{length}"
+					# puts "framer: read_frame #{type} #{length}"
 					
 					# Allocate the frame:
 					klass = @frames[type] || Frame
@@ -74,7 +91,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
-					# puts "Write frame: #{frame.inspect}"
+					# puts "framer: write_frame #{frame.inspect}"
 					frame.write(@io)
 					@io.flush
 				end

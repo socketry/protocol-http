@@ -27,10 +27,15 @@ require 'socket'
 RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	subject(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
-	let(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.last))}
+	subject!(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
+	let!(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.last))}
 	
 	context HTTP::Protocol::HTTP2::PingFrame do
+		before do
+			client.state = :open
+			server.state = :open
+		end
+		
 		it "can send ping and receive pong" do
 			expect(server).to receive(:receive_ping).once.and_call_original
 			
@@ -40,11 +45,16 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			
 			expect(client).to receive(:receive_ping).once.and_call_original
 			
-			frame = client.read_frame
+			client.read_frame
 		end
 	end
 	
 	context HTTP::Protocol::HTTP2::Stream do
+		before do
+			client.state = :open
+			server.state = :open
+		end
+		
 		let(:request_data) {"Hello World!"}
 		let(:stream) {HTTP::Protocol::HTTP2::Stream.new(client)}
 		
