@@ -18,16 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'http/protocol/http2/server'
-require 'http/protocol/http2/stream'
-
-require 'socket'
+require_relative 'connection_context'
 
 RSpec.describe HTTP::Protocol::HTTP2::Client do
-	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	include_context HTTP::Protocol::HTTP2::Connection
 	
-	subject!(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
-	let(:framer) {HTTP::Protocol::HTTP2::Framer.new(io.last)}
+	let(:framer) {client.framer}
 	
 	let(:client_settings) do
 		[[HTTP::Protocol::HTTP2::Settings::HEADER_TABLE_SIZE, 1024]]

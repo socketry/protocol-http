@@ -57,6 +57,8 @@ module HTTP
 					@remote_settings.maximum_frame_size
 				end
 				
+				attr :framer
+				
 				# Connection state (:new, :open, :closed).
 				attr_accessor :state
 				

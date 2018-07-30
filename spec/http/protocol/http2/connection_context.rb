@@ -18,37 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'connection_context'
+require 'http/protocol/http2/client'
+require 'http/protocol/http2/server'
+require 'http/protocol/http2/stream'
 
-RSpec.describe HTTP::Protocol::HTTP2::Client do
-	include_context HTTP::Protocol::HTTP2::Connection
+require 'socket'
+
+RSpec.shared_context HTTP::Protocol::HTTP2::Connection do
+	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	let(:framer) {server.framer}
-	
-	let(:settings) do
-		[[HTTP::Protocol::HTTP2::Settings::HEADER_TABLE_SIZE, 1024]]
-	end
-	
-	it "should start in new state" do
-		expect(client.state).to eq :new
-	end
-	
-	it "should send connection preface followed by settings frame" do
-		client.send_connection_preface(settings)
-		
-		expect(framer.read_connection_preface).to include("PRI")
-		
-		frame = framer.read_frame
-		
-		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
-		
-		framer.write_frame(frame.acknowledge)
-		
-		expect(client.state).to eq :new
-		
-		client.read_frame
-		
-		expect(client.state).to eq :open
-		expect(client.local_settings.header_table_size).to eq 1024
-	end
+	let(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
+	let(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.last))}
 end
