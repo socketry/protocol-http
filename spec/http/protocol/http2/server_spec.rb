@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'http/protocol/http2/client'
+require 'http/protocol/http2/server'
 require 'http/protocol/http2/stream'
 
 require 'socket'
@@ -26,33 +26,50 @@ require 'socket'
 RSpec.describe HTTP::Protocol::HTTP2::Client do
 	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	subject!(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
+	subject!(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
 	let(:framer) {HTTP::Protocol::HTTP2::Framer.new(io.last)}
 	
-	let(:settings) do
+	let(:client_settings) do
 		[[HTTP::Protocol::HTTP2::Settings::HEADER_TABLE_SIZE, 1024]]
 	end
 	
-	it "should start in new state" do
-		expect(client.state).to eq :new
+	let(:server_settings) do
+		[[HTTP::Protocol::HTTP2::Settings::HEADER_TABLE_SIZE, 2048]]
 	end
 	
-	it "should send connection preface followed by settings frame" do
-		client.send_connection_preface(settings)
+	it "should start in new state" do
+		expect(server.state).to eq :new
+	end
+	
+	it "should receive connection preface followed by settings frame" do
+		# The client must write the connection preface followed immediately by the first settings frame:
+		framer.write_connection_preface
 		
-		expect(framer.read_connection_preface).to include("PRI")
+		settings_frame = HTTP::Protocol::HTTP2::SettingsFrame.new
+		settings_frame.pack(client_settings)
+		framer.write_frame(settings_frame)
 		
+		expect(server.state).to eq :new
+		
+		# The server should read the preface and settings...
+		server.read_connection_preface(server_settings)
+		expect(server.remote_settings.header_table_size).to eq 1024
+		
+		expect(server.state).to eq :open
+		
+		# And send an acknowledgement:
 		frame = framer.read_frame
-		
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame).to be_acknowledgement
 		
+		# The server immediatelty sends its own settings frame...
+		frame = framer.read_frame
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame.unpack).to eq server_settings
+		
+		# We reply with acknolwedgement:
 		framer.write_frame(frame.acknowledge)
 		
-		expect(client.state).to eq :new
-		
-		client.read_frame
-		
-		expect(client.state).to eq :open
-		expect(client.local_settings.current.header_table_size).to eq 1024
+		server.read_frame
 	end
 end
