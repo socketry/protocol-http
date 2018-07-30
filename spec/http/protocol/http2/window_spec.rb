@@ -53,7 +53,12 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 		# Write 60 bytes of data.
 		stream.send_data("*" * 60)
 		
+		expect(stream.remote_window.used).to eq 60
+		expect(client.remote_window.used).to eq 60
+		
+		puts "Server #{server} reading frame..."
 		expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::DataFrame
+		expect(server.local_window.used).to eq 60
 		
 		# Write another 60 bytes which passes the 50% threshold.
 		stream.send_data("*" * 60)

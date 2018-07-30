@@ -74,24 +74,6 @@ module HTTP
 			class Stream
 				include FlowControl
 				
-				# Stream ID (odd for client initiated streams, even otherwise).
-				attr :id
-
-				# Stream state as defined by HTTP 2.0.
-				attr :state
-
-				# Request parent stream of push stream.
-				attr :parent
-
-				# Stream priority as set by initiator.
-				attr :weight
-				attr :dependency
-
-				# Size of current stream flow control window.
-				attr :local_window
-				attr :remote_window
-				alias window local_window
-
 				def initialize(connection, id = connection.next_stream_id)
 					@connection = connection
 					@id = id
@@ -105,6 +87,12 @@ module HTTP
 					@headers = nil
 					@data = nil
 				end
+				
+				# Stream ID (odd for client initiated streams, even otherwise).
+				attr :id
+
+				# Stream state as defined by HTTP 2.0.
+				attr :state
 				
 				attr :headers
 				attr :data
@@ -153,12 +141,6 @@ module HTTP
 					else
 						raise ProtocolError, "Cannot send headers in state: #{@state}"
 					end
-				end
-				
-				def consume_local_window(frame)
-					super
-					
-					@connection.consume_local_window(frame)
 				end
 				
 				def consume_remote_window(frame)
