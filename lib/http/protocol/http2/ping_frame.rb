@@ -32,8 +32,8 @@ module HTTP
 				
 				def acknowledge
 					frame = self.class.new
-					frame.pack self.unpack
 					
+					frame.length = 0
 					frame.set_flags(ACKNOWLEDGEMENT)
 					
 					return frame
@@ -59,6 +59,14 @@ module HTTP
 				
 				def apply(connection)
 					connection.receive_ping(self)
+				end
+				
+				def acknowledge
+					frame = super
+					
+					frame.pack self.unpack
+					
+					return frame
 				end
 				
 				def read_payload(io)

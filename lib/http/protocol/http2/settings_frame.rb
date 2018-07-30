@@ -24,9 +24,12 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Settings
+				MAXIMUM_ALLOWED_WINDOW_SIZE = 0x7FFFFFFF
+				MAXIMUM_ALLOWED_FRAME_SIZE = 0xFFFFFF
+				
 				HEADER_TABLE_SIZE = 0x1
 				ENABLE_PUSH = 0x2
-				MAX_CONCURRENT_STREAMS = 0x3
+				MAXIMUM_CONCURRENT_STREAMS = 0x3
 				INITIAL_WINDOW_SIZE = 0x4
 				MAXIMUM_FRAME_SIZE = 0x5
 				MAXIMUM_HEADER_LIST_SIZE = 0x6
@@ -35,27 +38,130 @@ module HTTP
 				attr_accessor :header_table_size
 				
 				# This setting can be used to disable server push. An endpoint MUST NOT send a PUSH_PROMISE frame if it receives this parameter set to a value of 0.
-				attr_accessor :enable_push
+				attr :enable_push
+				
+				def enable_push= value
+					if @enable_push == 0 || @enable_push == 1
+						@enable_push = value
+					else
+						raise ProtocolError, "Invalid value for enable_push: #{value}"
+					end
+				end
+				
+				def enable_push?
+					@enable_push != 0
+				end
 				
 				# Indicates the maximum number of concurrent streams that the sender will allow.
 				attr_accessor :maximum_concurrent_streams
 				
 				# Indicates the sender's initial window size (in octets) for stream-level flow control.
-				attr_accessor :initial_window_size
+				attr :initial_window_size
+				
+				def initial_window_size= value
+					if value < MAXIMUM_ALLOWED_WINDOW_SIZE
+						@initial_window_size = value
+					else
+						raise FlowControlError, "Invalid value for initial_window_size: #{value} > #{MAXIMUM_ALLOWED_WINDOW_SIZE}"
+					end
+				end
 				
 				# Indicates the size of the largest frame payload that the sender is willing to receive, in octets.
-				attr_accessor :maximum_frame_size
+				attr :maximum_frame_size
+				
+				def maximum_frame_size= value
+					if value < MAXIMUM_ALLOWED_FRAME_SIZE
+						@maximum_frame_size = value
+					else
+						raise ProtocolError, "Invalid value for maximum_frame_size: #{value} > #{MAXIMUM_ALLOWED_FRAME_SIZE}"
+					end
+				end
 				
 				# This advisory setting informs a peer of the maximum size of header list that the sender is prepared to accept, in octets.
 				attr_accessor :maximum_header_list_size
 				
 				def initialize
+					# These limits are taken from the RFC:
+					# https://tools.ietf.org/html/rfc7540#section-6.5.2
 					@header_table_size = 4096
 					@enable_push = 1
-					@maximum_concurrent_streams = 128
-					@initial_window_size = 2**16 - 1
-					@maximum_frame_size = 2**14
+					@maximum_concurrent_streams = 0xFFFFFFFF
+					@initial_window_size = 0xFFFF # 2**16 - 1
+					@maximum_frame_size = 0x3FFF # 2**14 - 1
 					@maximum_header_list_size = 0xFFFFFFFF
+				end
+				
+				ASSIGN = [
+					nil,
+					:header_table_size=,
+					:enable_push=,
+					:maximum_concurrent_streams=,
+					:initial_window_size=,
+					:maximum_frame_size=,
+					:maximum_header_list_size=,
+				]
+				
+				def update(changes)
+					changes.each do |key, value|
+						if name = ASSIGN[key]
+							self.send(name, value)
+						end
+					end
+				end
+				
+				def difference(other)
+					changes = []
+					
+					if @header_table_size != other.header_table_size
+						changes << [HEADER_TABLE_SIZE, @header_table_size]
+					end
+					
+					if @enable_push != other.enable_push
+						changes << [ENABLE_PUSH, @enable_push ? 1 : 0]
+					end
+					
+					if @maximum_concurrent_streams != other.maximum_concurrent_streams
+						changes << [MAXIMUM_CONCURRENT_STREAMS, @maximum_concurrent_streams]
+					end
+					
+					if @initial_window_size != other.initial_window_size
+						changes << [INITIAL_WINDOW_SIZE, @initial_window_size]
+					end
+					
+					if @maximum_frame_size != other.maximum_frame_size
+						changes << [MAXIMUM_FRAME_SIZE, @maximum_frame_size]
+					end
+					
+					if @maximum_header_list_size != other.maximum_header_list_size
+						changes << [MAXIMUM_HEADER_LIST_SIZE, @maximum_header_list_size]
+					end
+					
+					return changes
+				end
+			end
+			
+			class PendingSettings < Settings
+				def initialize(current)
+					@current = current
+					@pending = current.dup
+					
+					@queue = []
+				end
+				
+				attr :current
+				attr :pending
+				
+				def append(changes)
+					@queue << changes
+					@pending.update(changes)
+				end
+				
+				def acknowledge
+					if changes = @queue.shift
+						@current.update(changes)
+					else
+						raise ProtocolError.new("Cannot acknowledge settings, no changes pending")
+					end
 				end
 			end
 			
@@ -91,6 +197,14 @@ module HTTP
 				
 				def read_payload(io)
 					super
+					
+					if @stream_id != 0
+						raise ProtocolError, "Settings apply to connection only, but stream_id was given"
+					end
+					
+					if acknowledgement? and @length != 0
+						raise FrameSizeError, "Settings acknowledgement must not contain payload: #{@payload.inspect}"
+					end
 					
 					if (@length % 6) != 0
 						raise FrameSizeError, "Invalid frame length"

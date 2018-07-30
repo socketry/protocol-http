@@ -24,15 +24,15 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Client < Connection
-				def initialize(framer, local_settings = Settings.new)
-					super(framer, 1, local_settings)
+				def initialize(framer, *args)
+					super(framer, 1, *args)
 				end
 				
-				def send_connection_preface
+				def send_connection_preface(settings = nil)
 					if @state == :new
 						@framer.write_connection_preface
 						
-						send_settings
+						send_settings(settings)
 					else
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end

@@ -36,19 +36,11 @@ module HTTP
 					@next_stream_id = next_stream_id
 					@last_stream_id = 0
 					
-					@local_settings = local_settings
+					@local_settings = PendingSettings.new(local_settings)
 					@remote_settings = Settings.new
 					
 					@decoder = HPACK::Context.new
 					@encoder = HPACK::Context.new
-					
-					@pending_settings = nil
-					
-					@local_window_limit = @local_settings.initial_window_size
-					@local_window = @local_window_limit
-					
-					@remote_window_limit = @remote_settings.initial_window_size
-					@remote_window = @remote_window_limit
 				end
 				
 				def maximum_frame_size
@@ -114,9 +106,11 @@ module HTTP
 					raise
 				end
 				
-				def send_settings
+				def send_settings(changes)
+					@local_settings.append(changes)
+					
 					frame = SettingsFrame.new
-					frame.pack
+					frame.pack(changes)
 					
 					write_frame(frame)
 				end
@@ -147,10 +141,16 @@ module HTTP
 				end
 				
 				def process_settings(frame)
-					unless frame.acknowledgement?
+					if frame.acknowledgement?
+						# The remote end has confirmed the settings have been received:
+						@local_settings.acknowledge
+					else
+						# The remote end is updating the settings, we reply with acknowledgement:
 						reply = frame.acknowledge
 						
 						write_frame(reply)
+						
+						@remote_settings.update(frame.unpack)
 					end
 				end
 				

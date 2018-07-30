@@ -26,16 +26,25 @@ require 'socket'
 RSpec.describe HTTP::Protocol::HTTP2::Client do
 	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	subject!{HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
+	subject!(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
 	let(:framer) {HTTP::Protocol::HTTP2::Framer.new(io.last)}
 	
 	it "should send connection preface followed by settings frame" do
-		subject.send_connection_preface
+		client.send_connection_preface({HTTP::Protocol::HTTP2::Settings::HEADER_TABLE_SIZE => 1024})
 		
 		expect(framer.read_connection_preface).to include("PRI")
 		
 		frame = framer.read_frame
 		
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		
+		framer.write_frame(frame.acknowledge)
+		
+		expect(client.state).to eq :new
+		
+		client.read_frame
+		
+		expect(client.state).to eq :open
+		expect(client.local_settings.current.header_table_size).to eq 1024
 	end
 end

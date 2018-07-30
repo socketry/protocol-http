@@ -24,11 +24,11 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Server < Connection
-				def initialize(framer, local_settings = Settings.new)
-					super(framer, 2, local_settings)
+				def initialize(framer, *args)
+					super(framer, 2, *args)
 				end
 				
-				def read_connection_preface
+				def read_connection_preface(settings)
 					if @state == :new
 						@framer.read_connection_preface
 						
@@ -36,7 +36,7 @@ module HTTP
 							raise ProtocolError, "First frame (#{frame.class}) must be settings" unless frame.is_a? SettingsFrame
 						end
 						
-						send_settings
+						send_settings(settings)
 					else
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end
