@@ -37,7 +37,7 @@ RSpec.describe HTTP::Protocol::HTTP2::PushPromiseFrame do
 			subject.pack stream_id, data
 			
 			expect(subject.padded?).to be_truthy
-			expect(subject.length).to be == 256
+			expect(subject.length).to be == 31
 		end
 	end
 	

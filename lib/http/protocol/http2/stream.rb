@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'connection'
+require_relative 'flow_control'
 
 module HTTP
 	module Protocol
@@ -71,6 +72,8 @@ module HTTP
 			#    R:  RST_STREAM frame
 			#
 			class Stream
+				include FlowControl
+				
 				# Stream ID (odd for client initiated streams, even otherwise).
 				attr :id
 
@@ -96,6 +99,8 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
+					@local_window = connection.local_window.dup
+					@remote_window = connection.remote_window.dup
 					
 					@headers = nil
 					@data = nil
@@ -103,6 +108,13 @@ module HTTP
 				
 				attr :headers
 				attr :data
+				
+				attr :local_window
+				attr :remote_window
+				
+				def maximum_frame_size
+					@connection.available_frame_size
+				end
 				
 				def write_frame(frame)
 					@connection.write_frame(frame)
@@ -143,9 +155,25 @@ module HTTP
 					end
 				end
 				
+				def consume_local_window(frame)
+					super
+					
+					@connection.consume_local_window(frame)
+				end
+				
+				def consume_remote_window(frame)
+					super
+					
+					@connection.consume_remote_window(frame)
+				end
+				
 				private def write_data(data, flags = 0, *args)
 					frame = DataFrame.new(@id, flags)
 					frame.pack(data, *args)
+					
+					# This might fail if the data payload was too big:
+					consume_remote_window(frame)
+					
 					write_frame(frame)
 					
 					return frame
@@ -216,12 +244,16 @@ module HTTP
 				
 				def receive_data(frame)
 					if @state == :open
+						consume_local_window(frame)
+						
 						if frame.end_stream?
 							@state = :half_closed_remote
 						end
 						
 						@data = frame.unpack
 					elsif @state == :half_closed_local
+						consume_local_window(frame)
+						
 						if frame.end_stream?
 							@state = :closed
 						end

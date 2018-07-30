@@ -140,8 +140,8 @@ module HTTP
 				end
 			end
 			
-			class PendingSettings < Settings
-				def initialize(current)
+			class PendingSettings
+				def initialize(current = Settings.new)
 					@current = current
 					@pending = current.dup
 					
@@ -162,6 +162,30 @@ module HTTP
 					else
 						raise ProtocolError.new("Cannot acknowledge settings, no changes pending")
 					end
+				end
+				
+				def header_table_size
+					@current.header_table_size
+				end
+				
+				def enable_push
+					@current.enable_push
+				end
+				
+				def maximum_concurrent_streams
+					@current.maximum_concurrent_streams
+				end
+				
+				def initial_window_size
+					@current.initial_window_size
+				end
+				
+				def maximum_frame_size
+					@current.maximum_frame_size
+				end
+				
+				def maximum_header_list_size
+					@current.maximum_header_list_size
 				end
 			end
 			

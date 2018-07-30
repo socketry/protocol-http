@@ -36,7 +36,7 @@ RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
 		it "adds appropriate padding" do
 			subject.pack nil, data
 			
-			expect(subject.length).to be == 256
+			expect(subject.length).to be == 16
 			expect(subject).to_not be_priority
 		end
 		

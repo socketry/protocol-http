@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'framer'
+require_relative 'flow_control'
 
 require 'http/hpack/context'
 require 'http/hpack/compressor'
@@ -28,7 +29,9 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Connection
-				def initialize(framer, next_stream_id, local_settings = Settings.new)
+				include FlowControl
+				
+				def initialize(framer, next_stream_id)
 					@state = :new
 					@streams = {}
 					
@@ -36,36 +39,37 @@ module HTTP
 					@next_stream_id = next_stream_id
 					@last_stream_id = 0
 					
-					@local_settings = PendingSettings.new(local_settings)
+					@local_settings = PendingSettings.new
 					@remote_settings = Settings.new
 					
 					@decoder = HPACK::Context.new
 					@encoder = HPACK::Context.new
+					
+					@local_window = Window.new(@local_settings.initial_window_size)
+					@remote_window = Window.new(@remote_settings.initial_window_size)
+				end
+				
+				def id
+					0
 				end
 				
 				def maximum_frame_size
 					@remote_settings.maximum_frame_size
 				end
 				
-				# Connection state (:new, :closed).
+				# Connection state (:new, :open, :closed).
 				attr_accessor :state
-
-				# Size of current connection flow control window (by default, set to
-				# infinity, but is automatically updated on receipt of peer settings).
-				attr_accessor :local_window
-				attr_accessor :remote_window
-
+				
 				# Current settings value for local and peer
 				attr_accessor :local_settings
 				attr_accessor :remote_settings
-
-				# Pending settings value
-				#  Sent but not ack'ed settings
-				attr :pending_settings
-
-				# Number of active streams between client and server (reserved streams
-				# are not counted towards the stream limit).
-				attr :active_stream_count
+				
+				# Our window for receiving data. When we receive data, it reduces this window.
+				# If the window gets too small, we must send a window update.
+				attr :local_window
+				
+				# Our window for sending data. When we send data, it reduces this window.
+				attr :remote_window
 				
 				def closed?
 					@state == :closed
@@ -94,7 +98,7 @@ module HTTP
 				
 				def read_frame
 					frame = @framer.read_frame
-					# puts "#{self.class}: read #{frame.inspect}"
+					puts "#{self.class}: read #{frame.inspect}"
 					
 					yield frame if block_given?
 					
@@ -125,7 +129,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
-					# puts "#{self.class}: write #{frame.inspect}"
+					puts "#{self.class}: write #{frame.inspect}"
 					@framer.write_frame(frame)
 				end
 				
@@ -144,6 +148,8 @@ module HTTP
 					if frame.acknowledgement?
 						# The remote end has confirmed the settings have been received:
 						@local_settings.acknowledge
+						
+						@local_window.capacity = @local_settings.initial_window_size
 					else
 						# The remote end is updating the settings, we reply with acknowledgement:
 						reply = frame.acknowledge
@@ -154,11 +160,18 @@ module HTTP
 					end
 				end
 				
+				def open!
+					@remote_window_size = self.remote_settings.initial_window_size
+					@state = :open
+					
+					return self
+				end
+				
 				def receive_settings(frame)
 					if @state == :new
 						process_settings(frame)
 						
-						@state = :open
+						open!
 					elsif @state != :closed
 						process_settings(frame)
 					else
@@ -179,6 +192,8 @@ module HTTP
 				end
 				
 				def receive_data(frame)
+					consume_local_window(frame)
+					
 					if stream = @streams[frame.stream_id]
 						stream.receive_data(frame)
 						
@@ -227,6 +242,18 @@ module HTTP
 						@streams.delete(stream.id)
 					else
 						raise ProtocolError, "Bad stream"
+					end
+				end
+				
+				def receive_window_update(frame)
+					if frame.connection?
+						super
+					elsif stream = @streams[frame.stream_id]
+						stream.receive_window_update(frame)
+					elsif frame.stream_id <= @last_stream_id
+						# The stream was closed/deleted, ignore
+					else
+						raise ProtocolError, "Cannot update window of non-existant stream: #{frame.stream_id}"
 					end
 				end
 			end

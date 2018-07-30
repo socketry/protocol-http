@@ -18,11 +18,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
-
 module HTTP
 	module Protocol
 		module HTTP2
+			class Window
+				def initialize(capacity)
+					@used = 0
+					@capacity = capacity
+					
+					fail unless capacity
+				end
+				
+				def dup
+					return self.class.new(@capacity)
+				end
+				
+				attr_accessor :used
+				attr_accessor :capacity
+				
+				def consume(amount)
+					@used += amount
+				end
+				
+				def available
+					@capacity - @used
+				end
+				
+				def expand(amount)
+					@used -= amount
+				end
+				
+				def limited?
+					@used > (@capacity / 2)
+				end
+			end
+			
 			# The WINDOW_UPDATE frame is used to implement flow control.
 			#
 			# +-+-------------------------------------------------------------+
@@ -32,17 +62,6 @@ module HTTP
 			class WindowUpdateFrame < Frame
 				TYPE = 0x8
 				FORMAT = "N"
-				
-				# # Maximum window increment value (2^31)
-				# MAX_WINDOWINC = 0x7fffffff
-				# 
-				# attr :increment
-				# 
-				# def common_header
-				# 	if self.incremnet > MAXIMUM_WINDOW_INCREMENT
-				# if frame[:type] == :window_update && frame[:increment] > MAX_WINDOWINC
-				# 	fail CompressionError, "Window increment (#{frame[:increment]}) is too large"
-				# end
 				
 				def pack(window_size_increment)
 					super [window_size_increment].pack(FORMAT)

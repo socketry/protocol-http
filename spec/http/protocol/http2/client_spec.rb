@@ -53,6 +53,6 @@ RSpec.describe HTTP::Protocol::HTTP2::Client do
 		client.read_frame
 		
 		expect(client.state).to eq :open
-		expect(client.local_settings.current.header_table_size).to eq 1024
+		expect(client.local_settings.header_table_size).to eq 1024
 	end
 end

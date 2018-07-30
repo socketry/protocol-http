@@ -32,8 +32,8 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	
 	context HTTP::Protocol::HTTP2::PingFrame do
 		before do
-			client.state = :open
-			server.state = :open
+			client.open!
+			server.open!
 		end
 		
 		it "can send ping and receive pong" do
@@ -51,8 +51,8 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	
 	context HTTP::Protocol::HTTP2::Stream do
 		before do
-			client.state = :open
-			server.state = :open
+			client.open!
+			server.open!
 		end
 		
 		let(:request_data) {"Hello World!"}
@@ -76,7 +76,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			stream.send_data(request_data, HTTP::Protocol::HTTP2::END_STREAM)
 			expect(stream.state).to eq :half_closed_local
 			
-			server.read_frame
+			data_frame = server.read_frame
 			expect(server.streams[1].data).to eq request_data
 			expect(server.streams[1].state).to eq :half_closed_remote
 			
@@ -85,6 +85,8 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 			client.read_frame
 			expect(stream.headers).to eq response_headers
 			expect(stream.state).to eq :closed
+			
+			expect(stream.remote_window.used).to eq data_frame.length
 		end
 	end
 end

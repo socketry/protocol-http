@@ -65,8 +65,8 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 		it "adds appropriate padding" do
 			subject.pack "Hello World!"
 			
-			expect(subject.length).to be == 256
-			expect(subject.payload[0].ord).to be == (256 - 12 - 1)
+			expect(subject.length).to be == 16
+			expect(subject.payload[0].ord).to be == (16 - 12 - 1)
 		end
 	end
 	

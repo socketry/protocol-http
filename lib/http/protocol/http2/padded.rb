@@ -41,7 +41,7 @@ module HTTP
 				end
 				
 				# We will round up frames to the given length:
-				MODULUS = 0xFF
+				MODULUS = 0x0F
 				
 				def pack(data, modulus: MODULUS, padding_size: nil, maximum_size: nil)
 					padding_size ||= (MODULUS - data.bytesize) % MODULUS
