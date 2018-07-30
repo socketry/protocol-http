@@ -146,12 +146,22 @@ module HTTP
 					end
 				end
 				
+				# In addition to changing the flow-control window for streams that are not yet active, a SETTINGS frame can alter the initial flow-control window size for streams with active flow-control windows (that is, streams in the "open" or "half-closed (remote)" state).  When the value of SETTINGS_INITIAL_WINDOW_SIZE changes, a receiver MUST adjust the size of all stream flow-control windows that it maintains by the difference between the new value and the old value.
+				def update_initial_window_size(capacity)
+					@streams.each_value do |stream|
+						stream.local_window.capacity = capacity
+					end
+				end
+				
+				# @return [Boolean] whether the frame was an acknowledgement
 				def process_settings(frame)
 					if frame.acknowledgement?
 						# The remote end has confirmed the settings have been received:
 						@local_settings.acknowledge
 						
-						@local_window.capacity = @local_settings.initial_window_size
+						update_initial_window_size(@local_settings.initial_window_size)
+						
+						return true
 					else
 						# The remote end is updating the settings, we reply with acknowledgement:
 						reply = frame.acknowledge
@@ -159,11 +169,15 @@ module HTTP
 						write_frame(reply)
 						
 						@remote_settings.update(frame.unpack)
+						
+						return false
 					end
 				end
 				
 				def open!
-					@remote_window_size = self.remote_settings.initial_window_size
+					@local_window.capacity = self.local_settings.initial_window_size
+					@remote_window.capacity = self.remote_settings.initial_window_size
+					
 					@state = :open
 					
 					return self
@@ -171,9 +185,8 @@ module HTTP
 				
 				def receive_settings(frame)
 					if @state == :new
-						process_settings(frame)
-						
-						open!
+						# We transition to :open when we receive acknowledgement of first settings frame:
+						open! if process_settings(frame)
 					elsif @state != :closed
 						process_settings(frame)
 					else

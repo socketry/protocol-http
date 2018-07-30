@@ -51,8 +51,6 @@ RSpec.describe HTTP::Protocol::HTTP2::Client do
 		server.read_connection_preface(server_settings)
 		expect(server.remote_settings.header_table_size).to eq 1024
 		
-		expect(server.state).to eq :open
-		
 		# And send an acknowledgement:
 		frame = framer.read_frame
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
@@ -67,5 +65,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Client do
 		framer.write_frame(frame.acknowledge)
 		
 		server.read_frame
+		
+		expect(server.state).to eq :open
 	end
 end

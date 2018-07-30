@@ -56,7 +56,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 		expect(stream.remote_window.used).to eq 60
 		expect(client.remote_window.used).to eq 60
 		
-		puts "Server #{server} reading frame..."
+		# puts "Server #{server} #{server.remote_window.inspect} reading frame..."
 		expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::DataFrame
 		expect(server.local_window.used).to eq 60
 		
