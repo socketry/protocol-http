@@ -100,7 +100,7 @@ module HTTP
 				
 				def read_frame
 					frame = @framer.read_frame
-					puts "#{self.class}: read #{frame.inspect}"
+					# puts "#{self.class}: read #{frame.inspect}"
 					
 					yield frame if block_given?
 					
@@ -131,7 +131,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
-					puts "#{self.class}: write #{frame.inspect}"
+					# puts "#{self.class}: write #{frame.inspect}"
 					@framer.write_frame(frame)
 				end
 				
