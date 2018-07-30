@@ -23,6 +23,26 @@ require_relative 'connection_context'
 RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	include_context HTTP::Protocol::HTTP2::Connection
 	
+	it "can negotiate connection" do
+		client.send_connection_preface([])
+		server.read_connection_preface([])
+		
+		frame = client.read_frame
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame).to be_acknowledgement
+		
+		frame = client.read_frame
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame).to_not be_acknowledgement
+		
+		frame = server.read_frame
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame).to be_acknowledgement
+		
+		expect(client.state).to eq :open
+		expect(server.state).to eq :open
+	end
+	
 	context HTTP::Protocol::HTTP2::PingFrame do
 		before do
 			client.open!
