@@ -31,13 +31,13 @@ module HTTP
 			class Connection
 				include FlowControl
 				
-				def initialize(framer, next_stream_id)
+				def initialize(framer, local_stream_id)
 					@state = :new
 					@streams = {}
 					
 					@framer = framer
-					@next_stream_id = next_stream_id
-					@last_stream_id = 0
+					@local_stream_id = local_stream_id
+					@remote_stream_id = 0
 					
 					@local_settings = PendingSettings.new
 					@remote_settings = Settings.new
@@ -93,9 +93,9 @@ module HTTP
 				
 				# Streams are identified with an unsigned 31-bit integer.  Streams initiated by a client MUST use odd-numbered stream identifiers; those initiated by the server MUST use even-numbered stream identifiers.  A stream identifier of zero (0x0) is used for connection control messages; the stream identifier of zero cannot be used to establish a new stream.
 				def next_stream_id
-					id = @next_stream_id
+					id = @local_stream_id
 					
-					@next_stream_id += 2
+					@local_stream_id += 2
 					
 					return id
 				end
@@ -237,11 +237,7 @@ module HTTP
 				end
 				
 				def create_stream(stream_id = next_stream_id)
-					stream = Stream.new(self, stream_id)
-					
-					@last_stream_id = stream_id
-					
-					return stream
+					Stream.new(self, stream_id)
 				end
 				
 				def receive_headers(frame)
@@ -251,11 +247,12 @@ module HTTP
 						if stream.closed?
 							@streams.delete(stream.id)
 						end
-					elsif frame.stream_id > @last_stream_id
+					elsif frame.stream_id > @remote_stream_id
 						if @streams.count < self.maximum_concurrent_streams
 							stream = create_stream(frame.stream_id)
 							stream.receive_headers(frame)
 							
+							@remote_stream_id = stream.id
 							@streams[stream.id] = stream
 						else
 							raise ProtocolError, "Exceeded maximum concurrent streams"
@@ -286,7 +283,7 @@ module HTTP
 						super
 					elsif stream = @streams[frame.stream_id]
 						stream.receive_window_update(frame)
-					elsif frame.stream_id <= @last_stream_id
+					elsif frame.stream_id <= @local_stream_id or frame.stream_id <= @remote_stream_id
 						# The stream was closed/deleted, ignore
 					else
 						raise ProtocolError, "Cannot update window of non-existant stream: #{frame.stream_id}"
