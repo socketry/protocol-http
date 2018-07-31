@@ -24,16 +24,21 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	include_context HTTP::Protocol::HTTP2::Connection
 	
 	it "can negotiate connection" do
-		client.send_connection_preface([])
-		server.read_connection_preface([])
+		first_server_frame = nil
+		
+		first_client_frame = client.send_connection_preface([]) do
+			first_server_frame = server.read_connection_preface([])
+		end
+		
+		expect(first_client_frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(first_client_frame).to_not be_acknowledgement
+		
+		expect(first_server_frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(first_server_frame).to_not be_acknowledgement
 		
 		frame = client.read_frame
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
 		expect(frame).to be_acknowledgement
-		
-		frame = client.read_frame
-		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
-		expect(frame).to_not be_acknowledgement
 		
 		frame = server.read_frame
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame

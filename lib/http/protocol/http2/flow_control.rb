@@ -39,7 +39,10 @@ module HTTP
 				def consume_remote_window(frame)
 					amount = frame.length
 					
-					if amount <= @remote_window.available
+					# Frames with zero length with the END_STREAM flag set (that is, an empty DATA frame) MAY be sent if there is no available space in either flow-control window.
+					if amount.zero? and frame.end_stream?
+						# It's okay, we can send. No need to consume, it's empty anyway.
+					elsif amount > 0 and amount <= @remote_window.available
 						@remote_window.consume(amount)
 					else
 						raise FlowControlError, "Trying to send #{frame.inspect}, exceeded window size: #{@remote_window.available}"
@@ -67,7 +70,14 @@ module HTTP
 				end
 				
 				def receive_window_update(frame)
+					was_full = @remote_window.full?
+					
 					@remote_window.expand(frame.unpack)
+					
+					self.window_updated if was_full
+				end
+				
+				def window_updated
 				end
 			end
 		end

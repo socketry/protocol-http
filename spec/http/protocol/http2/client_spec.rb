@@ -34,15 +34,20 @@ RSpec.describe HTTP::Protocol::HTTP2::Client do
 	end
 	
 	it "should send connection preface followed by settings frame" do
-		client.send_connection_preface(settings)
-		
-		expect(framer.read_connection_preface).to include("PRI")
-		
-		frame = framer.read_frame
-		
-		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
-		
-		framer.write_frame(frame.acknowledge)
+		client.send_connection_preface(settings) do
+			expect(framer.read_connection_preface).to eq HTTP::Protocol::HTTP2::CONNECTION_PREFACE_MAGIC
+			
+			client_settings_frame = framer.read_frame
+			expect(client_settings_frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+			expect(client_settings_frame.unpack).to eq settings
+			
+			# Fake (empty) server settings:
+			server_settings_frame = HTTP::Protocol::HTTP2::SettingsFrame.new
+			server_settings_frame.pack
+			framer.write_frame(server_settings_frame)
+			
+			framer.write_frame(client_settings_frame.acknowledge)
+		end
 		
 		expect(client.state).to eq :new
 		

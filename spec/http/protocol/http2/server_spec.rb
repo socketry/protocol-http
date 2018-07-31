@@ -51,15 +51,15 @@ RSpec.describe HTTP::Protocol::HTTP2::Client do
 		server.read_connection_preface(server_settings)
 		expect(server.remote_settings.header_table_size).to eq 1024
 		
-		# And send an acknowledgement:
-		frame = framer.read_frame
-		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
-		expect(frame).to be_acknowledgement
-		
-		# The server immediatelty sends its own settings frame...
+		# The server immediately sends its own settings frame...
 		frame = framer.read_frame
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
 		expect(frame.unpack).to eq server_settings
+		
+		# And then it acknowledges the client settings:
+		frame = framer.read_frame
+		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::SettingsFrame
+		expect(frame).to be_acknowledgement
 		
 		# We reply with acknolwedgement:
 		framer.write_frame(frame.acknowledge)

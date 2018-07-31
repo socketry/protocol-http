@@ -32,11 +32,11 @@ module HTTP
 					if @state == :new
 						@framer.read_connection_preface
 						
-						read_frame do |frame|
-							raise ProtocolError, "First frame (#{frame.class}) must be settings" unless frame.is_a? SettingsFrame
-						end
-						
 						send_settings(settings)
+						
+						read_frame do |frame|
+							raise ProtocolError, "First frame must be SettingsFrame, but got #{frame.class}" unless frame.is_a? SettingsFrame
+						end
 					else
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end

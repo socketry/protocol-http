@@ -33,6 +33,12 @@ module HTTP
 						@framer.write_connection_preface
 						
 						send_settings(settings)
+						
+						yield if block_given?
+						
+						read_frame do |frame|
+							raise ProtocolError, "First frame must be SettingsFrame, but got #{frame.class}" unless frame.is_a? SettingsFrame
+						end
 					else
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end

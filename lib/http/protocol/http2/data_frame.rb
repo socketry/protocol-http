@@ -46,7 +46,7 @@ module HTTP
 					flag_set?(END_STREAM)
 				end
 				
-				def pack(data)
+				def pack(data, *)
 					if data
 						super
 					else

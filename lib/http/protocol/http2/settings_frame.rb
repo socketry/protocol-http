@@ -159,6 +159,8 @@ module HTTP
 				def acknowledge
 					if changes = @queue.shift
 						@current.update(changes)
+						
+						return changes
 					else
 						raise ProtocolError.new("Cannot acknowledge settings, no changes pending")
 					end

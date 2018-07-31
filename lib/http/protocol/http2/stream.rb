@@ -78,6 +78,8 @@ module HTTP
 					@connection = connection
 					@id = id
 					
+					@connection.streams[@id] = self
+					
 					@state = :idle
 					
 					@priority = nil
@@ -149,9 +151,9 @@ module HTTP
 					@connection.consume_remote_window(frame)
 				end
 				
-				private def write_data(data, flags = 0, *args)
+				private def write_data(data, flags = 0, **options)
 					frame = DataFrame.new(@id, flags)
-					frame.pack(data, *args)
+					frame.pack(data, **options)
 					
 					# This might fail if the data payload was too big:
 					consume_remote_window(frame)
@@ -224,6 +226,7 @@ module HTTP
 					end
 				end
 				
+				# DATA frames are subject to flow control and can only be sent when a stream is in the "open" or "half-closed (remote)" state.  The entire DATA frame payload is included in flow control, including the Pad Length and Padding fields if present.  If a DATA frame is received whose stream is not in "open" or "half-closed (local)" state, the recipient MUST respond with a stream error of type STREAM_CLOSED.
 				def receive_data(frame)
 					if @state == :open
 						consume_local_window(frame)
@@ -242,7 +245,7 @@ module HTTP
 						
 						@data = frame.unpack
 					else
-						raise ProtocolError, "Cannot receive data in state: #{@state}"
+						raise StreamClosedError, "Cannot receive data in state: #{@state}"
 					end
 				end
 				

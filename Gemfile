@@ -6,5 +6,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 group :test do
+	gem 'pry'
 	gem 'covered', require: 'covered/rspec' if RUBY_VERSION >= "2.6.0"
 end

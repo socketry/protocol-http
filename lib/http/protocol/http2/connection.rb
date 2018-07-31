@@ -100,7 +100,7 @@ module HTTP
 				
 				def read_frame
 					frame = @framer.read_frame
-					# puts "#{self.class}: read #{frame.inspect}"
+					# puts "#{self.class} #{@state} read_frame: #{frame.inspect}"
 					
 					yield frame if block_given?
 					
@@ -131,7 +131,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
-					# puts "#{self.class}: write #{frame.inspect}"
+					# puts "#{self.class} #{@state} write_frame: #{frame.inspect}"
 					@framer.write_frame(frame)
 				end
 				
@@ -146,20 +146,29 @@ module HTTP
 					end
 				end
 				
-				# In addition to changing the flow-control window for streams that are not yet active, a SETTINGS frame can alter the initial flow-control window size for streams with active flow-control windows (that is, streams in the "open" or "half-closed (remote)" state).  When the value of SETTINGS_INITIAL_WINDOW_SIZE changes, a receiver MUST adjust the size of all stream flow-control windows that it maintains by the difference between the new value and the old value.
-				def update_initial_window_size(capacity)
+				def update_local_settings(changes)
+					capacity = @local_settings.initial_window_size
 					@streams.each_value do |stream|
 						stream.local_window.capacity = capacity
 					end
 				end
 				
+				def update_remote_settings(changes)
+					capacity = @remote_settings.initial_window_size
+					@streams.each_value do |stream|
+						stream.remote_window.capacity = capacity
+					end
+				end
+				
+				# In addition to changing the flow-control window for streams that are not yet active, a SETTINGS frame can alter the initial flow-control window size for streams with active flow-control windows (that is, streams in the "open" or "half-closed (remote)" state).  When the value of SETTINGS_INITIAL_WINDOW_SIZE changes, a receiver MUST adjust the size of all stream flow-control windows that it maintains by the difference between the new value and the old value.
+				#
 				# @return [Boolean] whether the frame was an acknowledgement
 				def process_settings(frame)
 					if frame.acknowledgement?
 						# The remote end has confirmed the settings have been received:
-						@local_settings.acknowledge
+						changes = @local_settings.acknowledge
 						
-						update_initial_window_size(@local_settings.initial_window_size)
+						update_local_settings(changes)
 						
 						return true
 					else
@@ -168,13 +177,19 @@ module HTTP
 						
 						write_frame(reply)
 						
-						@remote_settings.update(frame.unpack)
+						changes = frame.unpack
+						@remote_settings.update(changes)
+						
+						update_remote_settings(changes)
 						
 						return false
 					end
 				end
 				
 				def open!
+					# puts "#{self} open!"
+					# binding.pry
+					# 
 					@local_window.capacity = self.local_settings.initial_window_size
 					@remote_window.capacity = self.remote_settings.initial_window_size
 					
@@ -269,6 +284,13 @@ module HTTP
 						# The stream was closed/deleted, ignore
 					else
 						raise ProtocolError, "Cannot update window of non-existant stream: #{frame.stream_id}"
+					end
+				end
+				
+				def window_updated
+					# This is very inefficient, but workable.
+					@streams.each_value do |stream|
+						stream.window_updated unless stream.closed?
 					end
 				end
 			end

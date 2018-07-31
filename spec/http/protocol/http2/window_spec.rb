@@ -37,19 +37,30 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 		HTTP::Protocol::HTTP2::Stream.new(client)
 	end
 	
-	it "should send connection preface followed by settings frame" do
-		client.send_connection_preface([])
-		server.read_connection_preface(settings)
-		client.read_frame
-		client.read_frame
-		server.read_frame
+	before do
+		client.send_connection_preface([]) do
+			server.read_connection_preface(settings)
+		end
 		
+		client.read_frame until client.state == :open
+		server.read_frame until server.state == :open
+		
+		stream.send_headers(nil, headers)
+		expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::HeadersFrame
+	end
+	
+	it "should assign capacity according to settings" do
 		expect(client.remote_settings.initial_window_size).to eq 200
 		expect(server.local_settings.initial_window_size).to eq 200
 		
-		stream.send_headers(nil, headers)
-		server.read_frame
+		expect(client.remote_window.capacity).to eq 200
+		expect(server.local_window.capacity).to eq 200
 		
+		expect(client.local_settings.initial_window_size).to eq 0xFFFF
+		expect(server.remote_settings.initial_window_size).to eq 0xFFFF
+	end
+	
+	it "should send window update after exhausting half of the available window" do
 		# Write 60 bytes of data.
 		stream.send_data("*" * 60)
 		
@@ -71,5 +82,30 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 		expect(frame).to be_kind_of HTTP::Protocol::HTTP2::WindowUpdateFrame
 		
 		expect(frame.unpack).to eq 120
+	end
+	
+	context '#window_updated' do
+		it "should be invoked when window update is received" do
+			# Write 200 bytes of data which exhausts window
+			stream.send_data("*" * 200, padding_size: 0)
+			
+			expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::DataFrame
+			
+			# Window update was sent, and used data was zeroed:
+			expect(server.local_window.used).to eq 0
+			expect(client.remote_window.used).to eq 200
+			
+			# ...and must respond with a window update for the connection:
+			expect(client).to receive(:window_updated).once
+			frame = client.read_frame
+			expect(frame).to be_kind_of HTTP::Protocol::HTTP2::WindowUpdateFrame
+			expect(frame.unpack).to eq 200
+			
+			# ...and then for the stream:
+			expect(stream).to receive(:window_updated).once
+			frame = client.read_frame
+			expect(frame).to be_kind_of HTTP::Protocol::HTTP2::WindowUpdateFrame
+			expect(frame.unpack).to eq 200
+		end
 	end
 end

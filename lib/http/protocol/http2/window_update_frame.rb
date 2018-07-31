@@ -33,6 +33,11 @@ module HTTP
 					return self.class.new(@capacity)
 				end
 				
+				# The window is completely full?
+				def full?
+					@used == @capacity
+				end
+				
 				attr_accessor :used
 				attr_accessor :capacity
 				
@@ -42,6 +47,10 @@ module HTTP
 				
 				def available
 					@capacity - @used
+				end
+				
+				def available?
+					available > 0
 				end
 				
 				def expand(amount)
