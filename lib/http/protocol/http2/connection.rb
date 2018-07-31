@@ -57,6 +57,10 @@ module HTTP
 					@remote_settings.maximum_frame_size
 				end
 				
+				def maximum_concurrent_streams
+					[@local_settings.maximum_concurrent_streams, @remote_settings.maximum_concurrent_streams].min
+				end
+				
 				attr :framer
 				
 				# Connection state (:new, :open, :closed).
@@ -121,7 +125,7 @@ module HTTP
 					write_frame(frame)
 				end
 				
-				def send_goaway(error_code = 0, message = nil)
+				def send_goaway(error_code = 0, message = "")
 					frame = GoawayFrame.new
 					frame.pack @last_stream_id, error_code, message
 					
@@ -187,9 +191,6 @@ module HTTP
 				end
 				
 				def open!
-					# puts "#{self} open!"
-					# binding.pry
-					# 
 					@local_window.capacity = self.local_settings.initial_window_size
 					@remote_window.capacity = self.remote_settings.initial_window_size
 					
@@ -235,8 +236,12 @@ module HTTP
 					end
 				end
 				
-				def create_stream(stream_id)
-					Stream.new(self, stream_id)
+				def create_stream(stream_id = next_stream_id)
+					stream = Stream.new(self, stream_id)
+					
+					@last_stream_id = stream_id
+					
+					return stream
 				end
 				
 				def receive_headers(frame)
@@ -247,13 +252,14 @@ module HTTP
 							@streams.delete(stream.id)
 						end
 					elsif frame.stream_id > @last_stream_id
-						stream = create_stream(frame.stream_id)
-						stream.receive_headers(frame)
-						
-						@streams[stream.id] = stream
-						
-						# Not quite right as not tracking streams initated on this end.
-						@last_stream_id = stream.id
+						if @streams.count < self.maximum_concurrent_streams
+							stream = create_stream(frame.stream_id)
+							stream.receive_headers(frame)
+							
+							@streams[stream.id] = stream
+						else
+							raise ProtocolError, "Exceeded maximum concurrent streams"
+						end
 					end
 				end
 				

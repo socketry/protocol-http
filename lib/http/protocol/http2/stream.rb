@@ -111,7 +111,22 @@ module HTTP
 				end
 				
 				def closed?
-					@state == :closed
+					@state == :closed or @state == :reset
+				end
+				
+				def send_headers?
+					@state == :idle or @state == :reseved_local or @state == :open or @state == :half_closed_remote
+				end
+				
+				def send_failure(status, reason)
+					if send_headers?
+						send_headers(nil, [
+							[':status', status.to_s],
+							[':reason', reason]
+						], END_STREAM)
+					else
+						send_reset_stream(PROTOCOL_ERROR)
+					end
 				end
 				
 				private def write_headers(priority, headers, flags = 0)
@@ -125,6 +140,7 @@ module HTTP
 					return frame
 				end
 				
+				#The HEADERS frame is used to open a stream, and additionally carries a header block fragment.  HEADERS frames can be sent on a stream in the "idle", "reserved (local)", "open", or "half-closed (remote)" state.
 				def send_headers(*args)
 					if @state == :idle
 						frame = write_headers(*args)
@@ -134,11 +150,21 @@ module HTTP
 						else
 							@state = :open
 						end
+					elsif @state == :reseved_local
+						frame = write_headers(*args)
+						
+						@state = :half_closed_remote
+					elsif @state == :open
+						frame = write_headers(*args)
+						
+						if frame.end_stream?
+							@state = :half_closed_local
+						end
 					elsif @state == :half_closed_remote
 						frame = write_headers(*args)
 						
 						if frame.end_stream?
-							@state = :closed
+							close!
 						end
 					else
 						raise ProtocolError, "Cannot send headers in state: #{@state}"
@@ -174,11 +200,17 @@ module HTTP
 						frame = write_data(*args)
 						
 						if frame.end_stream?
-							@state = :closed
+							close!
 						end
 					else
 						raise ProtocolError, "Cannot send data in state: #{@state}"
 					end
+				end
+				
+				def close!(state = :closed)
+					@state = state
+					
+					@connection.streams.delete(@id)
 				end
 				
 				def send_reset_stream(error_code = 0)
@@ -186,10 +218,9 @@ module HTTP
 						frame = ResetStreamFrame.new(@id)
 						frame.pack(error_code)
 						
-						# Clear any unsent frames?
 						write_frame(frame)
 						
-						@state = :closed
+						close!(:reset)
 					else
 						raise ProtocolError, "Cannot reset stream in state: #{@state}"
 					end
@@ -215,12 +246,24 @@ module HTTP
 						end
 						
 						@headers = process_headers(frame)
-					elsif @state == :half_closed_local
+					elsif @state == :reseved_remote
+						@state = :half_closed_local
+						
+						@headers = process_headers(frame)
+					elsif @state == :open
 						if frame.end_stream?
-							@state = :closed
+							@state = :half_closed_remote
 						end
 						
 						@headers = process_headers(frame)
+					elsif @state == :half_closed_local
+						if frame.end_stream?
+							close!
+						end
+						
+						@headers = process_headers(frame)
+					elsif @state == :reset
+						# ignore...
 					else
 						raise ProtocolError, "Cannot receive headers in state: #{@state}"
 					end
@@ -240,12 +283,14 @@ module HTTP
 						consume_local_window(frame)
 						
 						if frame.end_stream?
-							@state = :closed
+							close!
 						end
 						
 						@data = frame.unpack
+					elsif @state == :reset
+						# ignore...
 					else
-						raise StreamClosedError, "Cannot receive data in state: #{@state}"
+						raise ProtocolError, "Cannot receive data in state: #{@state}"
 					end
 				end
 				
@@ -255,7 +300,7 @@ module HTTP
 				
 				def receive_reset_stream(frame)
 					if @state != :idle and @state != :closed
-						@state = :closed
+						close!
 						
 						return frame.unpack
 					else
