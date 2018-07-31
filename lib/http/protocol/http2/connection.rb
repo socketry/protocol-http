@@ -293,6 +293,10 @@ module HTTP
 						stream.window_updated unless stream.closed?
 					end
 				end
+				
+				def receive_frame(frame)
+					warn "Unhandled frame #{frame.inspect}"
+				end
 			end
 		end
 	end

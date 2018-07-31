@@ -179,7 +179,7 @@ module HTTP
 				end
 				
 				def apply(connection)
-					connection.receive(self)
+					connection.receive_frame(self)
 				end
 			end
 		end
