@@ -70,7 +70,7 @@ module HTTP
 				attr :maximum_frame_size
 				
 				def maximum_frame_size= value
-					if value < MAXIMUM_ALLOWED_FRAME_SIZE
+					if value <= MAXIMUM_ALLOWED_FRAME_SIZE
 						@maximum_frame_size = value
 					else
 						raise ProtocolError, "Invalid value for maximum_frame_size: #{value} > #{MAXIMUM_ALLOWED_FRAME_SIZE}"
