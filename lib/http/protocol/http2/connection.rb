@@ -127,11 +127,16 @@ module HTTP
 				
 				def send_goaway(error_code = 0, message = "")
 					frame = GoawayFrame.new
-					frame.pack @last_stream_id, error_code, message
+					frame.pack @remote_stream_id, error_code, message
 					
 					write_frame(frame)
 					
 					@state = :closed
+				end
+				
+				def receive_goaway(frame)
+					@state = :closed
+					@framer.close
 				end
 				
 				def write_frame(frame)

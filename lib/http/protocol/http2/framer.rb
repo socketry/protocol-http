@@ -60,6 +60,10 @@ module HTTP
 					@buffer = String.new.b
 				end
 				
+				def close
+					@io.close
+				end
+				
 				def write_connection_preface
 					@io.write(CONNECTION_PREFACE_MAGIC)
 				end
@@ -97,7 +101,12 @@ module HTTP
 				end
 				
 				def read_header
-					return Frame.parse_header(@io.read(9))
+					if buffer = @io.read(9)
+						return Frame.parse_header(buffer)
+					else
+						# TODO: Is this necessary? I thought the IO would throw this.
+						raise EOFError
+					end
 				end
 			end
 		end
