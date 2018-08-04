@@ -45,12 +45,6 @@ module HTTP
 				
 				TYPE = 0x1
 				
-				def initialize(*)
-					super
-					
-					@priority = nil
-				end
-				
 				def priority?
 					flag_set?(PRIORITY)
 				end
