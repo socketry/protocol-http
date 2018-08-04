@@ -260,11 +260,20 @@ module HTTP
 					end
 				end
 				
+				def deleted_stream? frame
+					frame.stream_id <= @local_stream_id or frame.stream_id <= @remote_stream_id
+				end
+				
 				def receive_priority(frame)
 					if stream = @streams[frame.stream_id]
 						stream.receive_priority(frame)
+					elsif deleted_stream? frame
+						# ignore
 					else
-						raise ProtocolError, "Bad stream"
+						stream = create_stream(frame.stream_id)
+						stream.receive_priority(frame)
+						
+						@streams[frame.stream_id] = stream
 					end
 				end
 				
@@ -273,6 +282,8 @@ module HTTP
 						stream.receive_reset_stream(frame)
 						
 						@streams.delete(stream.id)
+					elsif deleted_stream? frame
+						# ignore
 					else
 						raise ProtocolError, "Bad stream"
 					end
@@ -283,8 +294,8 @@ module HTTP
 						super
 					elsif stream = @streams[frame.stream_id]
 						stream.receive_window_update(frame)
-					elsif frame.stream_id <= @local_stream_id or frame.stream_id <= @remote_stream_id
-						# The stream was closed/deleted, ignore
+					elsif deleted_stream? frame
+						# ignore
 					else
 						raise ProtocolError, "Cannot update window of non-existant stream: #{frame.stream_id}"
 					end
