@@ -122,7 +122,7 @@ module HTTP
 					if send_headers?
 						send_headers(nil, [
 							[':status', status.to_s],
-							[':reason', reason]
+							['reason', reason]
 						], END_STREAM)
 					else
 						send_reset_stream(PROTOCOL_ERROR)
