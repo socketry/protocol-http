@@ -63,10 +63,10 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 	
 	describe '#pack' do
 		it "adds appropriate padding" do
-			subject.pack "Hello World!"
+			subject.pack "Hello World!", padding_size: 4
 			
 			expect(subject.length).to be == 16
-			expect(subject.payload[0].ord).to be == (16 - 12 - 1)
+			expect(subject.payload[0].ord).to be == 4
 		end
 	end
 	

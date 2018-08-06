@@ -36,8 +36,8 @@ RSpec.describe HTTP::Protocol::HTTP2::PushPromiseFrame do
 		it "packs stream_id and data with padding" do
 			subject.pack stream_id, data
 			
-			expect(subject.padded?).to be_truthy
-			expect(subject.length).to be == 31
+			expect(subject.padded?).to be_falsey
+			expect(subject.length).to be == 16
 		end
 	end
 	

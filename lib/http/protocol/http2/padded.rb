@@ -40,28 +40,18 @@ module HTTP
 					flag_set?(PADDED)
 				end
 				
-				# We will round up frames to the given length:
-				MODULUS = 0x0F
-				
-				def pack(data, modulus: MODULUS, padding_size: nil, maximum_size: nil)
-					padding_size ||= (MODULUS - data.bytesize) % MODULUS
-					
-					if maximum_size
-						maximum_padding_size = maximum_size - data.bytesize
-						
-						if padding_size > maximum_padding_size
-							padding_size = maximum_padding_size
-						end
-					end
-					
-					if padding_size > 0
+				def pack(data, padding_size: nil, maximum_size: nil)
+					if padding_size
 						set_flags(PADDED)
 						
 						buffer = String.new.b
 						
 						buffer << padding_size.chr
 						buffer << data
-						buffer << "\0" * padding_size
+						
+						if padding_size > 1
+							buffer << "\0" * (padding_size - 1)
+						end
 						
 						super buffer
 					else
@@ -74,7 +64,7 @@ module HTTP
 				def unpack
 					if padded?
 						padding_size = @payload[0].ord
-						data_size = @payload.bytesize - 1 - padding_size
+						data_size = (@payload.bytesize - 1) - padding_size
 						
 						if data_size < 0
 							raise ProtocolError, "Invalid padding length: #{padding_size}"

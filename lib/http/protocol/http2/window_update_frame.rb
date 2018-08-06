@@ -60,6 +60,10 @@ module HTTP
 				def limited?
 					@used > (@capacity / 2)
 				end
+				
+				def to_s
+					"\#<Window #{@used}/#{@capacity}>"
+				end
 			end
 			
 			# The WINDOW_UPDATE frame is used to implement flow control.

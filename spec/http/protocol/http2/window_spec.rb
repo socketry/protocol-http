@@ -87,7 +87,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 	context '#window_updated' do
 		it "should be invoked when window update is received" do
 			# Write 200 bytes of data which exhausts window
-			stream.send_data("*" * 200, padding_size: 0)
+			stream.send_data("*" * 200)
 			
 			expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::DataFrame
 			

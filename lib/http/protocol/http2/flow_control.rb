@@ -45,7 +45,7 @@ module HTTP
 					elsif amount >= 0 and amount <= @remote_window.available
 						@remote_window.consume(amount)
 					else
-						raise FlowControlError, "Trying to send #{frame.inspect}, exceeded window size: #{@remote_window.available}"
+						raise FlowControlError, "Trying to send #{frame.length} bytes, exceeded window size: #{@remote_window.available} (#{@remote_window})"
 					end
 				end
 				

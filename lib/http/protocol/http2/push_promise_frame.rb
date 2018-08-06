@@ -20,6 +20,7 @@
 
 require_relative 'frame'
 require_relative 'padded'
+require_relative 'continuation_frame'
 
 module HTTP
 	module Protocol
