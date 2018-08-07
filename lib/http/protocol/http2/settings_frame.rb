@@ -59,7 +59,7 @@ module HTTP
 				attr :initial_window_size
 				
 				def initial_window_size= value
-					if value < MAXIMUM_ALLOWED_WINDOW_SIZE
+					if value <= MAXIMUM_ALLOWED_WINDOW_SIZE
 						@initial_window_size = value
 					else
 						raise FlowControlError, "Invalid value for initial_window_size: #{value} > #{MAXIMUM_ALLOWED_WINDOW_SIZE}"
