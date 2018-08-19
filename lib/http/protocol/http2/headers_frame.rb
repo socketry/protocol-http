@@ -49,10 +49,6 @@ module HTTP
 					flag_set?(PRIORITY)
 				end
 				
-				def end_headers?
-					flag_set?(END_HEADERS)
-				end
-				
 				def end_stream?
 					flag_set?(END_STREAM)
 				end

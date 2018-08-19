@@ -43,10 +43,6 @@ module HTTP
 				TYPE = 0x5
 				FORMAT = "N".freeze
 				
-				def end_headers?
-					flag_set?(END_HEADERS)
-				end
-				
 				def unpack
 					data = super
 					

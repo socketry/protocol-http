@@ -24,8 +24,14 @@ module HTTP
 	module Protocol
 		module HTTP2
 			module Continued
+				def initialize(*)
+					super
+					
+					@continuation = nil
+				end
+				
 				def end_headers?
-					@flags & END_HEADERS
+					flag_set?(END_HEADERS)
 				end
 				
 				def read(io)
@@ -66,6 +72,14 @@ module HTTP
 						super data, **options
 						
 						@continuation = nil
+					end
+				end
+				
+				def unpack
+					if @continuation.nil?
+						super
+					else
+						super + @continuation.unpack
 					end
 				end
 			end
