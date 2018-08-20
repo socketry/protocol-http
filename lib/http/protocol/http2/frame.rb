@@ -29,6 +29,9 @@ module HTTP
 			PADDED = 0x8
 			PRIORITY = 0x20
 			
+			MAXIMUM_ALLOWED_WINDOW_SIZE = 0x7FFFFFFF
+			MAXIMUM_ALLOWED_FRAME_SIZE = 0xFFFFFF
+			
 			class Frame
 				include Comparable
 				
@@ -156,8 +159,13 @@ module HTTP
 					@payload = io.read(@length)
 				end
 				
-				def read(io)
+				def read(io, maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
 					read_header(io) unless @length
+					
+					if @length > maximum_frame_size
+						raise FrameSizeError, "Frame length #{@length} exceeds maximum frame size #{maximum_frame_size}!"
+					end
+					
 					read_payload(io)
 				end
 				

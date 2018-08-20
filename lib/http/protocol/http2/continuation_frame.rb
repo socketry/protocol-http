@@ -34,13 +34,13 @@ module HTTP
 					flag_set?(END_HEADERS)
 				end
 				
-				def read(io)
+				def read(io, maximum_frame_size)
 					super
 					
 					unless end_headers?
 						@continuation = ContinuationFrame.new
 						
-						@continuation.read(io)
+						@continuation.read(io, maximum_frame_size)
 					end
 				end
 				

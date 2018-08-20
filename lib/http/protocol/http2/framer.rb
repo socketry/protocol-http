@@ -78,7 +78,7 @@ module HTTP
 					return string
 				end
 				
-				def read_frame
+				def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
 					# Read the header:
 					length, type, flags, stream_id = read_header
 					
@@ -89,7 +89,7 @@ module HTTP
 					frame = klass.new(stream_id, flags, type, length)
 					
 					# Read the payload:
-					frame.read(@io)
+					frame.read(@io, maximum_frame_size)
 					
 					return frame
 				end
@@ -97,6 +97,7 @@ module HTTP
 				def write_frame(frame)
 					# puts "framer: write_frame #{frame.inspect}"
 					frame.write(@io)
+					
 					@io.flush
 				end
 				

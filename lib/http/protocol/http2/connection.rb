@@ -103,8 +103,8 @@ module HTTP
 				attr :streams
 				
 				def read_frame
-					frame = @framer.read_frame
-					# puts "#{self.class} #{@state} read_frame: #{frame.inspect}"
+					frame = @framer.read_frame(@local_settings.maximum_frame_size)
+					# puts "#{self.class} #{@state} read_frame: class=#{frame.class} flags=#{frame.flags} length=#{frame.length}"
 					
 					yield frame if block_given?
 					
@@ -113,6 +113,7 @@ module HTTP
 					return frame
 				rescue ProtocolError => error
 					send_goaway(error.code || PROTOCOL_ERROR, error.message)
+					
 					raise
 				end
 				
@@ -140,7 +141,7 @@ module HTTP
 				end
 				
 				def write_frame(frame)
-					# puts "#{self.class} #{@state} write_frame: #{frame.inspect}"
+					# puts "#{self.class} #{@state} write_frame: class=#{frame.class} flags=#{frame.flags} length=#{frame.length}"
 					@framer.write_frame(frame)
 				end
 				
@@ -246,6 +247,10 @@ module HTTP
 				end
 				
 				def receive_headers(frame)
+					if frame.stream_id == 0
+						raise ProtocolError, "Cannot receive headers for stream 0!"
+					end
+					
 					if stream = @streams[frame.stream_id]
 						stream.receive_headers(frame)
 						

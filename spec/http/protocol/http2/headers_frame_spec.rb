@@ -19,6 +19,8 @@
 # THE SOFTWARE.
 
 require 'http/protocol/http2/headers_frame'
+
+require_relative 'connection_context'
 require_relative 'frame_examples'
 
 RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
@@ -63,6 +65,35 @@ RSpec.describe HTTP::Protocol::HTTP2::HeadersFrame do
 			expect(subject.length).to eq 8
 			expect(subject.continuation).to_not be_nil
 			expect(subject.continuation.length).to eq 3
+		end
+	end
+	
+	context "client/server connection" do
+		include_context HTTP::Protocol::HTTP2::Connection
+		
+		before do
+			client.open!
+			server.open!
+			
+			# We force this to something low so we can exceed it without hitting the socket buffer:
+			server.local_settings.current.maximum_frame_size = 128
+		end
+		
+		let(:stream) {HTTP::Protocol::HTTP2::Stream.new(client)}
+		
+		it "rejects headers frame that exceeds maximum frame size" do
+			subject.stream_id = stream.id
+			subject.pack nil, "\0" * (server.local_settings.maximum_frame_size + 1)
+			
+			client.write_frame(subject)
+			
+			expect do
+				server.read_frame
+			end.to raise_error(HTTP::Protocol::FrameSizeError)
+			
+			expect(client).to receive(:receive_goaway).once.and_call_original
+			
+			client.read_frame
 		end
 	end
 end
