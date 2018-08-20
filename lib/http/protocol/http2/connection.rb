@@ -81,6 +81,12 @@ module HTTP
 					@state == :closed
 				end
 				
+				def close
+					send_goaway
+					
+					@framer.close
+				end
+				
 				def encode_headers(headers, buffer = String.new.b)
 					HPACK::Compressor.new(buffer, @encoder).encode(headers)
 					
@@ -145,7 +151,6 @@ module HTTP
 				
 				def receive_goaway(frame)
 					@state = :closed
-					@framer.close
 				end
 				
 				def write_frame(frame)
