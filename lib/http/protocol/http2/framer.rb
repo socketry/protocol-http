@@ -56,8 +56,6 @@ module HTTP
 				def initialize(io, frames = FRAMES)
 					@io = io
 					@frames = frames
-					
-					@buffer = String.new.b
 				end
 				
 				def close
