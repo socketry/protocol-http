@@ -20,6 +20,10 @@
 
 module HTTP
 	module Protocol
+		TRANSFER_ENCODING = 'transfer-encoding'.freeze
+		CONTENT_LENGTH = 'content-length'.freeze
+		CHUNKED = 'chunked'.freeze
+		
 		class Headers
 			class Split < Array
 				COMMA = /\s*,\s*/
