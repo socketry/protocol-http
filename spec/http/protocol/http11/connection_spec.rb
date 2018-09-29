@@ -28,17 +28,12 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
 		client.io.close
 		
-		method, target, version = server.read_request
+		authority, method, target, version, headers, body = server.read_request
 		
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		
-		headers = server.read_headers
-		
 		expect(headers).to be == {'host' => 'localhost', 'accept' => ['*/*'], 'header-0' => ["value 1"]}
-		
-		body = server.read_request_body(headers)
 		expect(body).to be_nil
 	end
 	
@@ -46,17 +41,12 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World"
 		client.io.close
 		
-		method, target, version = server.read_request
+		authority, method, target, version, headers, body = server.read_request
 		
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		
-		headers = server.read_headers
-		
 		expect(headers).to be == {'host' => 'localhost', 'content-length' => "11"}
-		
-		body = server.read_request_body(headers)
 		expect(body).to be == "Hello World"
 	end
 	
@@ -64,19 +54,13 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nb\r\nHello World\r\n0\r\n\r\n"
 		client.io.close
 		
-		method, target, version = server.read_request
+		authority, method, target, version, headers, body = server.read_request
 		
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		
-		headers = server.read_headers
-		
 		expect(headers).to be == {'host' => 'localhost', 'transfer-encoding' => ["chunked"]}
-		
-		body = server.read_request_body(headers)
 		expect(body).to be == "Hello World"
-		
 		expect(server).to be_persistent(headers)
 	end
 	

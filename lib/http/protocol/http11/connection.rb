@@ -34,10 +34,17 @@ module HTTP
 					@io = io
 					
 					@persistent = persistent
+					
+					@count = 0
 				end
 				
 				attr :io
 				attr :persistent
+				attr :count
+				
+				def version
+					VERSION
+				end
 				
 				def persistent?(headers)
 					if connection = headers[CONNECTION]
@@ -64,21 +71,24 @@ module HTTP
 					@io.close
 				end
 				
-				def each_line(&block)
-					@io.each_line(CRLF, chomp: true, &block)
-				end
-				
-				def read_line
-					self.each_line do |line|
-						return line
-					end
-				end
-				
 				def write_request(authority, method, path, version, headers)
 					@io.write("#{method} #{path} #{version}\r\n")
 					@io.write("host: #{authority}\r\n")
 					
 					write_headers(headers)
+					
+					@io.flush
+				end
+				
+				def write_response(version, status, headers, body = nil, head = false)
+					@io.write("#{version} #{status}\r\n")
+					write_headers(headers)
+					
+					if head
+						write_body_head(body)
+					else
+						write_body(body)
+					end
 					
 					@io.flush
 				end
@@ -89,9 +99,42 @@ module HTTP
 					end
 				end
 				
-				# @return [Array] The method, target, and version of the request.
+				def each_line
+					while line = read_line
+						yield line
+					end
+				end
+				
+				def read_line
+					@io.gets(CRLF, chomp: true) or raise EOFError
+				end
+				
 				def read_request
-					self.read_line.split(/\s+/, 3)
+					method, path, version = read_line.split(/\s+/, 3)
+					headers = read_headers
+					
+					@persistent = persistent?(headers)
+					
+					body = read_request_body(headers)
+					
+					@count += 1
+					
+					return headers[HOST], method, path, version, headers, body
+				end
+				
+				def read_response(method)
+					version, status, reason = read_line.split(/\s+/, 3)
+					Async.logger.debug(self) {"#{version} #{status} #{reason}"}
+					
+					headers = read_headers
+					
+					@persistent = persistent?(headers)
+					
+					body = read_response_body(method, status, headers)
+					
+					@count += 1
+					
+					return version, Integer(status), reason, headers, body
 				end
 				
 				def read_headers
