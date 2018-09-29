@@ -30,15 +30,15 @@ module HTTP
 				CLOSE = 'close'.freeze
 				VERSION = "HTTP/1.1".freeze
 				
-				def initialize(io, persistent = true)
-					@io = io
+				def initialize(stream, persistent = true)
+					@stream = stream
 					
 					@persistent = persistent
 					
 					@count = 0
 				end
 				
-				attr :io
+				attr :stream
 				attr :persistent
 				attr :count
 				
@@ -54,34 +54,37 @@ module HTTP
 					end
 				end
 				
-				# @return [Async::Wrapper] the underlying non-blocking IO.
+				# Effectively close the connection and return the underlying IO.
+				# @return [IO] the underlying non-blocking IO.
 				def hijack
 					@persistent = false
 					
-					@io.flush
+					@stream.flush
 					
-					return @io
+					return @stream
 				end
 				
+				# Write the appropriate header for connection persistence.
 				def write_persistent_header
-					@io.write("connection: keep-alive\r\n") if @persistent
+					@stream.write("connection: keep-alive\r\n") if @persistent
 				end
 				
+				# Close the connection and underlying stream.
 				def close
-					@io.close
+					@stream.close
 				end
 				
 				def write_request(authority, method, path, version, headers)
-					@io.write("#{method} #{path} #{version}\r\n")
-					@io.write("host: #{authority}\r\n")
+					@stream.write("#{method} #{path} #{version}\r\n")
+					@stream.write("host: #{authority}\r\n")
 					
 					write_headers(headers)
 					
-					@io.flush
+					@stream.flush
 				end
 				
 				def write_response(version, status, headers, body = nil, head = false)
-					@io.write("#{version} #{status}\r\n")
+					@stream.write("#{version} #{status}\r\n")
 					write_headers(headers)
 					
 					if head
@@ -90,12 +93,12 @@ module HTTP
 						write_body(body)
 					end
 					
-					@io.flush
+					@stream.flush
 				end
 				
 				def write_headers(headers)
 					headers.each do |name, value|
-						@io.write("#{name}: #{value}\r\n")
+						@stream.write("#{name}: #{value}\r\n")
 					end
 				end
 				
@@ -106,7 +109,7 @@ module HTTP
 				end
 				
 				def read_line
-					@io.gets(CRLF, chomp: true) or raise EOFError
+					@stream.gets(CRLF, chomp: true) or raise EOFError
 				end
 				
 				def read_request
@@ -161,38 +164,38 @@ module HTTP
 					end
 					
 					# Read the data:
-					chunk = @io.read(length)
+					chunk = @stream.read(length)
 					
 					# Consume the trailing CRLF:
-					crlf = @io.read(2)
+					crlf = @stream.read(2)
 					
 					return chunk
 				end
 				
 				def write_chunk(chunk)
 					if chunk.nil?
-						@io.write("0\r\n\r\n")
+						@stream.write("0\r\n\r\n")
 					elsif !chunk.empty?
-						@io.write("#{chunk.bytesize.to_s(16).upcase}\r\n")
-						@io.write(chunk)
-						@io.write(CRLF)
-						@io.flush
+						@stream.write("#{chunk.bytesize.to_s(16).upcase}\r\n")
+						@stream.write(chunk)
+						@stream.write(CRLF)
+						@stream.flush
 					end
 				end
 				
 				def write_empty_body(body)
 					# Write empty body:
 					write_persistent_header
-					@io.write("content-length: 0\r\n\r\n")
+					@stream.write("content-length: 0\r\n\r\n")
 					
 					body.read if body
 					
-					@io.flush
+					@stream.flush
 				end
 				
 				def write_fixed_length_body(body, length)
 					write_persistent_header
-					@io.write("content-length: #{length}\r\n\r\n")
+					@stream.write("content-length: #{length}\r\n\r\n")
 					
 					chunk_length = 0
 					body.each do |chunk|
@@ -202,10 +205,10 @@ module HTTP
 							raise ArgumentError, "Trying to write #{chunk_length} bytes, but content length was #{length} bytes!"
 						end
 						
-						@io.write(chunk)
+						@stream.write(chunk)
 					end
 					
-					@io.flush
+					@stream.flush
 					
 					if chunk_length != length
 						raise ArgumentError, "Wrote #{chunk_length} bytes, but content length was #{length} bytes!"
@@ -214,19 +217,19 @@ module HTTP
 				
 				def write_chunked_body(body)
 					write_persistent_header
-					@io.write("transfer-encoding: chunked\r\n\r\n")
+					@stream.write("transfer-encoding: chunked\r\n\r\n")
 					
 					body.each do |chunk|
 						next if chunk.size == 0
 						
-						@io.write("#{chunk.bytesize.to_s(16).upcase}\r\n")
-						@io.write(chunk)
-						@io.write(CRLF)
-						@io.flush
+						@stream.write("#{chunk.bytesize.to_s(16).upcase}\r\n")
+						@stream.write(chunk)
+						@stream.write(CRLF)
+						@stream.flush
 					end
 					
-					@io.write("0\r\n\r\n")
-					@io.flush
+					@stream.write("0\r\n\r\n")
+					@stream.flush
 				end
 				
 				def write_body_and_close(body)
@@ -234,14 +237,14 @@ module HTTP
 					@persistent = false
 					write_persistent_header
 					
-					@io.write("\r\n")
+					@stream.write("\r\n")
 					
 					body.each do |chunk|
-						@io.write(chunk)
-						@io.flush
+						@stream.write(chunk)
+						@stream.flush
 					end
 					
-					@io.io.close_write
+					@stream.stream.close_write
 				end
 				
 				def write_body(body, chunked = true)
@@ -260,11 +263,11 @@ module HTTP
 					write_persistent_header
 					
 					if body.nil? or body.empty?
-						@io.write("content-length: 0\r\n\r\n")
+						@stream.write("content-length: 0\r\n\r\n")
 					elsif length = body.length
-						@io.write("content-length: #{length}\r\n\r\n")
+						@stream.write("content-length: #{length}\r\n\r\n")
 					else
-						@io.write("\r\n")
+						@stream.write("\r\n")
 					end
 				end
 				
@@ -280,7 +283,7 @@ module HTTP
 				end
 				
 				def read_fixed_body(length)
-					@io.read(length)
+					@stream.read(length)
 				end
 				
 				def read_tunnel_body
@@ -288,7 +291,7 @@ module HTTP
 				end
 				
 				def read_remainder_body
-					@io.read
+					@stream.read
 				end
 				
 				HEAD = "HEAD".freeze

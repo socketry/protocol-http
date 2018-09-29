@@ -53,21 +53,21 @@ module HTTP
 			CONNECTION_PREFACE_MAGIC = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".freeze
 			
 			class Framer
-				def initialize(io, frames = FRAMES)
-					@io = io
+				def initialize(stream, frames = FRAMES)
+					@stream = stream
 					@frames = frames
 				end
 				
 				def close
-					@io.close
+					@stream.close
 				end
 				
 				def write_connection_preface
-					@io.write(CONNECTION_PREFACE_MAGIC)
+					@stream.write(CONNECTION_PREFACE_MAGIC)
 				end
 				
 				def read_connection_preface
-					string = @io.read(CONNECTION_PREFACE_MAGIC.bytesize)
+					string = @stream.read(CONNECTION_PREFACE_MAGIC.bytesize)
 					
 					unless string == CONNECTION_PREFACE_MAGIC
 						raise ProtocolError, "Invalid connection preface: #{string.inspect}"
@@ -87,20 +87,20 @@ module HTTP
 					frame = klass.new(stream_id, flags, type, length)
 					
 					# Read the payload:
-					frame.read(@io, maximum_frame_size)
+					frame.read(@stream, maximum_frame_size)
 					
 					return frame
 				end
 				
 				def write_frame(frame)
 					# puts "framer: write_frame #{frame.inspect}"
-					frame.write(@io)
+					frame.write(@stream)
 					
-					@io.flush
+					@stream.flush
 				end
 				
 				def read_header
-					if buffer = @io.read(9)
+					if buffer = @stream.read(9)
 						return Frame.parse_header(buffer)
 					else
 						# TODO: Is this necessary? I thought the IO would throw this.

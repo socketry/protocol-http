@@ -69,7 +69,7 @@ module HTTP
 					connection.receive_priority(self)
 				end
 				
-				def read_payload(io)
+				def read_payload(stream)
 					super
 					
 					if @length != 5

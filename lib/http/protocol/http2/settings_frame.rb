@@ -218,7 +218,7 @@ module HTTP
 					connection.receive_settings(self)
 				end
 				
-				def read_payload(io)
+				def read_payload(stream)
 					super
 					
 					if @stream_id != 0

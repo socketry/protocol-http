@@ -23,11 +23,11 @@ Or install it yourself as:
 ### HTTP2
 
 ```ruby
-framer = HTTP::Protocol::HTTP2::Framer.new(io)
+framer = HTTP::Protocol::HTTP2::Framer.new(stream)
 
 frame = framer.read_frame
 
-frame.write(io)
+frame.write(stream)
 ```
 
 ## Contributing

@@ -25,8 +25,8 @@ require 'http/protocol/http2/stream'
 require 'socket'
 
 RSpec.shared_context HTTP::Protocol::HTTP2::Connection do
-	let(:io) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	let(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(io.first))}
-	let(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(io.last))}
+	let(:client) {HTTP::Protocol::HTTP2::Client.new(HTTP::Protocol::HTTP2::Framer.new(sockets.first))}
+	let(:server) {HTTP::Protocol::HTTP2::Server.new(HTTP::Protocol::HTTP2::Framer.new(sockets.last))}
 end

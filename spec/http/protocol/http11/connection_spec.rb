@@ -25,8 +25,8 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 	include_context HTTP::Protocol::HTTP11::Connection
 	
 	it "reads request without body" do
-		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
-		client.io.close
+		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
+		client.stream.close
 		
 		authority, method, target, version, headers, body = server.read_request
 		
@@ -38,8 +38,8 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 	end
 	
 	it "reads request with fixed body" do
-		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World"
-		client.io.close
+		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World"
+		client.stream.close
 		
 		authority, method, target, version, headers, body = server.read_request
 		
@@ -51,8 +51,8 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 	end
 	
 	it "reads request with chunked body" do
-		client.io.write "GET / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nb\r\nHello World\r\n0\r\n\r\n"
-		client.io.close
+		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nb\r\nHello World\r\n0\r\n\r\n"
+		client.stream.close
 		
 		authority, method, target, version, headers, body = server.read_request
 		

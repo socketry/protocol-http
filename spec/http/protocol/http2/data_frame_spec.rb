@@ -29,7 +29,7 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 	end
 	
 	context 'wire representation' do
-		let(:io) {StringIO.new}
+		let(:stream) {StringIO.new}
 		
 		let(:payload) {'Hello World!'}
 		
@@ -43,16 +43,16 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 			subject.payload = payload
 			subject.length = payload.bytesize
 			
-			subject.write(io)
+			subject.write(stream)
 			
-			expect(io.string).to be == data
+			expect(stream.string).to be == data
 		end
 		
 		it "should read frame from buffer" do
-			io.write(data)
-			io.seek(0)
+			stream.write(data)
+			stream.seek(0)
 			
-			subject.read(io)
+			subject.read(stream)
 			
 			expect(subject.length) == payload.bytesize
 			expect(subject.flags) == HTTP::Protocol::HTTP2::END_STREAM

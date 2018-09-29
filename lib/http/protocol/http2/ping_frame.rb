@@ -69,7 +69,7 @@ module HTTP
 					return frame
 				end
 				
-				def read_payload(io)
+				def read_payload(stream)
 					super
 					
 					if @length > 8

@@ -36,7 +36,7 @@ module HTTP
 				include Comparable
 				
 				# Stream Identifier cannot be bigger than this:
-				# https://http2.github.io/http2-spec/#rfc.section.4.1
+				# https://http2.github.stream/http2-spec/#rfc.section.4.1
 				VALID_STREAM_ID = 0..0x7fffffff
 				
 				# The absolute maximum bounds for the length field:
@@ -151,39 +151,39 @@ module HTTP
 					return length, type, flags, stream_id
 				end
 				
-				def read_header(io)
-					@length, @type, @flags, @stream_id = Frame.parse_header(io.read(9))
+				def read_header(stream)
+					@length, @type, @flags, @stream_id = Frame.parse_header(stream.read(9))
 				end
 				
-				def read_payload(io)
-					@payload = io.read(@length)
+				def read_payload(stream)
+					@payload = stream.read(@length)
 				end
 				
-				def read(io, maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
-					read_header(io) unless @length
+				def read(stream, maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
+					read_header(stream) unless @length
 					
 					if @length > maximum_frame_size
 						raise FrameSizeError, "Frame length #{@length} exceeds maximum frame size #{maximum_frame_size}!"
 					end
 					
-					read_payload(io)
+					read_payload(stream)
 				end
 				
-				def write_header(io)
-					io.write self.header
+				def write_header(stream)
+					stream.write self.header
 				end
 				
-				def write_payload(io)
-					io.write(@payload) if @payload
+				def write_payload(stream)
+					stream.write(@payload) if @payload
 				end
 				
-				def write(io)
+				def write(stream)
 					if @payload and @length != @payload.bytesize
 						raise ProtocolError, "Invalid payload size: #{@length} != #{@payload.bytesize}"
 					end
 					
-					self.write_header(io)
-					self.write_payload(io)
+					self.write_header(stream)
+					self.write_payload(stream)
 				end
 				
 				def apply(connection)
