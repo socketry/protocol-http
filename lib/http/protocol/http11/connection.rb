@@ -95,7 +95,9 @@ module HTTP
 				
 				def write_headers(headers)
 					headers.each do |name, value|
-						@stream.write("#{name}: #{value}\r\n")
+						value.to_s.split("\n").each do |val|
+							@stream.write("#{name}: #{val}\r\n")
+						end
 					end
 				end
 				
