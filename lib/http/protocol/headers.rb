@@ -20,9 +20,16 @@
 
 module HTTP
 	module Protocol
-		TRANSFER_ENCODING = 'transfer-encoding'.freeze
 		CONTENT_LENGTH = 'content-length'.freeze
+		
+		TRANSFER_ENCODING = 'transfer-encoding'.freeze
 		CHUNKED = 'chunked'.freeze
+		
+		CONNECTION = 'connection'.freeze
+		CLOSE = 'close'.freeze
+		KEEP_ALIVE = 'keep-alive'.freeze
+		
+		HOST = 'host'.freeze
 		
 		class Headers
 			class Split < Array

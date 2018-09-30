@@ -24,7 +24,6 @@ module HTTP
 	module Protocol
 		module HTTP10
 			class Connection < HTTP11::Connection
-				KEEP_ALIVE = 'keep-alive'.freeze
 				VERSION = "HTTP/1.0".freeze
 				
 				def version

@@ -25,9 +25,6 @@ module HTTP
 		module HTTP11
 			class Connection
 				CRLF = "\r\n".freeze
-				CONNECTION = 'connection'.freeze
-				HOST = 'host'.freeze
-				CLOSE = 'close'.freeze
 				VERSION = "HTTP/1.1".freeze
 				
 				def initialize(stream, persistent = true)
