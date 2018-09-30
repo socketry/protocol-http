@@ -109,7 +109,13 @@ module HTTP
 				end
 				
 				def read_line
-					@stream.gets(CRLF, chomp: true) or raise EOFError
+					# To support Ruby 2.3, we do the following which is pretty inefficient. Ruby 2.4+ can do the following:
+					# @stream.gets(CRLF, chomp: true) or raise EOFError
+					if line = @stream.gets(CRLF)
+						return line.chomp!(CRLF)
+					else
+						raise EOFError
+					end
 				end
 				
 				def read_request
