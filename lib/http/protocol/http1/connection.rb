@@ -22,32 +22,54 @@ require_relative '../error'
 
 module HTTP
 	module Protocol
-		module HTTP11
+		module HTTP1
 			class Connection
 				CRLF = "\r\n".freeze
-				VERSION = "HTTP/1.1".freeze
+				HTTP10 = "HTTP/1.0".freeze
+				HTTP11 = "HTTP/1.1".freeze
 				
-				def initialize(stream, persistent = true)
+				def initialize(stream, version = HTTP11, persistent = true)
 					@stream = stream
 					
+					@version = version
 					@persistent = persistent
 					
 					@count = 0
 				end
 				
 				attr :stream
+				
+				# The default HTTP version to use (if none specified).
+				attr :version
+				
+				# Whether the connection is persistent.
 				attr :persistent
+				
+				# The number of requests processed.
 				attr :count
 				
-				def version
-					VERSION
+				def persistent?(version, headers)
+					if version == HTTP10
+						if connection = headers[CONNECTION]
+							return connection.include?(KEEP_ALIVE)
+						else
+							return false
+						end
+					else
+						if connection = headers[CONNECTION]
+							return !connection.include?(CLOSE)
+						else
+							return true
+						end
+					end
 				end
 				
-				def persistent?(headers)
-					if connection = headers[CONNECTION]
-						return !connection.include?(CLOSE)
+				# Write the appropriate header for connection persistence.
+				def write_persistent_header(version)
+					if version == HTTP10
+						@stream.write("connection: keep-alive\r\n") if @persistent
 					else
-						return true
+						@stream.write("connection: close\r\n") unless @persistent
 					end
 				end
 				
@@ -61,11 +83,6 @@ module HTTP
 					return @stream
 				end
 				
-				# Write the appropriate header for connection persistence.
-				def write_persistent_header
-					@stream.write("connection: keep-alive\r\n") if @persistent
-				end
-				
 				# Close the connection and underlying stream.
 				def close
 					@stream.close
@@ -76,18 +93,21 @@ module HTTP
 					@stream.write("host: #{authority}\r\n")
 					
 					write_headers(headers)
+					write_persistent_header(version)
 					
 					@stream.flush
 				end
 				
 				def write_response(version, status, headers, body = nil, head = false)
 					@stream.write("#{version} #{status}\r\n")
+					
 					write_headers(headers)
+					write_persistent_header(version)
 					
 					if head
 						write_body_head(body)
 					else
-						write_body(body)
+						write_body(body, version == HTTP11)
 					end
 					
 					@stream.flush
@@ -119,7 +139,7 @@ module HTTP
 					method, path, version = read_line.split(/\s+/, 3)
 					headers = read_headers
 					
-					@persistent = persistent?(headers)
+					@persistent = persistent?(version, headers)
 					
 					body = read_request_body(headers)
 					
@@ -134,7 +154,7 @@ module HTTP
 					
 					headers = read_headers
 					
-					@persistent = persistent?(headers)
+					@persistent = persistent?(version, headers)
 					
 					body = read_response_body(method, status, headers)
 					
@@ -187,8 +207,6 @@ module HTTP
 				end
 				
 				def write_empty_body(body)
-					# Write empty body:
-					write_persistent_header
 					@stream.write("content-length: 0\r\n\r\n")
 					
 					body.read if body
@@ -197,7 +215,6 @@ module HTTP
 				end
 				
 				def write_fixed_length_body(body, length)
-					write_persistent_header
 					@stream.write("content-length: #{length}\r\n\r\n")
 					
 					chunk_length = 0
@@ -219,7 +236,6 @@ module HTTP
 				end
 				
 				def write_chunked_body(body)
-					write_persistent_header
 					@stream.write("transfer-encoding: chunked\r\n\r\n")
 					
 					body.each do |chunk|
@@ -238,7 +254,6 @@ module HTTP
 				def write_body_and_close(body)
 					# We can't be persistent because we don't know the data length:
 					@persistent = false
-					write_persistent_header
 					
 					@stream.write("\r\n")
 					
@@ -263,8 +278,6 @@ module HTTP
 				end
 				
 				def write_body_head(body)
-					write_persistent_header
-					
 					if body.nil? or body.empty?
 						@stream.write("content-length: 0\r\n\r\n")
 					elsif length = body.length

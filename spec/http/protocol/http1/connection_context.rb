@@ -18,18 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'http/protocol/http10/connection'
-require_relative 'connection_context'
+require 'http/protocol/http1/connection'
 
-RSpec.describe HTTP::Protocol::HTTP10::Connection do
-	include_context HTTP::Protocol::HTTP10::Connection
+require 'socket'
+
+RSpec.shared_context HTTP::Protocol::HTTP1::Connection do
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	it "should not be persistent by default" do
-		expect(client).to_not be_persistent({})
-		expect(server).to_not be_persistent({})
-	end
-	
-	it "should be persistent if connection is keep-alive" do
-		expect(server).to be_persistent({'connection' => 'keep-alive'})
-	end
+	let(:client) {HTTP::Protocol::HTTP1::Connection.new(sockets.first)}
+	let(:server) {HTTP::Protocol::HTTP1::Connection.new(sockets.last)}
 end

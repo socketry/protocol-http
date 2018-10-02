@@ -18,11 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'http/protocol/http11/connection'
+require 'http/protocol/http1/connection'
 require_relative 'connection_context'
 
-RSpec.describe HTTP::Protocol::HTTP11::Connection do
-	include_context HTTP::Protocol::HTTP11::Connection
+RSpec.describe HTTP::Protocol::HTTP1::Connection do
+	include_context HTTP::Protocol::HTTP1::Connection
 	
 	it "reads request without body" do
 		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
@@ -61,11 +61,11 @@ RSpec.describe HTTP::Protocol::HTTP11::Connection do
 		expect(version).to be == 'HTTP/1.1'
 		expect(headers).to be == {'host' => 'localhost', 'transfer-encoding' => ["chunked"]}
 		expect(body).to be == "Hello World"
-		expect(server).to be_persistent(headers)
+		expect(server).to be_persistent(version, headers)
 	end
 	
 	it "should be persistent by default" do
-		expect(client).to be_persistent({})
-		expect(server).to be_persistent({})
+		expect(client).to be_persistent('HTTP/1.1', {})
+		expect(server).to be_persistent('HTTP/1.1', {})
 	end
 end
