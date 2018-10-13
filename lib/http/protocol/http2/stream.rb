@@ -83,8 +83,8 @@ module HTTP
 					@state = :idle
 					
 					@priority = nil
-					@local_window = connection.local_window.dup
-					@remote_window = connection.remote_window.dup
+					@local_window = Window.new(connection.local_settings.initial_window_size)
+					@remote_window = Window.new(connection.remote_settings.initial_window_size)
 					
 					@headers = nil
 					@data = nil

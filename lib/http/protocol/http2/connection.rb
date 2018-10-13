@@ -111,6 +111,7 @@ module HTTP
 				def read_frame
 					frame = @framer.read_frame(@local_settings.maximum_frame_size)
 					# puts "#{self.class} #{@state} read_frame: class=#{frame.class} flags=#{frame.flags} length=#{frame.length}"
+					# puts "Windows: local_window=#{@local_window.inspect}; remote_window=#{@remote_window.inspect}"
 					
 					yield frame if block_given?
 					
@@ -171,6 +172,7 @@ module HTTP
 				
 				def update_local_settings(changes)
 					capacity = @local_settings.initial_window_size
+					
 					@streams.each_value do |stream|
 						stream.local_window.capacity = capacity
 					end
@@ -178,6 +180,7 @@ module HTTP
 				
 				def update_remote_settings(changes)
 					capacity = @remote_settings.initial_window_size
+					
 					@streams.each_value do |stream|
 						stream.remote_window.capacity = capacity
 					end
@@ -210,9 +213,6 @@ module HTTP
 				end
 				
 				def open!
-					@local_window.capacity = self.local_settings.initial_window_size
-					@remote_window.capacity = self.remote_settings.initial_window_size
-					
 					@state = :open
 					
 					return self

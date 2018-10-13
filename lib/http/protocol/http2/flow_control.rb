@@ -66,12 +66,13 @@ module HTTP
 					
 					write_frame(frame)
 					
-					@local_window.used -= window_increment
+					@local_window.expand(window_increment)
 				end
 				
 				def receive_window_update(frame)
 					was_full = @remote_window.full?
 					
+					# puts "expand remote_window=#{@remote_window} by #{frame.unpack}"
 					@remote_window.expand(frame.unpack)
 					
 					self.window_updated if was_full

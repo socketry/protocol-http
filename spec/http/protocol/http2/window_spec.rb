@@ -53,8 +53,11 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 		expect(client.remote_settings.initial_window_size).to eq 200
 		expect(server.local_settings.initial_window_size).to eq 200
 		
-		expect(client.remote_window.capacity).to eq 200
-		expect(server.local_window.capacity).to eq 200
+		expect(client.remote_window.capacity).to eq 0xFFFF
+		expect(server.local_window.capacity).to eq 0xFFFF
+		
+		expect(client.local_window.capacity).to eq 0xFFFF
+		expect(server.remote_window.capacity).to eq 0xFFFF
 		
 		expect(client.local_settings.initial_window_size).to eq 0xFFFF
 		expect(server.remote_settings.initial_window_size).to eq 0xFFFF
@@ -86,22 +89,19 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 	
 	context '#window_updated' do
 		it "should be invoked when window update is received" do
-			# Write 200 bytes of data which exhausts window
+			# Write 200 bytes of data (client -> server) which exhausts server local window
 			stream.send_data("*" * 200)
 			
 			expect(server.read_frame).to be_kind_of HTTP::Protocol::HTTP2::DataFrame
 			
-			# Window update was sent, and used data was zeroed:
-			expect(server.local_window.used).to eq 0
+			expect(server.local_window.used).to eq 200
 			expect(client.remote_window.used).to eq 200
 			
-			# ...and must respond with a window update for the connection:
-			expect(client).to receive(:window_updated).once
-			frame = client.read_frame
-			expect(frame).to be_kind_of HTTP::Protocol::HTTP2::WindowUpdateFrame
-			expect(frame.unpack).to eq 200
+			# Window update was sent, and used data was zeroed:
+			server_stream = server.streams[stream.id]
+			expect(server_stream.local_window.used).to eq 0
 			
-			# ...and then for the stream:
+			# ...and must respond with a window update for the stream:
 			expect(stream).to receive(:window_updated).once
 			frame = client.read_frame
 			expect(frame).to be_kind_of HTTP::Protocol::HTTP2::WindowUpdateFrame

@@ -22,7 +22,12 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Window
-				def initialize(capacity)
+				# @param capacity [Integer] The initial window size, typically from the settings.
+				def initialize(capacity = 0xFFFF)
+					# This is the main field required:
+					@available = capacity
+					
+					# These two fields are primarily used for efficiently sending window updates:
 					@used = 0
 					@capacity = capacity
 					
@@ -35,34 +40,40 @@ module HTTP
 				
 				# The window is completely full?
 				def full?
-					@used == @capacity
+					@available.zero?
 				end
 				
-				attr_accessor :used
-				attr_accessor :capacity
+				attr :used
+				attr :capacity
+				
+				# When the value of SETTINGS_INITIAL_WINDOW_SIZE changes, a receiver MUST adjust the size of all stream flow-control windows that it maintains by the difference between the new value and the old value.
+				def capacity= value
+					difference = value - @capacity
+					@available += difference
+				end
 				
 				def consume(amount)
+					@available -= amount
 					@used += amount
 				end
 				
-				def available
-					@capacity - @used
-				end
+				attr :available
 				
 				def available?
-					available > 0
+					@available > 0
 				end
 				
 				def expand(amount)
+					@available += amount
 					@used -= amount
 				end
 				
 				def limited?
-					@used > (@capacity / 2)
+					@available < (@capacity / 2)
 				end
 				
 				def to_s
-					"\#<Window #{@used}/#{@capacity}>"
+					"\#<Window used=#{@used} available=#{@available} capacity=#{@capacity}>"
 				end
 			end
 			
