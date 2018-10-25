@@ -18,8 +18,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module HTTP
-	module Protocol
-		VERSION = "0.6.2"
+require 'http/protocol/headers'
+
+RSpec.describe HTTP::Protocol::Headers::Merged do	
+	let(:fields) do
+		[
+			['Content-Type', 'text/html'],
+			['Set-Cookie', 'hello=world'],
+			['Accept', '*/*'],
+			['content-length', 10],
+		]
+	end
+	
+	subject{described_class.new(fields)}
+	
+	describe '#each' do
+		it 'should yield keys as lower case' do
+			subject.each do |key, value|
+				expect(key).to be == key.downcase
+			end
+		end
+		
+		it 'should yield values as strings' do
+			subject.each do |key, value|
+				expect(value).to be_kind_of String
+			end
+		end
 	end
 end

@@ -196,6 +196,7 @@ module HTTP
 				end
 			end
 			
+			# Used for merging objects into a sequential list of headers. Normalizes header keys and values.
 			class Merged
 				def initialize(*all)
 					@all = all
@@ -205,10 +206,11 @@ module HTTP
 					@all << headers
 				end
 				
+				# @yield [String, String] header key (lower case) and value (as string).
 				def each(&block)
 					@all.each do |headers|
 						headers.each do |key, value|
-							yield key, value.to_s
+							yield key.downcase, value.to_s
 						end
 					end
 				end
