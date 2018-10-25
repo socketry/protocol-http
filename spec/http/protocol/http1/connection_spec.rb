@@ -30,10 +30,11 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 		
 		authority, method, target, version, headers, body = server.read_request
 		
+		expect(authority).to be == 'localhost'
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {'host' => 'localhost', 'accept' => ['*/*'], 'header-0' => ["value 1"]}
+		expect(headers).to be == {'accept' => ['*/*'], 'header-0' => ["value 1"]}
 		expect(body).to be_nil
 	end
 	
@@ -43,10 +44,11 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 		
 		authority, method, target, version, headers, body = server.read_request
 		
+		expect(authority).to be == 'localhost'
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {'host' => 'localhost', 'content-length' => "11"}
+		expect(headers).to be == {}
 		expect(body).to be == "Hello World"
 	end
 	
@@ -56,10 +58,11 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 		
 		authority, method, target, version, headers, body = server.read_request
 		
+		expect(authority).to be == 'localhost'
 		expect(method).to be == 'GET'
 		expect(target).to be == '/'
 		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {'host' => 'localhost', 'transfer-encoding' => ["chunked"]}
+		expect(headers).to be == {}
 		expect(body).to be == "Hello World"
 		expect(server).to be_persistent(version, headers)
 	end

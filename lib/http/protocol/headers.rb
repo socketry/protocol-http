@@ -91,30 +91,13 @@ module HTTP
 				self[key] != nil
 			end
 			
-			# Delete all headers with the given key, and return the value of the last one, if any.
-			def delete(key)
-				values, @fields = @fields.partition do |field|
-					field.first.downcase == key
-				end
-				
-				if @indexed
-					@indexed.delete(key)
-				end
-				
-				if field = values.last
-					return field.last
-				end
-			end
-			
 			def slice!(keys)
 				values, @fields = @fields.partition do |field|
 					keys.include?(field.first.downcase)
 				end
 				
-				if @indexed
-					keys.each do |key|
-						@indexed.delete(key)
-					end
+				keys.each do |key|
+					@indexed.delete(key)
 				end
 			end
 			
@@ -125,10 +108,8 @@ module HTTP
 			def []= key, value
 				@fields << [key, value]
 				
-				if @indexed
-					# It would be good to do some kind of validation here.
-					merge(@indexed, key.downcase, value)
-				end
+				# It would be good to do some kind of validation here.
+				merge(@indexed, key.downcase, value)
 			end
 			
 			MERGE_POLICY = {
@@ -159,6 +140,15 @@ module HTTP
 				'proxy-authenticate' => Multiple
 			}.tap{|hash| hash.default = Split}
 			
+			# Delete all headers with the given key, and return the merged value.
+			def delete(key)
+				values, @fields = @fields.partition do |field|
+					field.first.downcase == key
+				end
+				
+				return @indexed.delete(key)
+			end
+			
 			def merge(hash, key, value)
 				if policy = MERGE_POLICY[key]
 					if current_value = hash[key]
@@ -175,8 +165,6 @@ module HTTP
 			end
 			
 			def [] key
-				@indexed ||= to_h
-				
 				@indexed[key]
 			end
 			

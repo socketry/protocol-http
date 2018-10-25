@@ -145,12 +145,11 @@ module HTTP
 					
 					@count += 1
 					
-					return headers[HOST], method, path, version, headers, body
+					return headers.delete(HOST), method, path, version, headers, body
 				end
 				
 				def read_response(method)
 					version, status, reason = read_line.split(/\s+/, 3)
-					Async.logger.debug(self) {"#{version} #{status} #{reason}"}
 					
 					headers = read_headers
 					
@@ -357,7 +356,7 @@ module HTTP
 					# transfer coding (Section 4.1) is the final encoding, the message
 					# body length is determined by reading and decoding the chunked
 					# data until the transfer coding indicates the data is complete.
-					if transfer_encoding = headers[TRANSFER_ENCODING]
+					if transfer_encoding = headers.delete(TRANSFER_ENCODING)
 						# If a message is received with both a Transfer-Encoding and a
 						# Content-Length header field, the Transfer-Encoding overrides the
 						# Content-Length.  Such a message might indicate an attempt to
@@ -390,7 +389,7 @@ module HTTP
 					# the recipient times out before the indicated number of octets are
 					# received, the recipient MUST consider the message to be
 					# incomplete and close the connection.
-					if content_length = headers[CONTENT_LENGTH]
+					if content_length = headers.delete(CONTENT_LENGTH)
 						length = Integer(content_length)
 						if length >= 0
 							return read_fixed_body(length)
