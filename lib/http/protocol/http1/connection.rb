@@ -28,19 +28,15 @@ module HTTP
 				HTTP10 = "HTTP/1.0".freeze
 				HTTP11 = "HTTP/1.1".freeze
 				
-				def initialize(stream, version = HTTP11, persistent = true)
+				def initialize(stream, persistent = true)
 					@stream = stream
 					
-					@version = version
 					@persistent = persistent
 					
 					@count = 0
 				end
 				
 				attr :stream
-				
-				# The default HTTP version to use (if none specified).
-				attr :version
 				
 				# Whether the connection is persistent.
 				attr :persistent
