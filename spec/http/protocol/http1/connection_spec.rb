@@ -25,6 +25,20 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 	include_context HTTP::Protocol::HTTP1::Connection
 	
 	it "reads request without body" do
+		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n"
+		client.stream.close
+		
+		authority, method, target, version, headers, body = server.read_request
+		
+		expect(authority).to be == 'localhost'
+		expect(method).to be == 'GET'
+		expect(target).to be == '/'
+		expect(version).to be == 'HTTP/1.1'
+		expect(headers).to be == {}
+		expect(body).to be_nil
+	end
+	
+	it "reads request without body after closing connection" do
 		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
 		client.stream.close
 		

@@ -387,8 +387,10 @@ module HTTP
 					# incomplete and close the connection.
 					if content_length = headers.delete(CONTENT_LENGTH)
 						length = Integer(content_length)
-						if length >= 0
+						if length > 0
 							return read_fixed_body(length)
+						elsif length == 0
+							return nil
 						else
 							raise BadRequest, "Invalid content length: #{content_length}"
 						end
