@@ -315,7 +315,7 @@ module HTTP
 					# code is always terminated by the first empty line after the
 					# header fields, regardless of the header fields present in the
 					# message, and thus cannot contain a message body.
-					if method == "HEAD" or status == 204 or status == 304
+					if method == "HEAD" or (status >= 100 and status < 200) or status == 204 or status == 304
 						return nil
 					end
 					

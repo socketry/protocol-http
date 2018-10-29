@@ -85,4 +85,12 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 		expect(client).to be_persistent('HTTP/1.1', {})
 		expect(server).to be_persistent('HTTP/1.1', {})
 	end
+	
+	describe '#read_response_body' do
+		it "should ignore body for informational responses" do
+			client.close
+			
+			expect(client.read_response_body("GET", 100, {'content-length' => '10'})).to be_nil
+		end
+	end
 end
