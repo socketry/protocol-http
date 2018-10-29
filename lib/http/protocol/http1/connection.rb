@@ -147,6 +147,8 @@ module HTTP
 				def read_response(method)
 					version, status, reason = read_line.split(/\s+/, 3)
 					
+					status = Integer(status)
+					
 					headers = read_headers
 					
 					@persistent = persistent?(version, headers)
@@ -155,7 +157,7 @@ module HTTP
 					
 					@count += 1
 					
-					return version, Integer(status), reason, headers, body
+					return version, status, reason, headers, body
 				end
 				
 				def read_headers
@@ -328,26 +330,16 @@ module HTTP
 						return read_tunnel_body
 					end
 					
-					if body = read_body(headers)
-						return body
-					else
-						# 7.  Otherwise, this is a response message without a declared message
-						# body length, so the message body length is determined by the
-						# number of octets received prior to the server closing the
-						# connection.
-						return read_remainder_body
-					end
+					return read_body(headers, true)
 				end
 				
 				def read_request_body(headers)
 					# 6.  If this is a request message and none of the above are true, then
 					# the message body length is zero (no message body is present).
-					if body = read_body(headers)
-						return body
-					end
+					return read_body(headers)
 				end
 				
-				def read_body(headers)
+				def read_body(headers, remainder = false)
 					# 3.  If a Transfer-Encoding header field is present and the chunked
 					# transfer coding (Section 4.1) is the final encoding, the message
 					# body length is determined by reading and decoding the chunked
@@ -394,6 +386,14 @@ module HTTP
 						else
 							raise BadRequest, "Invalid content length: #{content_length}"
 						end
+					end
+					
+					if remainder
+						# 7.  Otherwise, this is a response message without a declared message
+						# body length, so the message body length is determined by the
+						# number of octets received prior to the server closing the
+						# connection.
+						return read_remainder_body
 					end
 				end
 			end

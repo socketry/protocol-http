@@ -24,66 +24,83 @@ require_relative 'connection_context'
 RSpec.describe HTTP::Protocol::HTTP1::Connection do
 	include_context HTTP::Protocol::HTTP1::Connection
 	
-	it "reads request without body" do
-		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n"
-		client.stream.close
+	describe '#read_request' do
+		it "reads request without body" do
+			client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n"
+			client.stream.close
+			
+			authority, method, target, version, headers, body = server.read_request
+			
+			expect(authority).to be == 'localhost'
+			expect(method).to be == 'GET'
+			expect(target).to be == '/'
+			expect(version).to be == 'HTTP/1.1'
+			expect(headers).to be == {}
+			expect(body).to be_nil
+		end
 		
-		authority, method, target, version, headers, body = server.read_request
+		it "reads request without body after closing connection" do
+			client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
+			client.stream.close
+			
+			authority, method, target, version, headers, body = server.read_request
+			
+			expect(authority).to be == 'localhost'
+			expect(method).to be == 'GET'
+			expect(target).to be == '/'
+			expect(version).to be == 'HTTP/1.1'
+			expect(headers).to be == {'accept' => ['*/*'], 'header-0' => ["value 1"]}
+			expect(body).to be_nil
+		end
 		
-		expect(authority).to be == 'localhost'
-		expect(method).to be == 'GET'
-		expect(target).to be == '/'
-		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {}
-		expect(body).to be_nil
+		it "reads request with fixed body" do
+			client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World"
+			client.stream.close
+			
+			authority, method, target, version, headers, body = server.read_request
+			
+			expect(authority).to be == 'localhost'
+			expect(method).to be == 'GET'
+			expect(target).to be == '/'
+			expect(version).to be == 'HTTP/1.1'
+			expect(headers).to be == {}
+			expect(body).to be == "Hello World"
+		end
+		
+		it "reads request with chunked body" do
+			client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nb\r\nHello World\r\n0\r\n\r\n"
+			client.stream.close
+			
+			authority, method, target, version, headers, body = server.read_request
+			
+			expect(authority).to be == 'localhost'
+			expect(method).to be == 'GET'
+			expect(target).to be == '/'
+			expect(version).to be == 'HTTP/1.1'
+			expect(headers).to be == {}
+			expect(body).to be == "Hello World"
+			expect(server).to be_persistent(version, headers)
+		end
+		
+		it "should be persistent by default" do
+			expect(client).to be_persistent('HTTP/1.1', {})
+			expect(server).to be_persistent('HTTP/1.1', {})
+		end
 	end
 	
-	it "reads request without body after closing connection" do
-		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: */*\r\nHeader-0: value 1\r\n\r\n"
-		client.stream.close
-		
-		authority, method, target, version, headers, body = server.read_request
-		
-		expect(authority).to be == 'localhost'
-		expect(method).to be == 'GET'
-		expect(target).to be == '/'
-		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {'accept' => ['*/*'], 'header-0' => ["value 1"]}
-		expect(body).to be_nil
-	end
-	
-	it "reads request with fixed body" do
-		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World"
-		client.stream.close
-		
-		authority, method, target, version, headers, body = server.read_request
-		
-		expect(authority).to be == 'localhost'
-		expect(method).to be == 'GET'
-		expect(target).to be == '/'
-		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {}
-		expect(body).to be == "Hello World"
-	end
-	
-	it "reads request with chunked body" do
-		client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nb\r\nHello World\r\n0\r\n\r\n"
-		client.stream.close
-		
-		authority, method, target, version, headers, body = server.read_request
-		
-		expect(authority).to be == 'localhost'
-		expect(method).to be == 'GET'
-		expect(target).to be == '/'
-		expect(version).to be == 'HTTP/1.1'
-		expect(headers).to be == {}
-		expect(body).to be == "Hello World"
-		expect(server).to be_persistent(version, headers)
-	end
-	
-	it "should be persistent by default" do
-		expect(client).to be_persistent('HTTP/1.1', {})
-		expect(server).to be_persistent('HTTP/1.1', {})
+	describe '#read_response' do
+		it "should read successful response" do
+			server.stream.write("HTTP/1.1 200 Hello\r\nContent-Length: 0\r\n\r\n")
+			server.stream.close
+			
+			version, status, reason, headers, body = client.read_response("GET")
+			
+			expect(version).to be == 'HTTP/1.1'
+			expect(status).to be == 200
+			expect(reason).to be == "Hello"
+			expect(headers).to be == {}
+			expect(body).to be_nil
+		end
 	end
 	
 	describe '#read_response_body' do
