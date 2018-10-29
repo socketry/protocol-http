@@ -24,8 +24,8 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Client < Connection
-				def initialize(framer, *args)
-					super(framer, 1, *args)
+				def initialize(framer)
+					super(framer, 1)
 				end
 				
 				def send_connection_preface(settings = nil)

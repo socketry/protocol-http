@@ -24,8 +24,8 @@ module HTTP
 	module Protocol
 		module HTTP2
 			class Server < Connection
-				def initialize(framer, *args)
-					super(framer, 2, *args)
+				def initialize(framer)
+					super(framer, 2)
 				end
 				
 				def read_connection_preface(settings)
