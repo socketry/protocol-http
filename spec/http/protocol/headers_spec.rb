@@ -79,11 +79,9 @@ RSpec.describe HTTP::Protocol::Headers do
 	
 	describe '#merge' do
 		it "can merge content-length" do
-			subject['Content-Length'] = 1
-			
 			subject.merge('content-length' => 2)
 			
-			puts subject.inspect
+			expect(subject['content-length']).to be == 2
 		end
 	end
 end
