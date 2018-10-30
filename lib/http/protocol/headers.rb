@@ -99,17 +99,35 @@ module HTTP
 				keys.each do |key|
 					@indexed.delete(key)
 				end
+				
+				return self
+			end
+			
+			def slice(keys)
+				self.dup.slice!(keys)
 			end
 			
 			def add(key, value)
 				self[key] = value
 			end
 			
+			def merge!(headers)
+				headers.each do |key, value|
+					self[key] = value
+				end
+				
+				return self
+			end
+			
+			def merge(headers)
+				self.dup.merge!(headers)
+			end
+			
 			def []= key, value
 				@fields << [key, value]
 				
 				# It would be good to do some kind of validation here.
-				merge(@indexed, key.downcase, value)
+				merge_into(@indexed, key.downcase, value)
 			end
 			
 			MERGE_POLICY = {
@@ -149,7 +167,7 @@ module HTTP
 				return @indexed.delete(key)
 			end
 			
-			def merge(hash, key, value)
+			protected def merge_into(hash, key, value)
 				if policy = MERGE_POLICY[key]
 					if current_value = hash[key]
 						current_value << value
@@ -157,8 +175,6 @@ module HTTP
 						hash[key] = policy.new(value)
 					end
 				else
-					raise ArgumentError, "Header #{key} can only be set once!" if hash.include?(key)
-					
 					# We can't merge these, we only expose the last one set.
 					hash[key] = value
 				end
@@ -170,7 +186,7 @@ module HTTP
 			
 			def to_h
 				@fields.inject({}) do |hash, (key, value)|
-					merge(hash, key.downcase, value)
+					merge_into(hash, key.downcase, value)
 					
 					hash
 				end

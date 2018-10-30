@@ -76,4 +76,14 @@ RSpec.describe HTTP::Protocol::Headers do
 			expect(subject.fields).to be == fields[1..-1]
 		end
 	end
+	
+	describe '#merge' do
+		it "can merge content-length" do
+			subject['Content-Length'] = 1
+			
+			subject.merge('content-length' => 2)
+			
+			puts subject.inspect
+		end
+	end
 end
