@@ -110,4 +110,15 @@ RSpec.describe HTTP::Protocol::HTTP1::Connection do
 			expect(client.read_response_body("GET", 100, {'content-length' => '10'})).to be_nil
 		end
 	end
+	
+	context 'bad requests' do
+		it "should fail with negative content length" do
+			client.stream.write "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: -1\r\n\r\nHello World"
+			client.stream.close
+			
+			expect do
+				server.read_request
+			end.to raise_error(HTTP::Protocol::BadRequest)
+		end
+	end
 end
