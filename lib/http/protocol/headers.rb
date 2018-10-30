@@ -123,11 +123,13 @@ module HTTP
 				self.dup.merge!(headers)
 			end
 			
+			# Append the value to the given key. Some values can be appended multiple times, others can only be set once.
+			# @param key [String] The header key.
+			# @param value The header value.
 			def []= key, value
-				@fields << [key, value]
-				
-				# It would be good to do some kind of validation here.
 				merge_into(@indexed, key.downcase, value)
+				
+				@fields << [key, value]
 			end
 			
 			MERGE_POLICY = {
