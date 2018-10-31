@@ -36,6 +36,16 @@ RSpec.describe HTTP::Protocol::Headers do
 		end
 	end
 	
+	describe '#dup' do
+		it "should not modify source object" do
+			headers = subject.dup
+			
+			headers['field'] = 'value'
+			
+			expect(subject).to_not include('field')
+		end
+	end
+	
 	describe '#fields' do
 		it 'should add fields in order' do
 			expect(subject.fields).to be == fields
@@ -79,7 +89,7 @@ RSpec.describe HTTP::Protocol::Headers do
 	
 	describe '#merge' do
 		it "can merge content-length" do
-			subject.merge('content-length' => 2)
+			subject.merge!('content-length' => 2)
 			
 			expect(subject['content-length']).to be == 2
 		end

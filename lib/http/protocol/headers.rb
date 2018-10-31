@@ -64,9 +64,22 @@ module HTTP
 				self.new(hash.to_a)
 			end
 			
-			def initialize(fields = [])
-				@fields = fields
-				@indexed = to_h
+			def initialize(fields = nil, indexed = nil)
+				if fields
+					@fields = fields.dup
+				else
+					@fields = []
+				end
+				
+				if indexed
+					@indexed = indexed.dup
+				else
+					@indexed = self.to_h
+				end
+			end
+			
+			def dup
+				self.class.new(@fields, @indexed)
 			end
 			
 			attr :fields
