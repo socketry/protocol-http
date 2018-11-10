@@ -206,7 +206,8 @@ module HTTP
 				def write_empty_body(body)
 					@stream.write("content-length: 0\r\n\r\n")
 					
-					body.read if body
+					# Consume the input body.
+					body.each{} if body
 					
 					@stream.flush
 				end
