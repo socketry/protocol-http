@@ -163,7 +163,7 @@ module HTTP
 					read_header(stream) unless @length
 					
 					if @length > maximum_frame_size
-						raise FrameSizeError, "Frame length #{@length} exceeds maximum frame size #{maximum_frame_size}!"
+						raise FrameSizeError, "#{self.class} (type=#{@type}) frame length #{@length} exceeds maximum frame size #{maximum_frame_size}!"
 					end
 					
 					read_payload(stream)
