@@ -1,5 +1,5 @@
 
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+$LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
 
 require 'async'
 require 'async/io/stream'
@@ -38,6 +38,7 @@ Async.run do
 	stream.send_headers(nil, headers, HTTP::Protocol::HTTP2::END_STREAM)
 	
 	puts "Waiting for response..."
+	$count = 0
 	
 	def stream.process_headers(frame)
 		headers = super
@@ -46,12 +47,17 @@ Async.run do
 	
 	def stream.receive_data(frame)
 		data = super
+		
+		$count += data.scan(/kittens/).count
+		
 		puts "Got response data: #{data.bytesize}"
 	end
 	
 	until stream.closed?
 		frame = client.read_frame
 	end
+	
+	puts "Got #{$count} kittens!"
 	
 	binding.pry
 	
