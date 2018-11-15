@@ -26,7 +26,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Connection do
 	it "can negotiate connection" do
 		first_server_frame = nil
 		
-		first_client_frame = client.send_connection_preface([]) do
+		first_client_frame = client.send_connection_preface do
 			first_server_frame = server.read_connection_preface([])
 		end
 		

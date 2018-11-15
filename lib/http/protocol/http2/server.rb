@@ -28,7 +28,7 @@ module HTTP
 					super(framer, 2)
 				end
 				
-				def read_connection_preface(settings)
+				def read_connection_preface(settings = [])
 					if @state == :new
 						@framer.read_connection_preface
 						

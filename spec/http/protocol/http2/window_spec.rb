@@ -38,7 +38,7 @@ RSpec.describe HTTP::Protocol::HTTP2::Window do
 	end
 	
 	before do
-		client.send_connection_preface([]) do
+		client.send_connection_preface do
 			server.read_connection_preface(settings)
 		end
 		

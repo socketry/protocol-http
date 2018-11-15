@@ -28,7 +28,7 @@ module HTTP
 					super(framer, 1)
 				end
 				
-				def send_connection_preface(settings = nil)
+				def send_connection_preface(settings = [])
 					if @state == :new
 						@framer.write_connection_preface
 						
