@@ -84,7 +84,7 @@ module HTTP
 					@enable_push = 1
 					@maximum_concurrent_streams = 0xFFFFFFFF
 					@initial_window_size = 0xFFFF # 2**16 - 1
-					@maximum_frame_size = 0x3FFF # 2**14 - 1
+					@maximum_frame_size = 0x4000 # 2**14
 					@maximum_header_list_size = 0xFFFFFFFF
 				end
 				
