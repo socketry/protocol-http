@@ -97,6 +97,8 @@ module HTTP
 					frame.write(@stream)
 					
 					@stream.flush
+					
+					return frame
 				end
 				
 				def read_header
