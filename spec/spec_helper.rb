@@ -1,7 +1,8 @@
-require "bundler/setup"
-require "http/protocol"
 
+require "bundler/setup"
 Bundler.require(:test)
+
+require 'http/protocol'
 
 RSpec.configure do |config|
 	# Enable flags like --only-failures and --next-failure
