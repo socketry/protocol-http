@@ -90,8 +90,6 @@ module HTTP
 					
 					write_headers(headers)
 					write_persistent_header(version)
-					
-					@stream.flush
 				end
 				
 				def write_response(version, status, headers, body = nil, head = false)
@@ -187,6 +185,7 @@ module HTTP
 				
 				def write_empty_body(body)
 					@stream.write("content-length: 0\r\n\r\n")
+					@stream.flush
 					
 					if body
 						body.close if body.respond_to?(:close)
@@ -195,6 +194,7 @@ module HTTP
 				
 				def write_fixed_length_body(body, length, head)
 					@stream.write("content-length: #{length}\r\n\r\n")
+					@stream.flush
 					
 					if head
 						body.close if body.respond_to?(:close)
@@ -222,6 +222,7 @@ module HTTP
 				
 				def write_chunked_body(body, head)
 					@stream.write("transfer-encoding: chunked\r\n\r\n")
+					@stream.flush
 					
 					if head
 						body.close if body.respond_to?(:close)
@@ -239,12 +240,14 @@ module HTTP
 					end
 					
 					@stream.write("0\r\n\r\n")
+					@stream.flush
 				end
 				
 				def write_body_and_close(body, head)
 					# We can't be persistent because we don't know the data length:
 					@persistent = false
 					@stream.write("\r\n")
+					@stream.flush
 					
 					if head
 						body.close if body.respond_to?(:close)
@@ -255,7 +258,7 @@ module HTTP
 						end
 					end
 					
-					@stream.stream.close_write
+					@stream.io.close_write
 				end
 				
 				def write_body(body, chunked = true, head = false)
