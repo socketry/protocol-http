@@ -99,14 +99,7 @@ module HTTP
 					
 					write_headers(headers)
 					write_persistent_header(version)
-					
-					if head
-						write_body_head(body)
-					else
-						write_body(body, version == HTTP11)
-					end
-					
-					@stream.flush
+					write_body(body, version == HTTP11, head)
 				end
 				
 				def write_headers(headers)
@@ -205,11 +198,11 @@ module HTTP
 				
 				def write_empty_body(body)
 					@stream.write("content-length: 0\r\n\r\n")
-					@stream.flush
 				end
 				
-				def write_fixed_length_body(body, length)
+				def write_fixed_length_body(body, length, head)
 					@stream.write("content-length: #{length}\r\n\r\n")
+					return if head
 					
 					chunk_length = 0
 					body.each do |chunk|
@@ -229,8 +222,9 @@ module HTTP
 					end
 				end
 				
-				def write_chunked_body(body)
+				def write_chunked_body(body, head)
 					@stream.write("transfer-encoding: chunked\r\n\r\n")
+					return if head
 					
 					body.each do |chunk|
 						next if chunk.size == 0
@@ -242,43 +236,35 @@ module HTTP
 					end
 					
 					@stream.write("0\r\n\r\n")
-					@stream.flush
 				end
 				
-				def write_body_and_close(body)
+				def write_body_and_close(body, head)
 					# We can't be persistent because we don't know the data length:
 					@persistent = false
-					
 					@stream.write("\r\n")
 					
-					body.each do |chunk|
-						@stream.write(chunk)
-						@stream.flush
+					unless head
+						body.each do |chunk|
+							@stream.write(chunk)
+							@stream.flush
+						end
 					end
 					
 					@stream.stream.close_write
 				end
 				
-				def write_body(body, chunked = true)
+				def write_body(body, chunked = true, head = false)
 					if body.nil? or body.empty?
 						write_empty_body(body)
 					elsif length = body.length
-						write_fixed_length_body(body, length)
+						write_fixed_length_body(body, length, head)
 					elsif chunked
-						write_chunked_body(body)
+						write_chunked_body(body, head)
 					else
-						write_body_and_close(body)
+						write_body_and_close(body, head)
 					end
-				end
-				
-				def write_body_head(body)
-					if body.nil? or body.empty?
-						@stream.write("content-length: 0\r\n\r\n")
-					elsif length = body.length
-						@stream.write("content-length: #{length}\r\n\r\n")
-					else
-						@stream.write("\r\n")
-					end
+					
+					@stream.flush
 				end
 				
 				def read_chunked_body
