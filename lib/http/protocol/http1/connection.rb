@@ -185,17 +185,6 @@ module HTTP
 					return chunk
 				end
 				
-				def write_chunk(chunk)
-					if chunk.nil?
-						@stream.write("0\r\n\r\n")
-					elsif !chunk.empty?
-						@stream.write("#{chunk.bytesize.to_s(16).upcase}\r\n")
-						@stream.write(chunk)
-						@stream.write(CRLF)
-						@stream.flush
-					end
-				end
-				
 				def write_empty_body(body)
 					@stream.write("content-length: 0\r\n\r\n")
 				end
