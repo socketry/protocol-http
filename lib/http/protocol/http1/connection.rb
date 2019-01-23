@@ -187,11 +187,20 @@ module HTTP
 				
 				def write_empty_body(body)
 					@stream.write("content-length: 0\r\n\r\n")
+					
+					if body
+						body.close if body.respond_to?(:close)
+					end
 				end
 				
 				def write_fixed_length_body(body, length, head)
 					@stream.write("content-length: #{length}\r\n\r\n")
-					return if head
+					
+					if head
+						body.close if body.respond_to?(:close)
+						
+						return
+					end
 					
 					chunk_length = 0
 					body.each do |chunk|
@@ -213,7 +222,12 @@ module HTTP
 				
 				def write_chunked_body(body, head)
 					@stream.write("transfer-encoding: chunked\r\n\r\n")
-					return if head
+					
+					if head
+						body.close if body.respond_to?(:close)
+						
+						return
+					end
 					
 					body.each do |chunk|
 						next if chunk.size == 0
@@ -232,7 +246,9 @@ module HTTP
 					@persistent = false
 					@stream.write("\r\n")
 					
-					unless head
+					if head
+						body.close if body.respond_to?(:close)
+					else
 						body.each do |chunk|
 							@stream.write(chunk)
 							@stream.flush
