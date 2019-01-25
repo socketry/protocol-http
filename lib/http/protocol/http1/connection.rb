@@ -358,7 +358,7 @@ module HTTP
 							# the final encoding, the message body length cannot be determined
 							# reliably; the server MUST respond with the 400 (Bad Request)
 							# status code and then close the connection.
-							return read_body_remainder
+							return read_remainder_body
 						end
 					end
 
