@@ -178,7 +178,7 @@ module HTTP
 					chunk = @stream.read(length)
 					
 					# Consume the trailing CRLF:
-					crlf = @stream.read(2)
+					@stream.read(2)
 					
 					return chunk
 				end

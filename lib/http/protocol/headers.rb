@@ -105,7 +105,7 @@ module HTTP
 			end
 			
 			def slice!(keys)
-				values, @fields = @fields.partition do |field|
+				_, @fields = @fields.partition do |field|
 					keys.include?(field.first.downcase)
 				end
 				
@@ -175,7 +175,7 @@ module HTTP
 			
 			# Delete all headers with the given key, and return the merged value.
 			def delete(key)
-				values, @fields = @fields.partition do |field|
+				_, @fields = @fields.partition do |field|
 					field.first.downcase == key
 				end
 				
