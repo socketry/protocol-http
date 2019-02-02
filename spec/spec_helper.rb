@@ -1,6 +1,5 @@
 
-require "bundler/setup"
-Bundler.require(:test)
+require 'covered/rspec'
 
 require 'http/protocol'
 
