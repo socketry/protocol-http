@@ -54,10 +54,10 @@ RSpec.describe HTTP::Protocol::HTTP2::DataFrame do
 			
 			subject.read(stream)
 			
-			expect(subject.length) == payload.bytesize
-			expect(subject.flags) == HTTP::Protocol::HTTP2::END_STREAM
-			expect(subject.stream_id) == 1
-			expect(subject.payload) == payload
+			expect(subject.length).to be == payload.bytesize
+			expect(subject.flags).to be == HTTP::Protocol::HTTP2::END_STREAM
+			expect(subject.stream_id).to be == 1
+			expect(subject.payload).to be == payload
 		end
 	end
 	
