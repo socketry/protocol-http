@@ -106,8 +106,8 @@ module HTTP
 				self.dup(nil, parameters)
 			end
 			
-			def dup(path = nil, parameters = nil)
-				if @parameters
+			def dup(path = nil, parameters = nil, merge = true)
+				if @parameters and merge
 					if parameters
 						parameters = @parameters.merge(parameters)
 					else
