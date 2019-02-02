@@ -116,7 +116,7 @@ module HTTP
 				end
 				
 				if path
-					path = @path + '/' + path
+					path = expand_path(@path, path)
 				else
 					path = @path
 				end
