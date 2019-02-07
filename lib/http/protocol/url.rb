@@ -66,7 +66,8 @@ module HTTP
 			end
 			
 			def self.scan(string)
-				string.split('&') do |assignment|
+				# TODO Ruby 2.6 doesn't require `.each`
+				string.split('&').each do |assignment|
 					key, value = assignment.split('=', 2)
 					
 					yield unescape(key), unescape(value)
@@ -83,7 +84,7 @@ module HTTP
 				yield(top, middle) if block_given?
 				
 				middle.each_with_index do |key, index|
-					if key == ""
+					if key.empty?
 						parent = (parent[top] ||= Array.new)
 						top = parent.size
 						
@@ -102,8 +103,8 @@ module HTTP
 			def self.decode(string, maximum = 8)
 				parameters = {}
 				
-				scan(string) do |key, value|
-					assign(key, value, parameters) do |top, middle|
+				self.scan(string) do |key, value|
+					self.assign(key, value, parameters) do |top, middle|
 						if maximum and middle.count > maximum
 							raise ArgumentError, "Key length exceeded limit!"
 						end
