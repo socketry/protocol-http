@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'url'
+
 module HTTP
 	module Protocol
 		# A relative reference, excluding any authority.
@@ -71,15 +73,15 @@ module HTTP
 			
 			def append(buffer)
 				if query_string?
-					buffer << escape_path(@path) << '?' << @query_string
-					buffer << '&' << encode(@parameters) if parameters?
+					buffer << URL.escape_path(@path) << '?' << @query_string
+					buffer << '&' << URL.encode(@parameters) if parameters?
 				else
-					buffer << escape_path(@path)
-					buffer << '?' << encode(@parameters) if parameters?
+					buffer << URL.escape_path(@path)
+					buffer << '?' << URL.encode(@parameters) if parameters?
 				end
 				
 				if fragment?
-					buffer << '#' << escape(@fragment)
+					buffer << '#' << URL.escape(@fragment)
 				end
 				
 				return buffer
@@ -142,45 +144,6 @@ module HTTP
 					end
 					
 					return path.join('/')
-				end
-			end
-			
-			# Escapes a generic string, using percent encoding.
-			def escape(string)
-				encoding = string.encoding
-				string.b.gsub(/([^a-zA-Z0-9_.\-]+)/) do |m|
-					'%' + m.unpack('H2' * m.bytesize).join('%').upcase
-				end.force_encoding(encoding)
-			end
-			
-			# According to https://tools.ietf.org/html/rfc3986#section-3.3, we escape non-pchar.
-			NON_PCHAR = /([^a-zA-Z0-9_\-\.~!$&'()*+,;=:@\/]+)/.freeze
-			
-			# Escapes a path
-			def escape_path(path)
-				encoding = path.encoding
-				path.b.gsub(NON_PCHAR) do |m|
-					'%' + m.unpack('H2' * m.bytesize).join('%').upcase
-				end.force_encoding(encoding)
-			end
-			
-			# Encodes a hash or array into a query string
-			def encode(value, prefix = nil)
-				case value
-				when Array
-					return value.map {|v|
-						encode(v, "#{prefix}[]")
-					}.join("&")
-				when Hash
-					return value.map {|k, v|
-						encode(v, prefix ? "#{prefix}[#{escape(k.to_s)}]" : escape(k.to_s))
-					}.reject(&:empty?).join('&')
-				when nil
-					return prefix
-				else
-					raise ArgumentError, "value must be a Hash" if prefix.nil?
-					
-					return "#{prefix}=#{escape(value.to_s)}"
 				end
 			end
 		end
