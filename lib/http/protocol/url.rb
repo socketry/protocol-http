@@ -78,13 +78,11 @@ module HTTP
 				name.scan(/([^\[]+)|(?:\[(.*?)\])/).flatten!.compact!
 			end
 			
-			def self.assign(name, value, parent)
-				top, *middle = self.split(name)
-				
-				yield(top, middle) if block_given?
+			def self.assign(keys, value, parent)
+				top, *middle = keys
 				
 				middle.each_with_index do |key, index|
-					if key.empty?
+					if key.nil? or key.empty?
 						parent = (parent[top] ||= Array.new)
 						top = parent.size
 						
@@ -100,15 +98,21 @@ module HTTP
 				parent[top] = value
 			end
 			
-			def self.decode(string, maximum = 8)
+			def self.decode(string, maximum = 8, symbolize_keys: false)
 				parameters = {}
 				
-				self.scan(string) do |key, value|
-					self.assign(key, value, parameters) do |top, middle|
-						if maximum and middle.count > maximum
-							raise ArgumentError, "Key length exceeded limit!"
-						end
+				self.scan(string) do |name, value|
+					keys = self.split(name)
+					
+					if keys.count > maximum
+						raise ArgumentError, "Key length exceeded limit!"
 					end
+					
+					if symbolize_keys
+						keys.collect!{|key| key.empty? ? nil : key.to_sym}
+					end
+					
+					self.assign(keys, value, parameters)
 				end
 				
 				return parameters

@@ -44,4 +44,24 @@ RSpec.describe HTTP::Protocol::URL do
 	it_behaves_like "valid parameters", {'foo' => [{'bar' => 'baz'}]}, "foo[][bar]=baz"
 	
 	it_behaves_like "valid parameters", {'foo' => [{'bar' => 'baz'}, {'bar' => 'bob'}]}
+	
+	let(:encoded) {HTTP::Protocol::URL.encode(parameters)}
+	
+	context "basic parameters" do
+		let(:parameters) {{x: "10", y: "20"}}
+		let(:decoded) {HTTP::Protocol::URL.decode(encoded, symbolize_keys: true)}
+		
+		it "can symbolize keys" do
+			expect(decoded).to be == parameters
+		end
+	end
+	
+	context "nested parameters" do
+		let(:parameters) {{things: [{x: "10"}, {x: "20"}]}}
+		let(:decoded) {HTTP::Protocol::URL.decode(encoded, symbolize_keys: true)}
+		
+		it "can symbolize keys" do
+			expect(decoded).to be == parameters
+		end
+	end
 end
