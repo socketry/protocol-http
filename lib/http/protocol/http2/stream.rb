@@ -127,6 +127,8 @@ module HTTP
 					else
 						send_reset_stream(PROTOCOL_ERROR)
 					end
+					
+					return nil
 				end
 				
 				private def write_headers(priority, headers, flags = 0)
