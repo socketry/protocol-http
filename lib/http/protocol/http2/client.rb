@@ -43,6 +43,23 @@ module HTTP
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end
 				end
+				
+				def receive_push_promise(frame)
+					if frame.stream_id == 0
+						raise ProtocolError, "Cannot receive headers for stream 0!"
+					end
+					
+					if stream = @streams[frame.stream_id]
+						# This is almost certainly invalid:
+						promised_stream, request_headers = stream.receive_push_promise(frame)
+						
+						if stream.closed?
+							@streams.delete(stream.id)
+						end
+						
+						return promised_stream, request_headers
+					end
+				end
 			end
 		end
 	end

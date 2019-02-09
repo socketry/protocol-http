@@ -307,6 +307,57 @@ module HTTP
 						raise ProtocolError, "Cannot reset stream in state: #{@state}"
 					end
 				end
+				
+				# A normal request is client request -> server response -> client.
+				# A push promise is server request -> client -> server response -> client.
+				# The server generates the same set of headers as if the client was sending a request, and sends these to the client. The client can reject the request by resetting the (new) stream. Otherwise, the server will start sending a response as if the client had send the request.
+				private def write_push_promise(stream_id, headers, flags = 0, **options)
+					data = @connection.encode_headers(headers)
+					
+					frame = PushPromiseFrame.new(@id, flags)
+					frame.pack(stream_id, data, maximum_size: @connection.maximum_frame_size)
+					
+					write_frame(frame)
+					
+					return frame
+				end
+				
+				def reserve_local!
+					if @state == :idle
+						@state = :reserved_local
+					else
+						raise ProtocolError, "Cannot send push promise in state: #{@state}"
+					end
+				end
+				
+				def reserve_remote!
+					if @state == :idle
+						@state = :reserved_remote
+					else
+						raise ProtocolError, "Cannot receive push promise in state: #{@state}"
+					end
+				end
+				
+				# Server push is semantically equivalent to a server responding to a request; however, in this case, that request is also sent by the server, as a PUSH_PROMISE frame.
+				# @param headers [Hash] contains a complete set of request header fields that the server attributes to the request.
+				def send_push_promise(headers)
+					promised_stream = @connection.create_stream
+					promised_stream.reserve_remote!
+					
+					write_push_promise(promised_stream.id, headers)
+					
+					return promised_stream
+				end
+				
+				def receive_push_promise(frame)
+					promised_stream_id, data = frame.unpack
+					headers = @connection.decode_headers(data)
+					
+					stream = @connection.create_stream(promised_stream_id)
+					stream.reserve_local!
+					
+					return stream, headers
+				end
 			end
 		end
 	end

@@ -41,6 +41,10 @@ module HTTP
 						raise ProtocolError, "Cannot send connection preface in state #{@state}"
 					end
 				end
+				
+				def receive_push_promise
+					raise ProtocolError, "Server cannot receive push promises."
+				end
 			end
 		end
 	end
