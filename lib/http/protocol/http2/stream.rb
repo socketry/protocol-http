@@ -324,7 +324,7 @@ module HTTP
 					return frame
 				end
 				
-				def reserve_local!
+				def reserved_local!
 					if @state == :idle
 						@state = :reserved_local
 					else
@@ -332,7 +332,7 @@ module HTTP
 					end
 				end
 				
-				def reserve_remote!
+				def reserved_remote!
 					if @state == :idle
 						@state = :reserved_remote
 					else
@@ -340,11 +340,15 @@ module HTTP
 					end
 				end
 				
+				def create_promise_stream(headers, stream_id)
+					@connection.create_stream(stream_id)
+				end
+				
 				# Server push is semantically equivalent to a server responding to a request; however, in this case, that request is also sent by the server, as a PUSH_PROMISE frame.
 				# @param headers [Hash] contains a complete set of request header fields that the server attributes to the request.
-				def send_push_promise(headers)
-					promised_stream = @connection.create_stream
-					promised_stream.reserve_remote!
+				def send_push_promise(headers, stream_id = @connection.next_stream_id)
+					promised_stream = self.create_promise_stream(headers, stream_id)
+					promised_stream.reserved_local!
 					
 					write_push_promise(promised_stream.id, headers)
 					
@@ -355,8 +359,8 @@ module HTTP
 					promised_stream_id, data = frame.unpack
 					headers = @connection.decode_headers(data)
 					
-					stream = @connection.create_stream(promised_stream_id)
-					stream.reserve_local!
+					stream = self.create_promise_stream(headers, promised_stream_id)
+					stream.reserved_remote!
 					
 					return stream, headers
 				end
