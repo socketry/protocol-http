@@ -115,7 +115,7 @@ module HTTP
 				end
 				
 				def send_headers?
-					@state == :idle or @state == :reseved_local or @state == :open or @state == :half_closed_remote
+					@state == :idle or @state == :reserved_local or @state == :open or @state == :half_closed_remote
 				end
 				
 				def send_failure(status, reason)
@@ -150,7 +150,7 @@ module HTTP
 						else
 							@state = :open
 						end
-					elsif @state == :reseved_local
+					elsif @state == :reserved_local
 						frame = write_headers(*args)
 						
 						@state = :half_closed_remote
@@ -246,7 +246,7 @@ module HTTP
 						end
 						
 						@headers = process_headers(frame)
-					elsif @state == :reseved_remote
+					elsif @state == :reserved_remote
 						@state = :half_closed_local
 						
 						@headers = process_headers(frame)
