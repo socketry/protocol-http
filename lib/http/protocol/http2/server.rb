@@ -42,6 +42,10 @@ module HTTP
 					end
 				end
 				
+				def enable_push?
+					@remote_settings.enable_push?
+				end
+				
 				def receive_push_promise
 					raise ProtocolError, "Server cannot receive push promises."
 				end

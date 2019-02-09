@@ -328,7 +328,7 @@ module HTTP
 					if @state == :idle
 						@state = :reserved_local
 					else
-						raise ProtocolError, "Cannot send push promise in state: #{@state}"
+						raise ProtocolError, "Cannot reserve stream in state: #{@state}"
 					end
 				end
 				
@@ -336,7 +336,7 @@ module HTTP
 					if @state == :idle
 						@state = :reserved_remote
 					else
-						raise ProtocolError, "Cannot receive push promise in state: #{@state}"
+						raise ProtocolError, "Cannot reserve stream in state: #{@state}"
 					end
 				end
 				
@@ -347,12 +347,16 @@ module HTTP
 				# Server push is semantically equivalent to a server responding to a request; however, in this case, that request is also sent by the server, as a PUSH_PROMISE frame.
 				# @param headers [Hash] contains a complete set of request header fields that the server attributes to the request.
 				def send_push_promise(headers, stream_id = @connection.next_stream_id)
-					promised_stream = self.create_promise_stream(headers, stream_id)
-					promised_stream.reserved_local!
-					
-					write_push_promise(promised_stream.id, headers)
-					
-					return promised_stream
+					if @state == :open or @state == :half_closed_remote
+						promised_stream = self.create_promise_stream(headers, stream_id)
+						promised_stream.reserved_local!
+						
+						write_push_promise(promised_stream.id, headers)
+						
+						return promised_stream
+					else
+						raise ProtocolError, "Cannot send push promise in state: #{@state}"
+					end
 				end
 				
 				def receive_push_promise(frame)
