@@ -258,7 +258,7 @@ module HTTP
 						end
 					end
 					
-					@stream.io.close_write
+					@stream.close_write
 				end
 				
 				def write_body(body, chunked = true, head = false)
@@ -266,7 +266,8 @@ module HTTP
 						write_empty_body(body)
 					elsif length = body.length
 						write_fixed_length_body(body, length, head)
-					elsif chunked
+					elsif @persistent and chunked
+						# We specifically ensure that non-persistent connections do not use chunked response, so that hijacking works as expected.
 						write_chunked_body(body, head)
 					else
 						write_body_and_close(body, head)
