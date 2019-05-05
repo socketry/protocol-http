@@ -42,8 +42,17 @@ module HTTP
 				# Whether the connection is persistent.
 				attr :persistent
 				
+				# Whether the connection has been upgraded, and to what.
+				attr :upgrade
+				
 				# The number of requests processed.
 				attr :count
+				
+				def upgrade?(headers)
+					if upgrade = headers[UPGRADE]
+						return upgrade.first
+					end
+				end
 				
 				def persistent?(version, headers)
 					if version == HTTP10
@@ -61,7 +70,7 @@ module HTTP
 					end
 				end
 				
-				def upgrade(protocol)
+				def upgrade!(protocol)
 					@upgrade = protocol
 					@persistent = false
 					
@@ -83,7 +92,7 @@ module HTTP
 				
 				# Effectively close the connection and return the underlying IO.
 				# @return [IO] the underlying non-blocking IO.
-				def hijack
+				def hijack!
 					@persistent = false
 					
 					@stream.flush
@@ -133,6 +142,7 @@ module HTTP
 					headers = read_headers
 					
 					@persistent = persistent?(version, headers)
+					@upgrade = upgrade?(headers)
 					
 					body = read_request_body(headers)
 					

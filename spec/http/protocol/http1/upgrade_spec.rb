@@ -24,40 +24,21 @@ require_relative 'connection_context'
 RSpec.describe HTTP::Protocol::HTTP1::Connection do
 	include_context HTTP::Protocol::HTTP1::Connection
 	
-	describe '#hijack' do
-		let(:response_version) {HTTP::Protocol::HTTP1::Connection::HTTP10}
-		let(:response_headers) {Hash.new('upgrade' => 'websocket')}
-		let(:body) {double}
-		let(:text) {"Hello World!"}
+	describe '#upgrade' do
+		let(:request_upgrade) {"proxy"}
+		let(:request_version) {HTTP::Protocol::HTTP1::Connection::HTTP10}
 		
-		it "should not be persistent after hijack" do
-			server_wrapper = server.hijack!
-			expect(server.persistent).to be false
-		end
-		
-		it "should use non-chunked output" do
-			server_wrapper = server.hijack!
+		it "should upgrade connection" do
+			client.upgrade!(request_upgrade)
 			
-			expect(body).to receive(:empty?).and_return(false)
-			expect(body).to receive(:length).and_return(nil)
-			expect(body).to receive(:each).and_return(nil)
+			client.write_request("testing.com", "GET", "/", request_version, [])
+			client.write_upgrade_body
 			
-			expect(server).to receive(:write_body_and_close).and_call_original
-			server.write_response(response_version, 101, response_headers, body)
+			authority, method, path, version, headers, body = server.read_request
 			
-			version, status, reason, headers, body = client.read_response("GET")
-			
-			expect(version).to be == response_version
-			expect(status).to be == 101
-			expect(headers).to be == response_headers
-			expect(body).to be_nil # due to 101 status
-			
-			client_wrapper = client.hijack!
-			
-			client_wrapper.write(text)
-			client_wrapper.close
-			
-			expect(server_wrapper.read).to be == text
+			expect(version).to be == request_version
+			expect(server.upgrade).to be == request_upgrade
+			expect(body).to be_nil
 		end
 	end
 end

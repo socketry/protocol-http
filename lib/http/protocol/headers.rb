@@ -30,6 +30,7 @@ module HTTP
 		KEEP_ALIVE = 'keep-alive'.freeze
 		
 		HOST = 'host'.freeze
+		UPGRADE = 'upgrade'.freeze
 		
 		class Headers
 			class Split < Array
