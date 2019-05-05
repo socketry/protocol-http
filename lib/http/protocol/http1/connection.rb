@@ -100,6 +100,9 @@ module HTTP
 					return @stream
 				end
 				
+				# Deprecated.
+				alias hijack hijack!
+				
 				# Close the connection and underlying stream.
 				def close
 					@stream.close
