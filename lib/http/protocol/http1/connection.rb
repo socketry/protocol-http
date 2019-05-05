@@ -32,6 +32,7 @@ module HTTP
 					@stream = stream
 					
 					@persistent = persistent
+					@upgrade = nil
 					
 					@count = 0
 				end
@@ -60,12 +61,23 @@ module HTTP
 					end
 				end
 				
+				def upgrade(protocol)
+					@upgrade = protocol
+					@persistent = false
+					
+					return @stream
+				end
+				
 				# Write the appropriate header for connection persistence.
-				def write_persistent_header(version)
-					if version == HTTP10
-						@stream.write("connection: keep-alive\r\n") if @persistent
+				def write_connection_header(version)
+					if @upgrade
+						@stream.write("connection: upgrade\r\nupgrade: #{@upgrade}\r\n")
 					else
-						@stream.write("connection: close\r\n") unless @persistent
+						if version == HTTP10
+							@stream.write("connection: keep-alive\r\n") if @persistent
+						else
+							@stream.write("connection: close\r\n") unless @persistent
+						end
 					end
 				end
 				
@@ -89,14 +101,14 @@ module HTTP
 					@stream.write("host: #{authority}\r\n")
 					
 					write_headers(headers)
-					write_persistent_header(version)
+					write_connection_header(version)
 				end
 				
 				def write_response(version, status, headers, body = nil, head = false)
 					@stream.write("#{version} #{status}\r\n")
 					
 					write_headers(headers)
-					write_persistent_header(version)
+					write_connection_header(version)
 					write_body(body, version == HTTP11, head)
 				end
 				
@@ -113,13 +125,7 @@ module HTTP
 				end
 				
 				def read_line
-					# To support Ruby 2.3, we do the following which is pretty inefficient. Ruby 2.4+ can do the following:
-					# @stream.gets(CRLF, chomp: true) or raise EOFError
-					if line = @stream.gets(CRLF)
-						return line.chomp!(CRLF)
-					else
-						raise EOFError
-					end
+					@stream.gets(CRLF, chomp: true) or raise EOFError
 				end
 				
 				def read_request
@@ -181,6 +187,19 @@ module HTTP
 					@stream.read(2)
 					
 					return chunk
+				end
+				
+				def write_upgrade_body
+					@stream.write("\r\n")
+					@stream.flush
+					
+					return @stream unless block_given?
+					
+					begin
+						yield @stream
+					rescue
+						@stream.close_write
+					end
 				end
 				
 				def write_empty_body(body)
@@ -264,6 +283,8 @@ module HTTP
 				def write_body(body, chunked = true, head = false)
 					if body.nil? or body.empty?
 						write_empty_body(body)
+					# elsif body.respond_to?(:call)
+					# 	write_upgrade_body(&body)
 					elsif length = body.length
 						write_fixed_length_body(body, length, head)
 					elsif @persistent and chunked
