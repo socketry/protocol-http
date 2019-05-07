@@ -20,18 +20,6 @@
 
 module Protocol
 	module HTTP
-		CONTENT_LENGTH = 'content-length'.freeze
-		
-		TRANSFER_ENCODING = 'transfer-encoding'.freeze
-		CHUNKED = 'chunked'.freeze
-		
-		CONNECTION = 'connection'.freeze
-		CLOSE = 'close'.freeze
-		KEEP_ALIVE = 'keep-alive'.freeze
-		
-		HOST = 'host'.freeze
-		UPGRADE = 'upgrade'.freeze
-		
 		class Headers
 			class Split < Array
 				COMMA = /\s*,\s*/
