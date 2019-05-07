@@ -1,4 +1,4 @@
-# HTTP::Protocol
+# Protocol::HTTP
 
 Provides abstractions for working with the HTTP protocol with a focus on on HTTP/2.
 
@@ -7,7 +7,7 @@ Provides abstractions for working with the HTTP protocol with a focus on on HTTP
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http-protocol'
+gem 'protocol-http'
 ```
 
 And then execute:
@@ -16,18 +16,43 @@ And then execute:
 
 Or install it yourself as:
 
-	$ gem install http-protocol
+	$ gem install protocol-http
 
 ## Usage
 
-### HTTP2
+### Headers
 
 ```ruby
-framer = HTTP::Protocol::HTTP2::Framer.new(stream)
+require 'protocol/http/headers'
 
-frame = framer.read_frame
+headers = Protocol::HTTP::Headers.new
 
-frame.write(stream)
+headers['Content-Type'] = "image/jpeg"
+
+headers['content-type']
+# => "image/jpeg"
+```
+
+### Reference
+
+```ruby
+require 'protocol/http/reference'
+
+reference = Protocol::HTTP::Reference.new("/search", q: 'kittens')
+
+reference.to_s
+# => "/search?q=kittens"
+```
+
+### URL
+
+```ruby
+require 'protocol/http/url'
+
+reference = Protocol::HTTP::Reference.parse("/search?q=kittens")
+
+parameters = Protocol::HTTP::URL.decode(reference.query_string)
+# => {"q"=>"kittens"}
 ```
 
 ## Contributing
@@ -42,7 +67,7 @@ frame.write(stream)
 
 Released under the MIT license.
 
-Copyright, 2018, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).  
+Copyright, 2019, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).  
 Copyright, 2013, by Ilya Grigorik.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
