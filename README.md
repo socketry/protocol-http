@@ -2,6 +2,8 @@
 
 Provides abstractions for working with the HTTP protocol with a focus on on HTTP/2.
 
+[![Build Status](https://secure.travis-ci.com/socketry/protocol-http.svg)](http://travis-ci.com/socketry/protocol-http)
+
 ## Installation
 
 Add this line to your application's Gemfile:
