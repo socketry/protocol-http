@@ -46,39 +46,5 @@ module Protocol
 			
 			attr :code
 		end
-		
-		# When the frame payload does not match expectations.
-		#
-		# @see ProtocolError
-		class FrameSizeError < ProtocolError
-		end
-		
-		# Raised on invalid flow control frame or command.
-		#
-		# @see ProtocolError
-		class FlowControlError < ProtocolError
-		end
-
-		# Raised on invalid stream processing: invalid frame type received or
-		# sent, or invalid command issued.
-		class InternalError < ProtocolError
-		end
-
-		#
-		# -- Recoverable errors -------------------------------------------------
-		#
-
-		# Raised if stream has been closed and new frames cannot be sent.
-		class StreamClosed < Error
-		end
-
-		# Raised if connection has been closed (or draining) and new stream
-		# cannot be opened.
-		class ConnectionClosed < Error
-		end
-
-		# Raised if stream limit has been reached and new stream cannot be opened.
-		class StreamLimitExceeded < Error
-		end
 	end
 end
