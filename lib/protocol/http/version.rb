@@ -20,6 +20,6 @@
 
 module Protocol
 	module HTTP
-		VERSION = "0.18.0"
+		VERSION = "0.1.0"
 	end
 end
