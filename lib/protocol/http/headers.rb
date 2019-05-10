@@ -20,7 +20,9 @@
 
 module Protocol
 	module HTTP
+		# Headers are an array of key-value pairs. Some header keys represent multiple values.
 		class Headers
+			# Split by commas.
 			class Split < Array
 				COMMA = /\s*,\s*/
 				
@@ -37,6 +39,7 @@ module Protocol
 				end
 			end
 			
+			# Split by newline charaters.
 			class Multiple < Array
 				def initialize(value)
 					super()
@@ -63,7 +66,7 @@ module Protocol
 				if indexed
 					@indexed = indexed.dup
 				else
-					@indexed = self.to_h
+					@indexed = nil
 				end
 			end
 			
@@ -71,12 +74,14 @@ module Protocol
 				self.class.new(@fields, @indexed)
 			end
 			
+			# An array of `[key, value]` pairs.
 			attr :fields
 			
 			def freeze
 				return if frozen?
 				
-				@indexed = to_h
+				# Generate @indexed
+				self.to_h
 				
 				super
 			end
@@ -93,21 +98,22 @@ module Protocol
 				self[key] != nil
 			end
 			
-			def slice!(keys)
-				_, @fields = @fields.partition do |field|
+			def extract(keys)
+				deleted, @fields = @fields.partition do |field|
 					keys.include?(field.first.downcase)
 				end
 				
-				keys.each do |key|
-					@indexed.delete(key)
+				if @indexed
+					keys.each do |key|
+						@indexed.delete(key)
+					end
 				end
 				
-				return self
+				return deleted
 			end
 			
-			def slice(keys)
-				self.dup.slice!(keys)
-			end
+			# This is deprecated.
+			alias slice! extract
 			
 			def add(key, value)
 				self[key] = value
@@ -129,7 +135,9 @@ module Protocol
 			# @param key [String] The header key.
 			# @param value The header value.
 			def []= key, value
-				merge_into(@indexed, key.downcase, value)
+				if @indexed
+					merge_into(@indexed, key.downcase, value)
+				end
 				
 				@fields << [key, value]
 			end
@@ -164,11 +172,23 @@ module Protocol
 			
 			# Delete all headers with the given key, and return the merged value.
 			def delete(key)
-				_, @fields = @fields.partition do |field|
+				deleted, @fields = @fields.partition do |field|
 					field.first.downcase == key
 				end
 				
-				return @indexed.delete(key)
+				if @indexed
+					return @indexed.delete(key)
+				elsif policy = MERGE_POLICY[key]
+					(key, value), *tail = deleted
+					merged = policy.new(value)
+					
+					tail.each{|k,v| merged << v}
+					
+					return merged
+				else
+					key, value = deleted.last
+					return value
+				end
 			end
 			
 			protected def merge_into(hash, key, value)
@@ -179,23 +199,26 @@ module Protocol
 						hash[key] = policy.new(value)
 					end
 				else
-					raise ArgumentError, "Header #{key} can only be set once!" if hash.include?(key)
-					
 					# We can't merge these, we only expose the last one set.
 					hash[key] = value
 				end
 			end
 			
 			def [] key
-				@indexed[key]
+				to_h[key]
 			end
 			
+			# A hash table of `{key, policy[key].map(values)}`
 			def to_h
-				@fields.inject({}) do |hash, (key, value)|
+				@indexed ||= @fields.inject({}) do |hash, (key, value)|
 					merge_into(hash, key.downcase, value)
 					
 					hash
 				end
+			end
+			
+			def inspect
+				"#<#{self.class} #{@fields.inspect}>"
 			end
 			
 			def == other
