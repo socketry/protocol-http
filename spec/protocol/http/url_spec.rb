@@ -64,4 +64,12 @@ RSpec.describe Protocol::HTTP::URL do
 			expect(decoded).to be == parameters
 		end
 	end
+	
+	describe '.decode' do
+		it "fails on deeply nested parameters" do
+			expect do
+				Protocol::HTTP::URL.decode("a[b][c][d][e][f][g][h][i]=10")
+			end.to raise_error(/Key length exceeded/)
+		end
+	end
 end

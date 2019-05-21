@@ -31,8 +31,18 @@ RSpec.describe Protocol::HTTP::Headers do
 	end
 	
 	before(:each) do
-		fields.each do |field|
-			subject[field.first] = field.last
+		fields.each do |name, value|
+			subject[name] = value
+		end
+	end
+	
+	describe '#freeze' do
+		it "can't modify frozen headers" do
+			subject.freeze
+			
+			expect(subject.fields).to be == fields
+			expect(subject.fields).to be_frozen
+			expect(subject.to_h).to be_frozen
 		end
 	end
 	
@@ -43,6 +53,12 @@ RSpec.describe Protocol::HTTP::Headers do
 			headers['field'] = 'value'
 			
 			expect(subject).to_not include('field')
+		end
+	end
+	
+	describe '#empty?' do
+		it "shouldn't be empty" do
+			expect(subject).to_not be_empty
 		end
 	end
 	
@@ -76,6 +92,46 @@ RSpec.describe Protocol::HTTP::Headers do
 			
 			expect(subject.fields.last).to be == ['Content-Length', 1]
 			expect(subject['content-length']).to be == 1
+		end
+		
+		it 'can add field with indexed hash' do
+			expect(subject.to_h).to_not be_empty
+			
+			subject['Content-Length'] = 1
+			expect(subject['content-length']).to be == 1
+		end
+	end
+	
+	describe '#add' do
+		it 'can add field' do
+			subject.add('Content-Length', 1)
+			
+			expect(subject.fields.last).to be == ['Content-Length', 1]
+			expect(subject['content-length']).to be == 1
+		end
+	end
+	
+	describe '#extract' do
+		it "can extract key's that don't exist" do
+			expect(subject.extract('foo')).to be_empty
+		end
+		
+		it 'can extract single key' do
+			expect(subject.extract('content-type')).to be == [['Content-Type', 'text/html']]
+		end
+	end
+	
+	describe '#==' do
+		it "can compare with array" do
+			expect(subject).to be == fields
+		end
+		
+		it "can compare with itself" do
+			expect(subject).to be == subject
+		end
+		
+		it "can compare with hash" do
+			expect(subject).to_not be == {}
 		end
 	end
 	

@@ -24,6 +24,8 @@ module Protocol
 	module HTTP
 		# A relative reference, excluding any authority.
 		class Reference
+			include Comparable
+			
 			# Generate a reference from a path and user parameters. The path may contain a `#fragment` or `?query=parameters`.
 			def self.parse(path = '/', parameters = nil)
 				base, fragment = path.split('#', 2)
@@ -37,6 +39,14 @@ module Protocol
 				@query_string = query_string
 				@fragment = fragment
 				@parameters = parameters
+			end
+			
+			def to_ary
+				[@path, @query_string, @fragment, @parameters]
+			end
+			
+			def <=> other
+				to_ary <=> other.to_ary
 			end
 			
 			def self.[] reference
@@ -132,7 +142,9 @@ module Protocol
 				if relative.start_with? '/'
 					return relative
 				else
-					path = base.split('/')
+					path = base.split('/', -1)
+					path.pop
+					
 					parts = relative.split('/')
 					
 					parts.each do |part|

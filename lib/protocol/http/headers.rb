@@ -31,7 +31,7 @@ module Protocol
 				end
 				
 				def << value
-					super value.split(COMMA)
+					self.append(*value.split(COMMA))
 				end
 				
 				def to_s
@@ -80,8 +80,11 @@ module Protocol
 			def freeze
 				return if frozen?
 				
-				# Generate @indexed
+				# Ensure @indexed is generated:
 				self.to_h
+				
+				@fields.freeze
+				@indexed.freeze
 				
 				super
 			end
@@ -222,15 +225,20 @@ module Protocol
 			end
 			
 			def == other
-				if other.is_a? Hash
+				case other
+				when Hash
 					to_h == other
-				else
+				when Headers
 					@fields == other.fields
+				else
+					@fields == other
 				end
 			end
 			
 			# Used for merging objects into a sequential list of headers. Normalizes header keys and values.
 			class Merged
+				include Enumerable
+				
 				def initialize(*all)
 					@all = all
 				end

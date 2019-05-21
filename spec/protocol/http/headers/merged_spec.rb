@@ -31,6 +31,7 @@ RSpec.describe Protocol::HTTP::Headers::Merged do
 	end
 	
 	subject{described_class.new(fields)}
+	let(:headers) {Protocol::HTTP::Headers.new(subject)}
 	
 	describe '#each' do
 		it 'should yield keys as lower case' do
@@ -43,6 +44,14 @@ RSpec.describe Protocol::HTTP::Headers::Merged do
 			subject.each do |key, value|
 				expect(value).to be_kind_of String
 			end
+		end
+	end
+	
+	describe '#<<' do
+		it "can append fields" do
+			subject << [["Accept", "image/jpeg"]]
+			
+			expect(headers['accept']).to be == ['*/*', 'image/jpeg']
 		end
 	end
 end
