@@ -237,6 +237,8 @@ module Protocol
 				
 				def << headers
 					@all << headers
+					
+					return self
 				end
 				
 				# @yield [String, String] header key (lower case) and value (as string).
