@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-#
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,26 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Protocol
-	module HTTP
-		# HTTP method verbs
-		module Methods
-			GET = 'GET'
-			POST = 'POST'
-			PUT = 'PUT'
-			PATCH = 'PATCH'
-			DELETE = 'DELETE'
-			HEAD = 'HEAD'
-			OPTIONS = 'OPTIONS'
-			LINK = 'LINK'
-			UNLINK = 'UNLINK'
-			TRACE = 'TRACE'
-			
-			def self.each
-				constants.each do |name|
-					yield name, const_get(name)
-				end
-			end
+require 'protocol/http/middleware/builder'
+
+RSpec.describe Protocol::HTTP::Middleware::Builder do
+	it "can make an app" do
+		app = Protocol::HTTP::Middleware.build do
+			run Protocol::HTTP::Middleware::HelloWorld
 		end
+		
+		expect(app).to be Protocol::HTTP::Middleware::HelloWorld
+	end
+	
+	it "defaults to not found" do
+		app = Protocol::HTTP::Middleware.build do
+		end
+		
+		expect(app).to be Protocol::HTTP::Middleware::NotFound
+	end
+	
+	it "can instantiate middleware" do
+		app = Protocol::HTTP::Middleware.build do
+			use Protocol::HTTP::Middleware
+		end
+		
+		expect(app).to be_kind_of Protocol::HTTP::Middleware
 	end
 end

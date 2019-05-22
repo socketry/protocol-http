@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-#
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +18,47 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'middleware'
+
+require_relative 'body/buffered'
+require_relative 'body/inflate'
+
 module Protocol
 	module HTTP
-		# HTTP method verbs
-		module Methods
-			GET = 'GET'
-			POST = 'POST'
-			PUT = 'PUT'
-			PATCH = 'PATCH'
-			DELETE = 'DELETE'
-			HEAD = 'HEAD'
-			OPTIONS = 'OPTIONS'
-			LINK = 'LINK'
-			UNLINK = 'UNLINK'
-			TRACE = 'TRACE'
+		# Set a valid accept-encoding header and decode the response.
+		class AcceptEncoding < Middleware
+			ACCEPT_ENCODING = 'accept-encoding'.freeze
+			CONTENT_ENCODING = 'content-encoding'.freeze
 			
-			def self.each
-				constants.each do |name|
-					yield name, const_get(name)
+			DEFAULT_WRAPPERS = {
+				'gzip' => Body::Inflate.method(:for),
+				'identity' => ->(body){body},
+			}
+			
+			def initialize(app, wrappers = DEFAULT_WRAPPERS)
+				super(app)
+				
+				@accept_encoding = wrappers.keys.join(', ')
+				@wrappers = wrappers
+			end
+			
+			def call(request)
+				request.headers[ACCEPT_ENCODING] = @accept_encoding
+				
+				response = super
+				
+				if body = response.body and !body.empty? and content_encoding = response.headers.delete(CONTENT_ENCODING)
+					# We want to unwrap all encodings
+					content_encoding.reverse_each do |name|
+						if wrapper = @wrappers[name]
+							body = wrapper.call(body)
+						end
+					end
+					
+					response.body = body
 				end
+				
+				return response
 			end
 		end
 	end

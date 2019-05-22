@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-#
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +18,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative '../headers'
+
 module Protocol
 	module HTTP
-		# HTTP method verbs
-		module Methods
-			GET = 'GET'
-			POST = 'POST'
-			PUT = 'PUT'
-			PATCH = 'PATCH'
-			DELETE = 'DELETE'
-			HEAD = 'HEAD'
-			OPTIONS = 'OPTIONS'
-			LINK = 'LINK'
-			UNLINK = 'UNLINK'
-			TRACE = 'TRACE'
-			
-			def self.each
-				constants.each do |name|
-					yield name, const_get(name)
+		class Middleware
+			module NotFound
+				def self.close
 				end
+				
+				def self.call(request)
+					Response[404, Headers[], []]
+				end
+			end
+			
+			class Builder
+				def initialize(default_app = NotFound, &block)
+					@use = []
+					@app = default_app
+					
+					instance_eval(&block) if block_given?
+				end
+				
+				def use(middleware, *args, &block)
+					@use << proc {|app| middleware.new(app, *args, &block)}
+				end
+				
+				def run(app)
+					@app = app
+				end
+				
+				def to_app
+					@use.reverse.inject(@app) {|app, use| use.call(app).freeze}
+				end
+			end
+			
+			def self.build(&block)
+				Builder.new(&block).to_app
 			end
 		end
 	end

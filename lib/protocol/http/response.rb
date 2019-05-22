@@ -26,9 +26,10 @@ module Protocol
 		class Response
 			prepend Body::Reader
 			
-			def initialize(version = nil, status = 200, headers = [], body = nil, protocol = nil)
+			def initialize(version = nil, status = 200, reason = nil, headers = [], body = nil, protocol = nil)
 				@version = version
 				@status = status
+				@reason = reason
 				@headers = headers
 				@body = body
 				@protocol = protocol

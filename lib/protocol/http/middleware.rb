@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-#
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +18,52 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'methods'
+require_relative 'headers'
+require_relative 'request'
+require_relative 'response'
+
 module Protocol
 	module HTTP
-		# HTTP method verbs
-		module Methods
-			GET = 'GET'
-			POST = 'POST'
-			PUT = 'PUT'
-			PATCH = 'PATCH'
-			DELETE = 'DELETE'
-			HEAD = 'HEAD'
-			OPTIONS = 'OPTIONS'
-			LINK = 'LINK'
-			UNLINK = 'UNLINK'
-			TRACE = 'TRACE'
+		class Middleware
+			def initialize(delegate)
+				@delegate = delegate
+			end
 			
-			def self.each
-				constants.each do |name|
-					yield name, const_get(name)
+			attr :delegate
+			
+			def close
+				@delegate.close
+			end
+			
+			# Use Methods.constants to get all constants.
+			Methods.each do |name, verb|
+				define_method(verb.downcase) do |location, headers = [], body = nil|
+					self.call(
+						Request[verb, location.to_str, Headers[headers], body]
+					)
+				end
+			end
+			
+			def call(request)
+				@delegate.call(request)
+			end
+			
+			module Okay
+				def self.close
+				end
+				
+				def self.call(request)
+					Response[200, {}, []]
+				end
+			end
+			
+			module HelloWorld
+				def self.close
+				end
+				
+				def self.call(request)
+					Response[200, Headers['content-type' => 'text/plain'], ["Hello World!"]]
 				end
 			end
 		end
