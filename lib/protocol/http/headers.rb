@@ -181,6 +181,10 @@ module Protocol
 					field.first.downcase == key
 				end
 				
+				if deleted.empty?
+					return nil
+				end
+				
 				if @indexed
 					return @indexed.delete(key)
 				elsif policy = MERGE_POLICY[key]

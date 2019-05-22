@@ -141,6 +141,10 @@ RSpec.describe Protocol::HTTP::Headers do
 			
 			expect(subject.fields).to be == fields[1..-1]
 		end
+		
+		it 'can delete non-existant fields' do
+			expect(subject.delete('transfer-encoding')).to be_nil
+		end
 	end
 	
 	describe '#merge' do
