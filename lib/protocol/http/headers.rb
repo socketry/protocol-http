@@ -33,7 +33,7 @@ module Protocol
 				end
 				
 				def << value
-					self.append(*value.split(COMMA))
+					self.push(*value.split(COMMA))
 				end
 				
 				def to_s
