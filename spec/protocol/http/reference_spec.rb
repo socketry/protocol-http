@@ -24,7 +24,6 @@ require 'protocol/http/reference'
 
 RSpec.describe Protocol::HTTP::Reference do
 	describe '#+' do
-		subject {described_class.new('/')}
 		let(:absolute) {described_class['/foo/bar']}
 		let(:relative) {described_class['foo/bar']}
 		let(:up) {described_class['../baz']}
@@ -43,6 +42,22 @@ RSpec.describe Protocol::HTTP::Reference do
 		
 		it 'can remove relative parts' do
 			expect(absolute + up).to be == described_class['/baz']
+		end
+	end
+	
+	describe '#dup' do
+		let(:parameters) {Hash.new(x: 10)}
+		let(:path) {"foo/bar.html"}
+		
+		it "can add parameters" do
+			copy = subject.dup(nil, parameters)
+			expect(copy.parameters).to be == parameters
+		end
+		
+		it "can update path" do
+			copy = subject.dup(path)
+			
+			expect(copy.path).to be == "/foo/bar.html"
 		end
 	end
 	

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+#
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,16 +24,16 @@ module Protocol
 	module HTTP
 		# HTTP method verbs
 		module Methods
-			GET = 'GET'.freeze
-			POST = 'POST'.freeze
-			PUT = 'PUT'.freeze
-			PATCH = 'PATCH'.freeze
-			DELETE = 'DELETE'.freeze
-			HEAD = 'HEAD'.freeze
-			OPTIONS = 'OPTIONS'.freeze
-			LINK = 'LINK'.freeze
-			UNLINK = 'UNLINK'.freeze
-			TRACE = 'TRACE'.freeze
+			GET = 'GET'
+			POST = 'POST'
+			PUT = 'PUT'
+			PATCH = 'PATCH'
+			DELETE = 'DELETE'
+			HEAD = 'HEAD'
+			OPTIONS = 'OPTIONS'
+			LINK = 'LINK'
+			UNLINK = 'UNLINK'
+			TRACE = 'TRACE'
 			
 			# Use Methods.constants to get all constants.
 		end

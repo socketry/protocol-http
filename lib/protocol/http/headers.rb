@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+#
 # Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +24,7 @@ module Protocol
 	module HTTP
 		# Headers are an array of key-value pairs. Some header keys represent multiple values.
 		class Headers
-			# Split by commas.
+			# Header value which is split by commas.
 			class Split < Array
 				COMMA = /\s*,\s*/
 				
@@ -39,7 +41,7 @@ module Protocol
 				end
 			end
 			
-			# Split by newline charaters.
+			# Header value which is split by newline charaters (e.g. cookies).
 			class Multiple < Array
 				def initialize(value)
 					super()

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+#
 # Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,7 +36,7 @@ module Protocol
 				self.new(path, query_string, fragment, parameters)
 			end
 			
-			def initialize(path, query_string = nil, fragment = nil, parameters = nil)
+			def initialize(path = '/', query_string = nil, fragment = nil, parameters = nil)
 				@path = path
 				@query_string = query_string
 				@fragment = fragment
@@ -112,10 +114,6 @@ module Protocol
 					other.fragment,
 					other.parameters,
 				)
-			end
-			
-			def [] parameters
-				self.dup(nil, parameters)
 			end
 			
 			def dup(path = nil, parameters = nil, merge = true)
