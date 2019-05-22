@@ -24,6 +24,14 @@ module Protocol
 	module HTTP
 		module Body
 			# A generic base class for wrapping body instances. Typically you'd override `#read`.
+			# The implementation assumes a sequential unbuffered stream of data.
+			# 	def each -> yield(String | nil)
+			# 	def read -> String | nil
+			# 	def join -> String
+			
+			# 	def finish -> buffer the stream and close it.
+			# 	def close(error = nil) -> close the stream immediately.
+			# end
 			class Readable
 				# The consumer can call stop to signal that the stream output has terminated.
 				def close(error = nil)
