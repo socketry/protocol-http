@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,17 +18,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'async/rspec'
-require 'covered/rspec'
+require 'protocol/http/body/file'
 
-RSpec.configure do |config|
-	# Enable flags like --only-failures and --next-failure
-	config.example_status_persistence_file_path = ".rspec_status"
-
-	# Disable RSpec exposing methods globally on `Module` and `main`
-	config.disable_monkey_patching!
-
-	config.expect_with :rspec do |c|
-		c.syntax = :expect
+RSpec.describe Protocol::HTTP::Body::File do
+	let(:path) {File.expand_path('file_spec.txt', __dir__)}
+	
+	context 'entire file' do
+		subject {described_class.open(path)}
+		
+		it "should read entire file" do
+			expect(subject.read).to be == "Hello World"
+		end
+		
+		it "should use binary encoding" do
+			expect(::File).to receive(:open).with(path, ::File::RDONLY | ::File::BINARY).and_call_original
+			
+			chunk = subject.read
+			
+			expect(chunk.encoding).to be == Encoding::BINARY
+		end
+	end
+	
+	context 'partial file' do
+		subject {described_class.open(path, 2...4)}
+		
+		it "should read specified range" do
+			expect(subject.read).to be == "ll"
+		end
 	end
 end

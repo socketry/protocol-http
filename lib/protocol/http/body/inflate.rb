@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,17 +18,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'async/rspec'
-require 'covered/rspec'
+require 'zlib'
 
-RSpec.configure do |config|
-	# Enable flags like --only-failures and --next-failure
-	config.example_status_persistence_file_path = ".rspec_status"
+require_relative 'deflate'
 
-	# Disable RSpec exposing methods globally on `Module` and `main`
-	config.disable_monkey_patching!
-
-	config.expect_with :rspec do |c|
-		c.syntax = :expect
+module Protocol
+	module HTTP
+		module Body
+			class Inflate < ZStream
+				def self.for(body, encoding = GZIP)
+					self.new(body, Zlib::Inflate.new(encoding))
+				end
+				
+				def read
+					return if @stream.finished?
+					
+					# The stream might have been closed while waiting for the chunk to come in.
+					if chunk = super
+						@input_length += chunk.bytesize
+						
+						# It's possible this triggers the stream to finish.
+						chunk = @stream.inflate(chunk)
+						
+						@output_length += chunk.bytesize
+					elsif !@stream.closed?
+						chunk = @stream.finish
+						
+						@output_length += chunk.bytesize
+					end
+					
+					if chunk.empty? and @stream.finished?
+						return nil
+					end
+					
+					return chunk
+				end
+			end
+		end
 	end
 end

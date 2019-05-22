@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,17 +18,48 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'async/rspec'
-require 'covered/rspec'
+require_relative 'readable'
 
-RSpec.configure do |config|
-	# Enable flags like --only-failures and --next-failure
-	config.example_status_persistence_file_path = ".rspec_status"
-
-	# Disable RSpec exposing methods globally on `Module` and `main`
-	config.disable_monkey_patching!
-
-	config.expect_with :rspec do |c|
-		c.syntax = :expect
+module Protocol
+	module HTTP
+		module Body
+			# Wrapping body instance. Typically you'd override `#read`.
+			class Wrapper < Readable
+				def initialize(body)
+					@body = body
+				end
+				
+				# The wrapped body.
+				attr :body
+				
+				# Buffer any remaining body.
+				def finish
+					@body.finish
+				end
+				
+				def close(error = nil)
+					@body.close(error)
+					
+					super
+				end
+				
+				def empty?
+					@body.empty?
+				end
+				
+				def length
+					@body.length
+				end
+				
+				# Read the next available chunk.
+				def read
+					@body.read
+				end
+				
+				def inspect
+					@body.inspect
+				end
+			end
+		end
 	end
 end

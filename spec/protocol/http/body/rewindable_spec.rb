@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,17 +18,54 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'async/rspec'
-require 'covered/rspec'
+require 'protocol/http/body/rewindable'
 
-RSpec.configure do |config|
-	# Enable flags like --only-failures and --next-failure
-	config.example_status_persistence_file_path = ".rspec_status"
-
-	# Disable RSpec exposing methods globally on `Module` and `main`
-	config.disable_monkey_patching!
-
-	config.expect_with :rspec do |c|
-		c.syntax = :expect
+RSpec.describe Protocol::HTTP::Body::Rewindable do
+	let(:source) {Protocol::HTTP::Body::Buffered.new}
+	subject {described_class.new(source)}
+	
+	it "doesn't get affected by clearing chunks" do
+		source.write("Hello World!")
+		
+		2.times do
+			chunk = subject.read
+			expect(chunk).to be == "Hello World!"
+			chunk.clear
+			
+			subject.rewind
+		end
+	end
+	
+	it "can write and read data" do
+		3.times do |i|
+			source.write("Hello World #{i}")
+			expect(subject.read).to be == "Hello World #{i}"
+		end
+	end
+	
+	it "can write and read data multiple times" do
+		3.times do |i|
+			source.write("Hello World #{i}")
+		end
+		
+		3.times do
+			subject.rewind
+			
+			expect(subject.read).to be == "Hello World 0"
+		end
+	end
+	
+	it "can buffer data in order" do
+		3.times do |i|
+			source.write("Hello World #{i}")
+		end
+		
+		2.times do
+			subject.rewind
+			
+			3.times do |i|
+				expect(subject.read).to be == "Hello World #{i}"
+			end
+		end
 	end
 end
