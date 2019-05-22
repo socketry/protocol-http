@@ -80,7 +80,7 @@ module Protocol
 					@chunks << chunk
 				end
 				
-				def close
+				def close(error = nil)
 					@chunks << nil
 				end
 				
