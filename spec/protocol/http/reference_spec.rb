@@ -45,8 +45,15 @@ RSpec.describe Protocol::HTTP::Reference do
 		end
 	end
 	
+	describe '#freeze' do
+		it "can freeze reference" do
+			expect(subject.freeze).to be subject
+			expect(subject).to be_frozen
+		end
+	end
+	
 	describe '#dup' do
-		let(:parameters) {Hash.new(x: 10)}
+		let(:parameters) {{x: 10}}
 		let(:path) {"foo/bar.html"}
 		
 		it "can add parameters" do
@@ -58,6 +65,18 @@ RSpec.describe Protocol::HTTP::Reference do
 			copy = subject.dup(path)
 			
 			expect(copy.path).to be == "/foo/bar.html"
+		end
+		
+		it "can merge parameters" do
+			subject.parameters = {y: 20}
+			copy = subject.dup(nil, parameters, true)
+			expect(copy.parameters).to be == {x: 10, y: 20}
+		end
+		
+		it "can replace parameters" do
+			subject.parameters = {y: 20}
+			copy = subject.dup(nil, parameters, false)
+			expect(copy.parameters).to be == parameters
 		end
 	end
 	

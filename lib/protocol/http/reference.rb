@@ -43,6 +43,29 @@ module Protocol
 				@parameters = parameters
 			end
 			
+			# The path component, e.g. /foo/bar/index.html
+			attr_accessor :path
+			
+			# The un-parsed query string, e.g. 'x=10&y=20'
+			attr_accessor :query_string
+			
+			# A fragment, the part after the '#'
+			attr_accessor :fragment
+			
+			# User supplied parameters that will be appended to the query part.
+			attr_accessor :parameters
+			
+			def freeze
+				return self if frozen?
+				
+				@path.freeze
+				@query_string.freeze
+				@fragment.freeze
+				@parameters.freeze
+				
+				super
+			end
+			
 			def to_ary
 				[@path, @query_string, @fragment, @parameters]
 			end
@@ -58,18 +81,6 @@ module Protocol
 					return self.parse(reference)
 				end
 			end
-			
-			# The path component, e.g. /foo/bar/index.html
-			attr :path
-			
-			# The un-parsed query string, e.g. 'x=10&y=20'
-			attr :query_string
-			
-			# A fragment, the part after the '#'
-			attr :fragment
-			
-			# User supplied parameters that will be appended to the query part.
-			attr :parameters
 			
 			def parameters?
 				@parameters and !@parameters.empty?
@@ -117,7 +128,7 @@ module Protocol
 			end
 			
 			def dup(path = nil, parameters = nil, merge = true)
-				if @parameters and merge
+				if merge and @parameters
 					if parameters
 						parameters = @parameters.merge(parameters)
 					else
