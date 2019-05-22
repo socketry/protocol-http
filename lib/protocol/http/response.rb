@@ -77,10 +77,10 @@ module Protocol
 				status == 500
 			end
 			
-			def self.[](status, headers = [], body = nil)
+			def self.[](status, headers = [], body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)
 				
-				self.new(nil, status, nil, headers, body)
+				self.new(nil, status, nil, headers, body, protocol)
 			end
 			
 			def self.for_exception(exception)
