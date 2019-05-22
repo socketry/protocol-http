@@ -84,7 +84,7 @@ module Protocol
 			end
 			
 			def self.for_exception(exception)
-				Async::HTTP::Response[500, {'content-type' => 'text/plain'}, ["#{exception.class}: #{exception.message}"]]
+				Response[500, Headers['content-type' => 'text/plain'], ["#{exception.class}: #{exception.message}"]]
 			end
 			
 			def to_s
