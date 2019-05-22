@@ -23,7 +23,7 @@
 module Protocol
 	module HTTP
 		# HTTP method verbs
-		module Methods
+		class Methods
 			GET = 'GET'
 			POST = 'POST'
 			PUT = 'PUT'
@@ -38,6 +38,15 @@ module Protocol
 			def self.each
 				constants.each do |name|
 					yield name, const_get(name)
+				end
+			end
+			
+			# Use Methods.constants to get all constants.
+			self.each do |name, verb|
+				define_method(verb.downcase) do |location, headers = [], body = nil|
+					self.call(
+						Request[verb, location.to_str, Headers[headers], body]
+					)
 				end
 			end
 		end

@@ -25,7 +25,7 @@ require_relative 'response'
 
 module Protocol
 	module HTTP
-		class Middleware
+		class Middleware < Methods
 			def initialize(delegate)
 				@delegate = delegate
 			end
@@ -34,15 +34,6 @@ module Protocol
 			
 			def close
 				@delegate.close
-			end
-			
-			# Use Methods.constants to get all constants.
-			Methods.each do |name, verb|
-				define_method(verb.downcase) do |location, headers = [], body = nil|
-					self.call(
-						Request[verb, location.to_str, Headers[headers], body]
-					)
-				end
 			end
 			
 			def call(request)

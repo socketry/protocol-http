@@ -20,7 +20,6 @@
 
 require_relative 'body/buffered'
 require_relative 'body/reader'
-require_relative 'middleware'
 
 module Protocol
 	module HTTP
@@ -53,11 +52,11 @@ module Protocol
 			end
 			
 			def head?
-				self.method == HEAD
+				self.method == Methods::HEAD
 			end
 			
 			def connect?
-				self.method == CONNECT
+				self.method == Methods::CONNECT
 			end
 			
 			def self.[](method, path, headers, body)
@@ -67,7 +66,7 @@ module Protocol
 			end
 			
 			def idempotent?
-				method != POST && (body.nil? || body.empty?)
+				method != Methods::POST && (body.nil? || body.empty?)
 			end
 			
 			def to_s
