@@ -45,8 +45,9 @@ RSpec.describe Protocol::HTTP::Methods do
 	it_behaves_like Protocol::HTTP::Methods, "LINK"
 	it_behaves_like Protocol::HTTP::Methods, "UNLINK"
 	it_behaves_like Protocol::HTTP::Methods, "TRACE"
+	it_behaves_like Protocol::HTTP::Methods, "CONNECT"
 	
-	it "defines exactly 10 methods" do
-		expect(described_class.constants.length).to be == 10
+	it "defines exactly 11 methods" do
+		expect(described_class.constants.length).to be == 11
 	end
 end

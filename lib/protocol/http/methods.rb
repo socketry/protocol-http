@@ -34,6 +34,7 @@ module Protocol
 			LINK = 'LINK'
 			UNLINK = 'UNLINK'
 			TRACE = 'TRACE'
+			CONNECT = 'CONNECT'
 			
 			def self.each
 				constants.each do |name|
