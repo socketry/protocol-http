@@ -65,6 +65,24 @@ RSpec.describe Protocol::HTTP::Reference do
 			expect(copy.path).to be == "/foo/bar.html"
 		end
 		
+		it "can append path components" do
+			copy = subject.dup("foo/").dup("bar/")
+			
+			expect(copy.path).to be == "/foo/bar/"
+		end
+		
+		it "can append empty path components" do
+			copy = subject.dup("")
+			
+			expect(copy.path).to be == subject.path
+		end
+		
+		it "can delete last path component" do
+			copy = subject.dup("hello").dup("")
+			
+			expect(copy.path).to be == subject.path
+		end
+		
 		it "can merge parameters" do
 			subject.parameters = {y: 20}
 			copy = subject.dup(nil, parameters, true)

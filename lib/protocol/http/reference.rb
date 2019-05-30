@@ -147,14 +147,24 @@ module Protocol
 			
 			private
 			
+			def split(path)
+				if path.empty?
+					[path]
+				else
+					path.split('/', -1)
+				end
+			end
+			
 			def expand_path(base, relative)
 				if relative.start_with? '/'
 					return relative
 				else
-					path = base.split('/', -1)
-					path.pop
+					path = split(base)
+					# drop the last path element for relative computations, e.g.
+					# /foo/bar/index.html -> /foo/bar/#{relative}
+					path.pop 
 					
-					parts = relative.split('/')
+					parts = split(relative)
 					
 					parts.each do |part|
 						if part == '..'
