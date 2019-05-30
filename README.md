@@ -2,7 +2,7 @@
 
 Provides abstractions for working with the HTTP protocol.
 
-[![Build Status](https://secure.travis-ci.com/socketry/protocol-http.svg)](http://travis-ci.com/socketry/protocol-http)
+[![Build Status](https://travis-ci.com/socketry/protocol-http.svg?branch=master)](http://travis-ci.com/socketry/protocol-http)
 
 ## Installation
 
