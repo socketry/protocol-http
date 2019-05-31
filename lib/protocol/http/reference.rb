@@ -24,7 +24,7 @@ require_relative 'url'
 
 module Protocol
 	module HTTP
-		# A relative reference, excluding any authority.
+		# A relative reference, excluding any authority. The path part of an HTTP request.
 		class Reference
 			include Comparable
 			
@@ -116,19 +116,28 @@ module Protocol
 			
 			alias to_s to_str
 			
+			# Merges two references as specified by RFC2396, similar to `URI.join`.
 			def + other
 				other = self.class[other]
 				
 				self.class.new(
-					expand_path(self.path, other.path),
+					expand_path(self.path, other.path, true),
 					other.query_string,
 					other.fragment,
 					other.parameters,
 				)
 			end
 			
-			def dup(path = nil, parameters = nil, merge = true)
-				if merge and @parameters
+			# Just the base path, without any query string, parameters or fragment.
+			def base
+				self.class.new(@path, nil, nil, nil)
+			end
+			
+			# @option path [String] Append the string to this reference similar to `File.join`.
+			# @option parameters [Hash] Append the parameters to this reference.
+			# @option fragment [String] Set the fragment to this value.
+			def with(path: nil, parameters: nil, fragment: @fragment)
+				if @parameters
 					if parameters
 						parameters = @parameters.merge(parameters)
 					else
@@ -137,12 +146,21 @@ module Protocol
 				end
 				
 				if path
-					path = expand_path(@path, path)
+					path = expand_path(@path, path, false)
 				else
 					path = @path
 				end
 				
-				self.class.new(path, @query_string, @fragment, parameters)
+				self.class.new(path, @query_string, fragment, parameters)
+			end
+			
+			# The arguments to this function are legacy, prefer to use `with`.
+			def dup(path = nil, parameters = nil, merge_parameters = true)
+				if merge_parameters
+					with(path: path, parameters: parameters)
+				else
+					self.base.with(path: path, parameters: parameters)
+				end
 			end
 			
 			private
@@ -155,20 +173,26 @@ module Protocol
 				end
 			end
 			
-			def expand_path(base, relative)
+			# @param pop [Boolean] whether to remove the last path component of the base path, to conform to URI merging behaviour, as defined by RFC2396.
+			def expand_path(base, relative, pop = true)
 				if relative.start_with? '/'
 					return relative
 				else
 					path = split(base)
-					# drop the last path element for relative computations, e.g.
-					# /foo/bar/index.html -> /foo/bar/#{relative}
-					path.pop 
+					
+					# RFC2396 Section 5.2:
+					# 6) a) All but the last segment of the base URI's path component is
+					# copied to the buffer.  In other words, any characters after the
+					# last (right-most) slash character, if any, are excluded.
+					path.pop if pop or path.last == ''
 					
 					parts = split(relative)
 					
 					parts.each do |part|
 						if part == '..'
 							path.pop
+						elsif part == '.'
+							# Do nothing.
 						else
 							path << part
 						end

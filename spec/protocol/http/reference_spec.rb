@@ -80,7 +80,7 @@ RSpec.describe Protocol::HTTP::Reference do
 		it "can delete last path component" do
 			copy = subject.dup("hello").dup("")
 			
-			expect(copy.path).to be == subject.path
+			expect(copy.path).to be == "/hello/"
 		end
 		
 		it "can merge parameters" do
@@ -93,6 +93,18 @@ RSpec.describe Protocol::HTTP::Reference do
 			subject.parameters = {y: 20}
 			copy = subject.dup(nil, parameters, false)
 			expect(copy.parameters).to be == parameters
+		end
+		
+		it "can nest path with absolute base" do
+			copy = subject.with(path: "foo").with(path: "bar")
+			
+			expect(copy.path).to be == "/foo/bar"
+		end
+		
+		it "can nest path with relative base" do
+			copy = subject.with(path: "foo").with(path: "bar")
+			
+			expect(copy.path).to be == "/foo/bar"
 		end
 	end
 	
