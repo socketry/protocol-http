@@ -26,10 +26,9 @@ module Protocol
 		class Response
 			prepend Body::Reader
 			
-			def initialize(version = nil, status = 200, reason = nil, headers = [], body = nil, protocol = nil)
+			def initialize(version = nil, status = 200, headers = [], body = nil, protocol = nil)
 				@version = version
 				@status = status
-				@reason = reason
 				@headers = headers
 				@body = body
 				@protocol = protocol
@@ -80,7 +79,7 @@ module Protocol
 			def self.[](status, headers = [], body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)
 				
-				self.new(nil, status, nil, headers, body, protocol)
+				self.new(nil, status, headers, body, protocol)
 			end
 			
 			def self.for_exception(exception)
@@ -88,7 +87,7 @@ module Protocol
 			end
 			
 			def to_s
-				"#{@status} #{@reason} #{@version}"
+				"#{@status} #{@version}"
 			end
 			
 			def to_ary
