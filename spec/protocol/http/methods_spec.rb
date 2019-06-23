@@ -33,6 +33,10 @@ RSpec.describe Protocol::HTTP::Methods do
 		it "has correct value" do
 			expect(described_class.const_get(name)).to be == name.to_s
 		end
+		
+		it "is a valid method" do
+			expect(described_class.const_defined?(name)).to be true
+		end
 	end
 	
 	it_behaves_like Protocol::HTTP::Methods, "GET"
@@ -49,5 +53,17 @@ RSpec.describe Protocol::HTTP::Methods do
 	
 	it "defines exactly 11 methods" do
 		expect(described_class.constants.length).to be == 11
+	end
+	
+	describe '.valid?' do
+		subject {described_class}
+		
+		describe "FOOBAR" do
+			it {is_expected.to_not be_const_defined(description)}
+		end
+		
+		describe "GETEMALL" do
+			it {is_expected.to_not be_const_defined(description)}
+		end
 	end
 end
