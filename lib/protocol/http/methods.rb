@@ -36,6 +36,13 @@ module Protocol
 			TRACE = 'TRACE'
 			CONNECT = 'CONNECT'
 			
+			def self.valid?(name)
+				const_defined?(name)
+			rescue NameError
+				# Ruby will raise an exception if te name is not valid for a constant.
+				return false
+			end
+			
 			def self.each
 				constants.each do |name|
 					yield name, const_get(name)

@@ -35,7 +35,7 @@ RSpec.describe Protocol::HTTP::Methods do
 		end
 		
 		it "is a valid method" do
-			expect(described_class.const_defined?(name)).to be true
+			expect(described_class).to be_valid(name)
 		end
 	end
 	
@@ -59,11 +59,15 @@ RSpec.describe Protocol::HTTP::Methods do
 		subject {described_class}
 		
 		describe "FOOBAR" do
-			it {is_expected.to_not be_const_defined(description)}
+			it {is_expected.to_not be_valid(description)}
 		end
 		
 		describe "GETEMALL" do
-			it {is_expected.to_not be_const_defined(description)}
+			it {is_expected.to_not be_valid(description)}
+		end
+		
+		describe "Accept:" do
+			it {is_expected.to_not be_valid(description)}
 		end
 	end
 end
