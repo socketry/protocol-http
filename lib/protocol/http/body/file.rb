@@ -25,14 +25,14 @@ module Protocol
 	module HTTP
 		module Body
 			class File < Readable
-				BLOCK_SIZE = Async::IO::Stream::BLOCK_SIZE
+				BLOCK_SIZE = Async::IO::BLOCK_SIZE
 				MODE = ::File::RDONLY | ::File::BINARY
 				
 				def self.open(path, *args)
 					self.new(::File.open(path, MODE), *args)
 				end
 				
-				def initialize(file, range = nil, block_size: BLOCK_SIZE)
+				def initialize(file, range = nil, size: file.size, block_size: BLOCK_SIZE)
 					@file = file
 					
 					@block_size = block_size
@@ -43,7 +43,7 @@ module Protocol
 						@length = @remaining = range.size
 					else
 						@offset = 0
-						@length = @remaining = @file.size
+						@length = @remaining = size
 					end
 				end
 				
