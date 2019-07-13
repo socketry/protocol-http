@@ -21,7 +21,7 @@
 require 'protocol/http/body/buffered'
 
 RSpec.describe Protocol::HTTP::Body::Buffered do
-	include_context Async::RSpec::Memory
+	include_context RSpec::Memory
 	
 	let(:body) {["Hello", "World"]}
 	subject! {described_class.wrap(body)}
