@@ -73,6 +73,8 @@ module Protocol
 						stream.write(chunk)
 						stream.flush
 					end
+				ensure
+					stream.close
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.
