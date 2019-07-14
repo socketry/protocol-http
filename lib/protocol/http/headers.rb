@@ -76,6 +76,11 @@ module Protocol
 				self.class.new(@fields, @indexed)
 			end
 			
+			def clear
+				@fields = []
+				@indexed = nil
+			end
+			
 			# An array of `[key, value]` pairs.
 			attr :fields
 			
