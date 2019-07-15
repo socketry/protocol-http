@@ -77,7 +77,7 @@ module Protocol
 			end
 			
 			def clear
-				@fields = []
+				@fields.clear
 				@indexed = nil
 			end
 			
@@ -252,6 +252,10 @@ module Protocol
 				
 				def initialize(*all)
 					@all = all
+				end
+				
+				def clear
+					@all.clear
 				end
 				
 				def << headers
