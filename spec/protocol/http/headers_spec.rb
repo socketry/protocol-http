@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require 'protocol/http/headers'
+require 'protocol/http/cookie'
 
 RSpec.describe Protocol::HTTP::Headers do
 	let(:fields) do
@@ -32,7 +33,7 @@ RSpec.describe Protocol::HTTP::Headers do
 	
 	before(:each) do
 		fields.each do |name, value|
-			subject[name] = value
+			subject.add(name, value)
 		end
 	end
 	
@@ -152,6 +153,12 @@ RSpec.describe Protocol::HTTP::Headers do
 			subject.merge!('content-length' => 2)
 			
 			expect(subject['content-length']).to be == 2
+		end
+	end
+	
+	describe 'set-cookie' do
+		it "can extract parsed cookies" do
+			expect(subject['set-cookie']).to be_kind_of(Protocol::HTTP::Header::Cookie)
 		end
 	end
 end

@@ -20,39 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'header/split'
+require_relative 'header/multiple'
+require_relative 'header/cookie'
+
 module Protocol
 	module HTTP
 		# Headers are an array of key-value pairs. Some header keys represent multiple values.
 		class Headers
-			# Header value which is split by commas.
-			class Split < Array
-				COMMA = /\s*,\s*/
-				
-				def initialize(value)
-					super(value.split(COMMA))
-				end
-				
-				def << value
-					self.push(*value.split(COMMA))
-				end
-				
-				def to_s
-					join(", ")
-				end
-			end
-			
-			# Header value which is split by newline charaters (e.g. cookies).
-			class Multiple < Array
-				def initialize(value)
-					super()
-					
-					self << value
-				end
-				
-				def to_s
-					join("\n")
-				end
-			end
+			Split = Header::Split
+			Multiple = Header::Multiple
 			
 			def self.[] hash
 				self.new(hash.to_a)
@@ -174,10 +151,13 @@ module Protocol
 				'via' => Split,
 				'x-forwarded-for' => Split,
 				
-				# Headers which may be specified multiple times, but which can't be concatenated.
-				'set-cookie' => Multiple,
+				# Headers which may be specified multiple times, but which can't be concatenated:
 				'www-authenticate' => Multiple,
-				'proxy-authenticate' => Multiple
+				'proxy-authenticate' => Multiple,
+				
+				# Custom headers:
+				'set-cookie' => Header::SetCookie,
+				'cookie' => Header::Cookie,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all headers with the given key, and return the merged value.
