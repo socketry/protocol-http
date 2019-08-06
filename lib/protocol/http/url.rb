@@ -106,7 +106,7 @@ module Protocol
 				self.scan(string) do |name, value|
 					keys = self.split(name)
 					
-					if keys.count > maximum
+					if keys.size > maximum
 						raise ArgumentError, "Key length exceeded limit!"
 					end
 					

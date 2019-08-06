@@ -89,7 +89,7 @@ module Protocol
 				end
 				
 				def inspect
-					"\#<#{self.class} #{@chunks.count} chunks, #{self.length} bytes>"
+					"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
 				end
 			end
 		end

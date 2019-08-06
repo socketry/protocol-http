@@ -33,7 +33,7 @@ module Protocol
 				end
 				
 				def read
-					if @index < @chunks.count
+					if @index < @chunks.size
 						chunk = @chunks[@index]
 						@index += 1
 					else
@@ -52,7 +52,7 @@ module Protocol
 				end
 				
 				def inspect
-					"\#<#{self.class} #{@index}/#{@chunks.count} chunks read>"
+					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
 				end
 			end
 		end
