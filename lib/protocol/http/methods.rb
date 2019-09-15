@@ -22,7 +22,7 @@
 
 module Protocol
 	module HTTP
-		# HTTP method verbs
+		# All supported HTTP methods
 		class Methods
 			GET = 'GET'
 			POST = 'POST'
@@ -39,7 +39,7 @@ module Protocol
 			def self.valid?(name)
 				const_defined?(name)
 			rescue NameError
-				# Ruby will raise an exception if te name is not valid for a constant.
+				# Ruby will raise an exception if the name is not valid for a constant.
 				return false
 			end
 			
@@ -50,10 +50,10 @@ module Protocol
 			end
 			
 			# Use Methods.constants to get all constants.
-			self.each do |name, verb|
-				define_method(verb.downcase) do |location, headers = [], body = nil|
+			self.each do |name, value|
+				define_method(name.downcase) do |location, headers = [], body = nil|
 					self.call(
-						Request[verb, location.to_str, Headers[headers], body]
+						Request[value, location.to_str, Headers[headers], body]
 					)
 				end
 			end
