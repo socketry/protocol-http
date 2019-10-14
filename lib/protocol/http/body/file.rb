@@ -28,8 +28,8 @@ module Protocol
 				BLOCK_SIZE = Async::IO::BLOCK_SIZE
 				MODE = ::File::RDONLY | ::File::BINARY
 				
-				def self.open(path, *args)
-					self.new(::File.open(path, MODE), *args)
+				def self.open(path, *arguments, **options)
+					self.new(::File.open(path, MODE), *arguments, **options)
 				end
 				
 				def initialize(file, range = nil, size: file.size, block_size: BLOCK_SIZE)
