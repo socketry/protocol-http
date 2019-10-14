@@ -67,16 +67,6 @@ module Protocol
 					self.close($!)
 				end
 				
-				# def call(stream)
-				# 	# Flushing after every chunk is inefficient, but it's also a safe default.
-				# 	self.each do |chunk|
-				# 		stream.write(chunk)
-				# 		stream.flush
-				# 	end
-				# ensure
-				# 	stream.close
-				# end
-				
 				# Read all remaining chunks into a single binary string using `#each`.
 				def join
 					buffer = String.new.force_encoding(Encoding::BINARY)
