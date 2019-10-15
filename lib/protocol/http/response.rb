@@ -45,35 +45,35 @@ module Protocol
 			end
 			
 			def continue?
-				status == 100
+				@status == 100
 			end
 			
 			def success?
-				status >= 200 && status < 300
+				@status and @status >= 200 && @status < 300
 			end
 			
 			def partial?
-				status == 206
+				@status == 206
 			end
 			
 			def redirection?
-				status >= 300 && status < 400
+				@status and @status >= 300 && @status < 400
 			end
 			
 			def preserve_method?
-				status == 307 || status == 308
+				@status == 307 || @status == 308
 			end
 			
 			def failure?
-				status >= 400 && status < 600
+				@status and @status >= 400 && @status < 600
 			end
 			
 			def bad_request?
-				status == 400
+				@status == 400
 			end
 			
 			def server_failure?
-				status == 500
+				@status == 500
 			end
 			
 			def self.[](status, headers = [], body = nil, protocol = nil)

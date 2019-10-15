@@ -52,11 +52,11 @@ module Protocol
 			end
 			
 			def head?
-				self.method == Methods::HEAD
+				@method == Methods::HEAD
 			end
 			
 			def connect?
-				self.method == Methods::CONNECT
+				@method == Methods::CONNECT
 			end
 			
 			def self.[](method, path, headers, body)
@@ -66,7 +66,7 @@ module Protocol
 			end
 			
 			def idempotent?
-				method != Methods::POST && (body.nil? || body.empty?)
+				@method != Methods::POST && (@body.nil? || @body.empty?)
 			end
 			
 			def to_s
