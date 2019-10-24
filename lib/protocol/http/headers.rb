@@ -23,6 +23,7 @@
 require_relative 'header/split'
 require_relative 'header/multiple'
 require_relative 'header/cookie'
+require_relative 'header/connection'
 
 module Protocol
 	module HTTP
@@ -145,7 +146,7 @@ module Protocol
 				'location' => false,
 				'max-forwards' => false,
 				
-				'connection' => Split,
+				'connection' => Header::Connection,
 				
 				# Headers specifically for proxies:
 				'via' => Split,

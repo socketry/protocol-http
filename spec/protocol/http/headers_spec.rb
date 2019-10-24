@@ -28,6 +28,7 @@ RSpec.describe Protocol::HTTP::Headers do
 			['Set-Cookie', 'hello=world'],
 			['Accept', '*/*'],
 			['Set-Cookie', 'foo=bar'],
+			['Connection', 'Keep-Alive']
 		]
 	end
 	
@@ -159,6 +160,17 @@ RSpec.describe Protocol::HTTP::Headers do
 	describe 'set-cookie' do
 		it "can extract parsed cookies" do
 			expect(subject['set-cookie']).to be_kind_of(Protocol::HTTP::Header::Cookie)
+		end
+	end
+	
+	
+	describe 'connection' do
+		it "can extract connection options" do
+			expect(subject['connection']).to be_kind_of(Protocol::HTTP::Header::Connection)
+		end
+		
+		it "should normalize to lower case" do
+			expect(subject['connection']).to be == ['keep-alive']
 		end
 	end
 end
