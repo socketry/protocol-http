@@ -51,7 +51,7 @@ module Protocol
 				end
 				
 				def to_app
-					@use.reverse.inject(@app) {|app, use| use.call(app).freeze}
+					@use.reverse.inject(@app) {|app, use| use.call(app)}
 				end
 			end
 			
