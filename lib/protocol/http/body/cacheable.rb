@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+#
+# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,47 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'wrapper'
-require_relative 'buffered'
+require_relative 'rewindable'
+require_relative 'streamable'
 
 module Protocol
 	module HTTP
 		module Body
-			# A body which buffers all it's contents as it is `#read`.
-			class Rewindable < Wrapper
-				def initialize(body)
-					super(body)
-					
-					@chunks = []
-					@index = 0
-				end
-				
-				# A rewindable body wraps some other body. Convert it to a buffered body 
-				def buffered
-					Buffered.new(@chunks)
-				end
-				
-				def read
-					if @index < @chunks.size
-						chunk = @chunks[@index]
-						@index += 1
-					else
-						if chunk = super
-							@chunks << chunk
-							@index += 1
+			class Cacheable < Rewindable
+				def self.wrap(message, &block)
+					if body = message.body
+						# Create a rewindable body wrapping the message body:
+						rewindable = Rewindable.new(body)
+						
+						# Set the message body to the rewindable body:
+						message.body = rewindable
+						
+						# Wrap the message with the callback:
+						Streamable.wrap(message) do |error|
+							unless error
+								yield message, rewindable.buffered
+							end
 						end
+					else
+						yield message, nil
 					end
-					
-					# We dup them on the way out, so that if someone modifies the string, it won't modify the rewindability.
-					return chunk&.dup
-				end
-				
-				def rewind
-					@index = 0
-				end
-				
-				def inspect
-					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
 				end
 			end
 		end

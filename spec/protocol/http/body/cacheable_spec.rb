@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,49 +20,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'wrapper'
-require_relative 'buffered'
+require 'protocol/http/body/cacheable'
 
-module Protocol
-	module HTTP
-		module Body
-			# A body which buffers all it's contents as it is `#read`.
-			class Rewindable < Wrapper
-				def initialize(body)
-					super(body)
-					
-					@chunks = []
-					@index = 0
-				end
-				
-				# A rewindable body wraps some other body. Convert it to a buffered body 
-				def buffered
-					Buffered.new(@chunks)
-				end
-				
-				def read
-					if @index < @chunks.size
-						chunk = @chunks[@index]
-						@index += 1
-					else
-						if chunk = super
-							@chunks << chunk
-							@index += 1
-						end
-					end
-					
-					# We dup them on the way out, so that if someone modifies the string, it won't modify the rewindability.
-					return chunk&.dup
-				end
-				
-				def rewind
-					@index = 0
-				end
-				
-				def inspect
-					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
-				end
+RSpec.describe Protocol::HTTP::Body::Cacheable do
+	include_context RSpec::Memory
+	
+	let(:body) {Protocol::HTTP::Body::Buffered.new(["Hello", "World"])}
+	let(:message) {Protocol::HTTP::Response[200, [], body]}
+	
+	describe ".wrap" do
+		it "can buffer and stream bodies" do
+			invoked = false
+			
+			body = described_class.wrap(message) do
+				invoked = true
 			end
+			
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be == "World"
+			expect(body.read).to be nil
+			
+			body.close
+			
+			expect(invoked).to be true
+		end
+		
+		it "ignores failed responses" do
+			invoked = false
+			
+			body = described_class.wrap(message) do
+				invoked = true
+			end
+			
+			expect(body.read).to be == "Hello"
+			
+			body.close(IOError.new("failed"))
+			
+			expect(invoked).to be false
 		end
 	end
 end
