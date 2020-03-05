@@ -82,10 +82,6 @@ module Protocol
 					@chunks << chunk
 				end
 				
-				def close(error = nil)
-					@chunks << nil
-				end
-				
 				def rewind
 					@index = 0
 				end
