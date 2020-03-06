@@ -29,6 +29,8 @@ module Protocol
 			class CacheControl < Split
 				PRIVATE = 'private'
 				PUBLIC = 'public'
+				NO_CACHE = 'no-cache'
+				NO_STORE = 'no-store'
 				MAX_AGE = 'max-age'
 				
 				def initialize(value)
@@ -45,6 +47,14 @@ module Protocol
 				
 				def public?
 					self.include?(PUBLIC)
+				end
+				
+				def no_cache?
+					self.include?(NO_CACHE)
+				end
+				
+				def no_store?
+					self.include?(NO_STORE)
 				end
 				
 				def max_age

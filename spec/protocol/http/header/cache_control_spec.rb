@@ -23,9 +23,16 @@
 require 'protocol/http/header/cache_control'
 
 RSpec.describe Protocol::HTTP::Header::CacheControl do
-	subject {described_class.new("max-age=60, public")}
+	subject {described_class.new(description)}
 	
-	it {is_expected.to have_attributes(public?: true)}
-	it {is_expected.to have_attributes(private?: false)}
-	it {is_expected.to have_attributes(max_age: 60)}
+	context "max-age=60, public" do
+		it {is_expected.to have_attributes(public?: true)}
+		it {is_expected.to have_attributes(private?: false)}
+		it {is_expected.to have_attributes(max_age: 60)}
+	end
+	
+	context "no-cache, no-store" do
+		it {is_expected.to have_attributes(no_cache?: true)}
+		it {is_expected.to have_attributes(no_store?: true)}
+	end
 end
