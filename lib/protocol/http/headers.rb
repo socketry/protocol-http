@@ -25,6 +25,7 @@ require_relative 'header/multiple'
 require_relative 'header/cookie'
 require_relative 'header/connection'
 require_relative 'header/cache_control'
+require_relative 'header/vary'
 
 module Protocol
 	module HTTP
@@ -149,6 +150,7 @@ module Protocol
 				
 				'connection' => Header::Connection,
 				'cache-control' => Header::CacheControl,
+				'vary' => Header::Vary,
 				
 				# Headers specifically for proxies:
 				'via' => Split,
