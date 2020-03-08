@@ -32,10 +32,18 @@ RSpec.describe Protocol::HTTP::Body::Cacheable do
 		it "can buffer and stream bodies" do
 			invoked = false
 			
-			body = described_class.wrap(message) do
+			described_class.wrap(message) do |message, body|
 				invoked = true
+				
+				# The cached/buffered body:
+				expect(body.read).to be == "Hello"
+				expect(body.read).to be == "World"
+				expect(body.read).to be nil
 			end
 			
+			body = message.body
+			
+			# The actual body:
 			expect(body.read).to be == "Hello"
 			expect(body.read).to be == "World"
 			expect(body.read).to be nil
@@ -48,9 +56,11 @@ RSpec.describe Protocol::HTTP::Body::Cacheable do
 		it "ignores failed responses" do
 			invoked = false
 			
-			body = described_class.wrap(message) do
+			described_class.wrap(message) do
 				invoked = true
 			end
+			
+			body = message.body
 			
 			expect(body.read).to be == "Hello"
 			

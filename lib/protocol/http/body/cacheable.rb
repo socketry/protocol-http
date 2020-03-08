@@ -44,6 +44,8 @@ module Protocol
 					else
 						yield message, nil
 					end
+					
+					return message
 				end
 			end
 		end
