@@ -35,6 +35,8 @@ RSpec.describe Protocol::HTTP::ContentEncoding do
 			response = compressor.get("/index", {'accept-encoding' => 'gzip'})
 			expect(response).to be_success
 			
+			expect(response.headers['vary']).to include('accept-encoding')
+			
 			expect(response.body).to be_kind_of Protocol::HTTP::Body::Inflate
 			expect(response.read).to be == "Hello World!"
 		end
@@ -44,6 +46,7 @@ RSpec.describe Protocol::HTTP::ContentEncoding do
 			
 			expect(response).to be_success
 			expect(response.headers).to_not include('content-encoding')
+			expect(response.headers['vary']).to include('accept-encoding')
 			
 			expect(response.read).to be == "Hello World!"
 		end
