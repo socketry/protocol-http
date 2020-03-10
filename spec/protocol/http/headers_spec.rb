@@ -115,6 +115,16 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	describe '#set' do
+		it 'can replace an existing field' do
+			subject.add('accept-encoding', 'gzip,deflate')
+			
+			subject.set('accept-encoding', 'gzip')
+			
+			expect(subject['accept-encoding']).to be == ['gzip']
+		end
+	end
+	
 	describe '#extract' do
 		it "can extract key's that don't exist" do
 			expect(subject.extract('foo')).to be_empty

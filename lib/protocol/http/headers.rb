@@ -105,8 +105,20 @@ module Protocol
 			# This is deprecated.
 			alias slice! extract
 			
+			# Add the specified header key value pair.
+			# @param key [String] the header key.
+			# @param value [String] the header value to assign.
 			def add(key, value)
 				self[key] = value
+			end
+			
+			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
+			# @param key [String] the header key to replace.
+			# @param value [String] the header value to assign.
+			def set(key, value)
+				# TODO This could be a bit more efficient:
+				self.delete(key)
+				self.add(key, value)
 			end
 			
 			def merge!(headers)
