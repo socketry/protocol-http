@@ -22,6 +22,6 @@
 
 module Protocol
 	module HTTP
-		VERSION = "0.14.4"
+		VERSION = "0.15.0"
 	end
 end
