@@ -100,6 +100,7 @@ module Protocol
 				parent[top] = value
 			end
 			
+			# TODO use native C extension from `Trenni::Reference`.
 			def self.decode(string, maximum = 8, symbolize_keys: false)
 				parameters = {}
 				
