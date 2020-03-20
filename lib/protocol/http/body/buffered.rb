@@ -22,6 +22,8 @@
 
 require_relative 'readable'
 
+require 'digest/sha2'
+
 module Protocol
 	module HTTP
 		module Body
@@ -56,6 +58,11 @@ module Protocol
 					@length = length
 					
 					@index = 0
+					@digest = nil
+				end
+				
+				def digest
+					@digest ||= compute_digest
 				end
 				
 				def finish
@@ -79,6 +86,7 @@ module Protocol
 				end
 				
 				def write(chunk)
+					@digest = nil
 					@chunks << chunk
 				end
 				
@@ -88,6 +96,14 @@ module Protocol
 				
 				def inspect
 					"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
+				end
+				
+				private
+				
+				def compute_digest
+					algorithm = Digest::SHA256.new
+					@chunks.each{|chunk| algorithm.update(chunk)}
+					return algorithm.hexdigest
 				end
 			end
 		end

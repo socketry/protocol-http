@@ -123,4 +123,25 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 			expect(subject.read).to be == "Hello"
 		end
 	end
+	
+	describe '#digest' do
+		it "can compute digest" do
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
+		end
+		
+		it "can recompute digest" do
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
+			
+			subject.write('something')
+			
+			expect(subject.digest).to be == "7cecb8b2cf8957107dfd686a533ac6a9d731f941880e77bcf9221ff886b11d1b"
+		end
+		
+		it "is not affected by chunk boundaries" do
+			subject.write('some')
+			subject.write('thing')
+			
+			expect(subject.digest).to be == "7cecb8b2cf8957107dfd686a533ac6a9d731f941880e77bcf9221ff886b11d1b"
+		end
+	end
 end
