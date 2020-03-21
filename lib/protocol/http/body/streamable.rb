@@ -29,21 +29,16 @@ module Protocol
 			class Streamable < Wrapper
 				def self.wrap(message, &block)
 					if body = message&.body
-						if remaining = body.length
-							remaining = Integer(remaining)
-						end
-						
-						message.body = self.new(message.body, block, remaining)
+						message.body = self.new(message.body, block)
 					else
 						yield
 					end
 				end
 				
-				def initialize(body, callback, remaining = nil)
+				def initialize(body, callback)
 					super(body)
 					
 					@callback = callback
-					@remaining = remaining
 				end
 				
 				def finish
@@ -66,18 +61,6 @@ module Protocol
 						
 						@body = nil
 					end
-				end
-				
-				def read
-					if chunk = super
-						@remaining -= chunk.bytesize if @remaining
-					else
-						if @remaining and @remaining > 0
-							raise EOFError, "Expected #{@remaining} more bytes!"
-						end
-					end
-					
-					return chunk
 				end
 			end
 		end
