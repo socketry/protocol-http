@@ -33,16 +33,11 @@ RSpec.describe Protocol::HTTP::Request do
 			scheme: "http",
 			authority: "localhost",
 			method: "GET",
-			target: "/index.html",
+			path: "/index.html",
 			version: "HTTP/1.0",
 			headers: headers,
 			body: body,
 			protocol: nil
-		)}
-		
-		# Legacy field names:
-		it {is_expected.to have_attributes(
-			path: "/index.html"
 		)}
 		
 		it {is_expected.to_not be_head}
