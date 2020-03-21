@@ -28,11 +28,11 @@ module Protocol
 		class Request
 			prepend Body::Reader
 			
-			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = [], body = nil, protocol = nil)
+			def initialize(scheme = nil, authority = nil, method = nil, target = nil, version = nil, headers = [], body = nil, protocol = nil)
 				@scheme = scheme
 				@authority = authority
 				@method = method
-				@path = path
+				@target = target
 				@version = version
 				@headers = headers
 				@body = body
@@ -42,7 +42,7 @@ module Protocol
 			attr_accessor :scheme
 			attr_accessor :authority
 			attr_accessor :method
-			attr_accessor :path
+			attr_accessor :target
 			attr_accessor :version
 			attr_accessor :headers
 			attr_accessor :body
@@ -51,6 +51,14 @@ module Protocol
 			# Send the request to the given connection.
 			def call(connection)
 				connection.call(self)
+			end
+			
+			def path
+				@target
+			end
+			
+			def path= value
+				@target = value
 			end
 			
 			def head?
@@ -72,7 +80,7 @@ module Protocol
 			end
 			
 			def to_s
-				"#{@scheme}://#{@authority}: #{@method} #{@path} #{@version}"
+				"#{@scheme}://#{@authority}: #{@method} #{@target} #{@version}"
 			end
 		end
 	end
