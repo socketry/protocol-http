@@ -32,9 +32,9 @@ module Protocol
 				# Wraps an array into a buffered body.
 				# @return [Readable, nil] the wrapped body or nil if nil was given.
 				def self.wrap(body)
-					if body.is_a? Readable
+					if body.is_a?(Readable)
 						return body
-					elsif body.is_a? Array
+					elsif body.is_a?(Array)
 						return self.new(body)
 					elsif body.is_a?(String)
 						return self.new([body])
