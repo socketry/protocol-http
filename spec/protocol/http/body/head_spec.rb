@@ -38,7 +38,7 @@ RSpec.describe Protocol::HTTP::Body::Head do
 	context "with non-zero length" do
 		subject(:body) {described_class.new(1)}
 		
-		it {is_expected.to_not be_empty}
+		it {is_expected.to be_empty}
 		
 		describe '#read' do
 			subject {body.read}

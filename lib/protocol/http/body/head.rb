@@ -39,7 +39,7 @@ module Protocol
 				end
 				
 				def empty?
-					@length.zero?
+					true
 				end
 				
 				def length

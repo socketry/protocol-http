@@ -28,7 +28,7 @@ module Protocol
 			# Invokes a callback once the body has finished reading.
 			class Streamable < Wrapper
 				def self.wrap(message, &block)
-					if body = message&.body
+					if body = message&.body and !body.empty?
 						message.body = self.new(message.body, block)
 					else
 						yield
