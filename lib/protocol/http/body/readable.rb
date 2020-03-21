@@ -63,7 +63,6 @@ module Protocol
 				def each
 					while chunk = self.read
 						yield chunk
-						# chunk.clear
 					end
 				ensure
 					self.close($!)
@@ -78,7 +77,11 @@ module Protocol
 						chunk.clear
 					end
 					
-					return buffer
+					if buffer.empty?
+						return nil
+					else
+						return buffer
+					end
 				end
 			end
 		end

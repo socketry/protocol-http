@@ -24,9 +24,15 @@ require 'protocol/http/body/head'
 
 RSpec.describe Protocol::HTTP::Body::Head do
 	context "with zero length" do
-		subject {described_class.new(0)}
+		subject(:body) {described_class.new(0)}
 		
 		it {is_expected.to be_empty}
+		
+		describe '#join' do
+			subject {body.join}
+			
+			it {is_expected.to be_nil}
+		end
 	end
 	
 	context "with non-zero length" do
@@ -36,6 +42,12 @@ RSpec.describe Protocol::HTTP::Body::Head do
 		
 		describe '#read' do
 			subject {body.read}
+			it {is_expected.to be_nil}
+		end
+		
+		describe '#join' do
+			subject {body.join}
+			
 			it {is_expected.to be_nil}
 		end
 	end
