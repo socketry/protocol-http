@@ -25,16 +25,8 @@ require_relative 'split'
 module Protocol
 	module HTTP
 		module Header
-			# Header value which is split by newline charaters (e.g. cookies).
+			# This implementation is not strictly correct according to the RFC-specified format.
 			class ETags < Split
-				def initialize(value)
-					super(value.downcase)
-				end
-				
-				def << value
-					super(value.downcase)
-				end
-				
 				def wildcard?
 					self.include?('*')
 				end

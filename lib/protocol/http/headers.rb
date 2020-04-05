@@ -25,6 +25,7 @@ require_relative 'header/multiple'
 require_relative 'header/cookie'
 require_relative 'header/connection'
 require_relative 'header/cache_control'
+require_relative 'header/etag'
 require_relative 'header/etags'
 require_relative 'header/vary'
 
@@ -145,7 +146,7 @@ module Protocol
 				@fields << [key, value]
 			end
 			
-			MERGE_POLICY = {
+			POLICY = {
 				# Headers which may only be specified once.
 				'content-type' => false,
 				'content-disposition' => false,
@@ -170,6 +171,7 @@ module Protocol
 				'x-forwarded-for' => Split,
 				
 				# Cache validations:
+				'etag' => Header::ETag,
 				'if-match' => Header::ETags,
 				'if-none-match' => Header::ETags,
 				
@@ -194,7 +196,7 @@ module Protocol
 				
 				if @indexed
 					return @indexed.delete(key)
-				elsif policy = MERGE_POLICY[key]
+				elsif policy = POLICY[key]
 					(key, value), *tail = deleted
 					merged = policy.new(value)
 					
@@ -208,7 +210,7 @@ module Protocol
 			end
 			
 			protected def merge_into(hash, key, value)
-				if policy = MERGE_POLICY[key]
+				if policy = POLICY[key]
 					if current_value = hash[key]
 						current_value << value
 					else

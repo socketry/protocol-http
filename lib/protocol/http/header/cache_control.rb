@@ -25,7 +25,6 @@ require_relative 'split'
 module Protocol
 	module HTTP
 		module Header
-			# Header value which is split by newline charaters (e.g. cookies).
 			class CacheControl < Split
 				PRIVATE = 'private'
 				PUBLIC = 'public'

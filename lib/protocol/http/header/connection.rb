@@ -25,7 +25,6 @@ require_relative 'split'
 module Protocol
 	module HTTP
 		module Header
-			# Header value which is split by newline charaters (e.g. cookies).
 			class Connection < Split
 				KEEP_ALIVE = 'keep-alive'
 				CLOSE = 'close'

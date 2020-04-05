@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright, 2017, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'base64'
+require_relative 'split'
 
 module Protocol
 	module HTTP
 		module Header
-			# Used for basic authorization.
-			# @example headers.add('authorization', Authorization.new("samuel", "password"))
-			class Authorization
-				KEY = "Authorization"
-				
-				def initialize(username, password)
-					@username = username
-					@password = password
+			class ETag < String
+				def << value
+					replace(value)
 				end
 				
-				def encoded
-					"#{@username}:#{@password}"
-				end
-				
-				def to_str
-					'Basic %s' % Base64.strict_encode64(self.encoded)
+				def weak?
+					self.start_with('\W')
 				end
 			end
 		end
