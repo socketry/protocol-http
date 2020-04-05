@@ -26,7 +26,7 @@ RSpec.describe Protocol::HTTP::Response do
 	let(:headers) {Protocol::HTTP::Headers.new}
 	let(:body) {nil}
 	
-	context "simple GET request" do
+	context "GET response" do
 		subject {described_class.new("HTTP/1.0", 200, headers, body)}
 		
 		it {is_expected.to have_attributes(
@@ -48,5 +48,13 @@ RSpec.describe Protocol::HTTP::Response do
 		it {is_expected.to have_attributes(
 			to_s: "200 HTTP/1.0"
 		)}
+	end
+	
+	context "unmodified cached response" do
+		subject {described_class.new("HTTP/1.1", 304, headers, body)}
+		
+		it {is_expected.to_not be_success}
+		it {is_expected.to be_redirection}
+		it {is_expected.to be_not_modified}
 	end
 end

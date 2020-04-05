@@ -62,6 +62,10 @@ module Protocol
 				@status and @status >= 300 && @status < 400
 			end
 			
+			def not_modified?
+				@status == 304
+			end
+			
 			def preserve_method?
 				@status == 307 || @status == 308
 			end
