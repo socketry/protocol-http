@@ -109,4 +109,25 @@ RSpec.describe Protocol::HTTP::Body::Rewindable do
 			it {is_expected.to be_empty}
 		end
 	end
+	
+	describe '#digest' do
+		before do
+			source.write "Hello"
+			source.write "World"
+		end
+		
+		it "can compute digest" do
+			2.times {subject.read}
+			
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
+		end
+		
+		it "can recompute digest" do
+			expect(subject.read).to be == "Hello"
+			expect(subject.digest).to be == "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"
+			
+			expect(subject.read).to be == "World"
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
+		end
+	end
 end

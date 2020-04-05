@@ -62,7 +62,12 @@ module Protocol
 				end
 				
 				def digest
-					@digest ||= compute_digest
+					if @digest.nil?
+						@digest = Digest::SHA256.new
+						@chunks.each{|chunk| @digest.update(chunk)}
+					end
+					
+					@digest.hexdigest
 				end
 				
 				def finish
@@ -86,7 +91,7 @@ module Protocol
 				end
 				
 				def write(chunk)
-					@digest = nil
+					@digest&.update(chunk)
 					@chunks << chunk
 				end
 				
@@ -96,14 +101,6 @@ module Protocol
 				
 				def inspect
 					"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
-				end
-				
-				private
-				
-				def compute_digest
-					algorithm = Digest::SHA256.new
-					@chunks.each{|chunk| algorithm.update(chunk)}
-					return algorithm.hexdigest
 				end
 			end
 		end
