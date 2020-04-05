@@ -36,7 +36,7 @@ module Protocol
 				end
 				
 				def empty?
-					@index >= @chunks.size
+					(@index >= @chunks.size) && super
 				end
 				
 				# A rewindable body wraps some other body. Convert it to a buffered body 

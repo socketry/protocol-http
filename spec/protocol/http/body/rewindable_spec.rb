@@ -70,4 +70,43 @@ RSpec.describe Protocol::HTTP::Body::Rewindable do
 			end
 		end
 	end
+	
+	describe '#empty?' do
+		it {is_expected.to be_empty}
+		
+		context "with unread chunk" do
+			before {source.write("Hello World")}
+			it {is_expected.to_not be_empty}
+		end
+		
+		context "with read chunk" do
+			before do
+				source.write("Hello World")
+				expect(subject.read).to be == "Hello World"
+			end
+			
+			it {is_expected.to be_empty}
+		end
+		
+		context "with rewound chunk" do
+			before do
+				source.write("Hello World")
+				expect(subject.read).to be == "Hello World"
+				subject.rewind
+			end
+			
+			it {is_expected.to_not be_empty}
+		end
+		
+		context "with rewound chunk" do
+			before do
+				source.write("Hello World")
+				expect(subject.read).to be == "Hello World"
+				subject.rewind
+				expect(subject.read).to be == "Hello World"
+			end
+			
+			it {is_expected.to be_empty}
+		end
+	end
 end
