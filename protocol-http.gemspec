@@ -15,12 +15,12 @@ Gem::Specification.new do |spec|
 		f.match(%r{^(test|spec|features)/})
 	end
 	
-	spec.required_ruby_version = '~> 2.4'
+	spec.required_ruby_version = '~> 2.5'
 	
 	spec.require_paths = ["lib"]
 	
 	spec.add_development_dependency "covered"
 	spec.add_development_dependency "bundler"
-	spec.add_development_dependency "rake", "~> 10.0"
-	spec.add_development_dependency "rspec", "~> 3.0"
+	spec.add_development_dependency "bake-bundler"
+	spec.add_development_dependency "rspec"
 end

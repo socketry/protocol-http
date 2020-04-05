@@ -2,14 +2,16 @@ language: ruby
 dist: xenial
 cache: bundler
 
+script: bundle exec rspec
+
 matrix:
   include:
-    - rvm: 2.4
     - rvm: 2.5
     - rvm: 2.6
     - rvm: 2.7
     - rvm: 2.6
       env: COVERAGE=PartialSummary,Coveralls
+    - rvm: 2.7
     - rvm: truffleruby
     - rvm: jruby-head
       env: JRUBY_OPTS="--debug -X+O"
