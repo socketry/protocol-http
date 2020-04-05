@@ -25,6 +25,7 @@ require_relative 'header/multiple'
 require_relative 'header/cookie'
 require_relative 'header/connection'
 require_relative 'header/cache_control'
+require_relative 'header/etags'
 require_relative 'header/vary'
 
 module Protocol
@@ -167,6 +168,10 @@ module Protocol
 				# Headers specifically for proxies:
 				'via' => Split,
 				'x-forwarded-for' => Split,
+				
+				# Cache validations:
+				'if-match' => Header::ETags,
+				'if-none-match' => Header::ETags,
 				
 				# Headers which may be specified multiple times, but which can't be concatenated:
 				'www-authenticate' => Multiple,
