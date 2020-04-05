@@ -169,12 +169,19 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	describe '#trailers' do
+		it "can dynamically generate trailers" do
+			subject.add('etag') {"etag!"}
+			
+			expect(subject.trailers.to_h).to be == {'etag' => 'etag!'}
+		end
+	end
+	
 	describe 'set-cookie' do
 		it "can extract parsed cookies" do
 			expect(subject['set-cookie']).to be_kind_of(Protocol::HTTP::Header::Cookie)
 		end
 	end
-	
 	
 	describe 'connection' do
 		it "can extract connection options" do

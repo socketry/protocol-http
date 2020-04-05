@@ -78,6 +78,28 @@ module Protocol
 				super
 			end
 			
+			TRAILERS = 'trailers'
+			
+			def trailers?
+				self.include?(TRAILERS)
+			end
+			
+			def trailers
+				return to_enum(:trailers) unless block_given?
+				
+				if trailers = self[TRAILERS]
+					trailers.each do |key|
+						value = self[key]
+						
+						if value.respond_to?(:call)
+							value = value.call
+						end
+						
+						yield key, value
+					end
+				end
+			end
+			
 			def empty?
 				@fields.empty?
 			end
@@ -110,8 +132,13 @@ module Protocol
 			# Add the specified header key value pair.
 			# @param key [String] the header key.
 			# @param value [String] the header value to assign.
+			# @yield dynamically generate the value when used as a trailer.
 			def add(key, value)
-				self[key] = value
+				if block_given?
+					self[key] = block
+				else
+					self[key] = value
+				end
 			end
 			
 			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
