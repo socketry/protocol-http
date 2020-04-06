@@ -158,9 +158,6 @@ module Protocol
 				return deleted
 			end
 			
-			# This is deprecated.
-			alias slice! extract
-			
 			# Add the specified header key value pair.
 			# @param key [String] the header key.
 			# @param value [String] the header value to assign.
