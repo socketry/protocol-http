@@ -36,68 +36,94 @@ module Protocol
 			Split = Header::Split
 			Multiple = Header::Multiple
 			
-			def self.[] hash
-				self.new(hash.to_a)
+			# TODO avoid `fields.dup` below.
+			def self.[] headers
+				if headers.is_a?(self)
+					headers
+				else
+					self.new(headers.to_a)
+				end
 			end
 			
-			def initialize(fields = nil, indexed = nil)
-				if fields
-					@fields = fields.dup
-				else
-					@fields = []
-				end
+			def initialize(fields = [], indexed = nil)
+				@fields = fields
+				@indexed = indexed
 				
-				if indexed
-					@indexed = indexed.dup
-				else
-					@indexed = nil
-				end
+				# Marks where trailers start in the @fields array.
+				@tail = nil
+				@deferred = []
 			end
 			
-			def dup
-				self.class.new(@fields, @indexed)
+			def initialize_dup(other)
+				super
+				
+				@fields = @fields.dup
+				@indexed = @indexed.dup
+				@deferred = @deferred.dup
 			end
 			
 			def clear
 				@fields.clear
 				@indexed = nil
+				@tail = nil
+				@deferred.clear
 			end
 			
 			# An array of `[key, value]` pairs.
 			attr :fields
 			
+			# Mark the subsequent headers as trailers.
+			def trailers!
+				@tail ||= @fields.size
+			end
+			
+			# @return the trailers if there are any.
+			def trailers?
+				@tail != nil
+			end
+			
+			def flatten!
+				unless @deferred.empty?
+					@tail ||= @fields.size
+					
+					@deferred.each do |key, value|
+						self.add(key, value.call)
+					end
+				end
+			end
+			
+			# Enumerate all trailers, including evaluating all deferred headers.
+			def trailers(&block)
+				return nil unless self.include?('trailers')
+				
+				return to_enum(:trailers) unless block_given?
+				
+				flatten!
+				
+				if @tail
+					@fields.drop(@tail).each(&block)
+				end
+			end
+			
 			def freeze
 				return if frozen?
 				
+				# Ensure all deferred headers are evaluated:
+				self.flatten!
+				
 				# Ensure @indexed is generated:
 				self.to_h
+				
+				# Remove all trailers:
+				self.delete('trailers')
+				
+				# No longer has stateful trailers:
+				@tail = nil
 				
 				@fields.freeze
 				@indexed.freeze
 				
 				super
-			end
-			
-			TRAILERS = 'trailers'
-			
-			def trailers?
-				self.include?(TRAILERS)
-			end
-			
-			def trailers
-				return to_enum(:trailers) unless block_given?
-				
-				if trailers = self[TRAILERS]
-					trailers.each do |key|
-						value = self[key]
-						
-						if value.respond_to?(:call)
-							value = value.call
-						end
-						
-						yield key, value
-					end
-				end
 			end
 			
 			def empty?
@@ -110,6 +136,10 @@ module Protocol
 			
 			def include? key
 				self[key] != nil
+			end
+			
+			def keys
+				self.to_h.keys
 			end
 			
 			def extract(keys)
@@ -133,9 +163,10 @@ module Protocol
 			# @param key [String] the header key.
 			# @param value [String] the header value to assign.
 			# @yield dynamically generate the value when used as a trailer.
-			def add(key, value)
+			def add(key, value = nil, &block)
 				if block_given?
-					self[key] = block
+					@deferred << [key, block]
+					self['trailers'] = key
 				else
 					self[key] = value
 				end
@@ -189,6 +220,7 @@ module Protocol
 				'location' => false,
 				'max-forwards' => false,
 				
+				# Custom headers:
 				'connection' => Header::Connection,
 				'cache-control' => Header::CacheControl,
 				'vary' => Header::Vary,
