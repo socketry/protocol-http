@@ -35,8 +35,10 @@ module Protocol
 		class Headers
 			Split = Header::Split
 			Multiple = Header::Multiple
+			TRAILERS = 'trailers'
 			
-			# TODO avoid `fields.dup` below.
+			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`.
+			# @return [Headers] an instance of headers.
 			def self.[] headers
 				if headers.is_a?(self)
 					headers
@@ -94,7 +96,7 @@ module Protocol
 			
 			# Enumerate all trailers, including evaluating all deferred headers.
 			def trailers(&block)
-				return nil unless self.include?('trailers')
+				return nil unless self.include?(TRAILERS)
 				
 				return to_enum(:trailers) unless block_given?
 				
@@ -115,7 +117,7 @@ module Protocol
 				self.to_h
 				
 				# Remove all trailers:
-				self.delete('trailers')
+				self.delete(TRAILERS)
 				
 				# No longer has stateful trailers:
 				@tail = nil
@@ -166,7 +168,7 @@ module Protocol
 			def add(key, value = nil, &block)
 				if block_given?
 					@deferred << [key, block]
-					self['trailers'] = key
+					self[TRAILERS] = key
 				else
 					self[key] = value
 				end
