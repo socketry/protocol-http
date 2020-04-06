@@ -32,12 +32,28 @@ module Protocol
 				NO_STORE = 'no-store'
 				MAX_AGE = 'max-age'
 				
+				STATIC = 'static'
+				DYNAMIC = 'dynamic'
+				STREAMING = 'streaming'
+				
 				def initialize(value)
 					super(value.downcase)
 				end
 				
 				def << value
 					super(value.downcase)
+				end
+				
+				def static?
+					self.include?(STATIC)
+				end
+				
+				def dynamic?
+					self.include?(DYNAMIC)
+				end
+				
+				def streaming?
+					self.include?(STREAMING)
 				end
 				
 				def private?
