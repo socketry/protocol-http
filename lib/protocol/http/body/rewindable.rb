@@ -33,16 +33,6 @@ module Protocol
 					
 					@chunks = []
 					@index = 0
-					@digest = nil
-				end
-				
-				def digest
-					if @digest.nil?
-						@digest = Digest::SHA256.new
-						@chunks.each{|chunk| @digest.update(chunk)}
-					end
-					
-					@digest.hexdigest
 				end
 				
 				def empty?
@@ -61,7 +51,6 @@ module Protocol
 					else
 						if chunk = super
 							@chunks << chunk
-							@digest&.update(chunk)
 							@index += 1
 						end
 					end

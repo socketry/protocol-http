@@ -20,77 +20,46 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'readable'
+require_relative 'wrapper'
+
+require 'digest/sha2'
 
 module Protocol
 	module HTTP
 		module Body
-			# A body which buffers all it's contents.
-			class Buffered < Readable
-				# Wraps an array into a buffered body.
-				# @return [Readable, nil] the wrapped body or nil if nil was given.
-				def self.wrap(body)
-					if body.is_a?(Readable)
-						return body
-					elsif body.is_a?(Array)
-						return self.new(body)
-					elsif body.is_a?(String)
-						return self.new([body])
-					elsif body
-						return self.for(body)
+			# Invokes a callback once the body has finished reading.
+			class Digestable < Wrapper
+				def self.wrap(message, digest = Digest::SHA256.new, &block)
+					if body = message&.body and !body.empty?
+						message.body = self.new(message.body, digest, block)
 					end
 				end
 				
-				def self.for(body)
-					chunks = []
+				def initialize(body, digest = Digest::SHA256.new, callback = nil)
+					super(body)
 					
-					body.each do |chunk|
-						chunks << chunk
-					end
-					
-					self.new(chunks)
+					@digest = digest
+					@callback = callback
 				end
 				
-				def initialize(chunks = [], length = nil)
-					@chunks = chunks
-					@length = length
-					
-					@index = 0
+				def digest
+					@digest
 				end
 				
-				attr :chunks
-				
-				def finish
-					self
-				end
-				
-				def length
-					@length ||= @chunks.inject(0) {|sum, chunk| sum + chunk.bytesize}
-				end
-				
-				def empty?
-					@index >= @chunks.length
+				def etag
+					@digest.hexdigest.dump
 				end
 				
 				def read
-					if chunk = @chunks[@index]
-						@index += 1
+					if chunk = super
+						@digest.update(chunk)
 						
-						return chunk.dup
+						return chunk
+					else
+						@callback&.call(self)
+						
+						return nil
 					end
-				end
-				
-				def write(chunk)
-					@digest&.update(chunk)
-					@chunks << chunk
-				end
-				
-				def rewind
-					@index = 0
-				end
-				
-				def inspect
-					"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
 				end
 			end
 		end

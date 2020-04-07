@@ -20,54 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'readable'
+require 'protocol/http/body/digestable'
 
-module Protocol
-	module HTTP
-		module Body
-			# Wrapping body instance. Typically you'd override `#read`.
-			class Wrapper < Readable
-				def self.wrap(message)
-					if body = message.body
-						message.body = self.new(body)
-					end
-				end
-				
-				def initialize(body)
-					@body = body
-				end
-				
-				# The wrapped body.
-				attr :body
-				
-				# Buffer any remaining body.
-				def finish
-					@body.finish
-				end
-				
-				def close(error = nil)
-					@body.close(error)
-					
-					super
-				end
-				
-				def empty?
-					@body.empty?
-				end
-				
-				def length
-					@body.length
-				end
-				
-				# Read the next available chunk.
-				def read
-					@body.read
-				end
-				
-				def inspect
-					@body.inspect
-				end
-			end
+RSpec.describe Protocol::HTTP::Body::Digestable do
+	let(:source) {Protocol::HTTP::Body::Buffered.new}
+	subject {described_class.new(source)}
+	
+	describe '#digest' do
+		before do
+			source.write "Hello"
+			source.write "World"
+		end
+		
+		it "can compute digest" do
+			2.times {subject.read}
+			
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
+		end
+		
+		it "can recompute digest" do
+			expect(subject.read).to be == "Hello"
+			expect(subject.digest).to be == "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"
+			
+			expect(subject.read).to be == "World"
+			expect(subject.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
 		end
 	end
 end
