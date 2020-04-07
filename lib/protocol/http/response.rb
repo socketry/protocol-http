@@ -90,6 +90,7 @@ module Protocol
 			
 			def self.[](status, headers = [], body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)
+				headers = ::Protocol::HTTP::Headers[headers]
 				
 				self.new(nil, status, headers, body, protocol)
 			end

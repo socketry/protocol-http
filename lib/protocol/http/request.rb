@@ -69,6 +69,7 @@ module Protocol
 			
 			def self.[](method, path, headers, body)
 				body = Body::Buffered.wrap(body)
+				headers = ::Protocol::HTTP::Headers[headers]
 				
 				self.new(nil, nil, method, path, nil, headers, body)
 			end
