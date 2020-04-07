@@ -66,18 +66,6 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
-	describe '#flatten' do
-		let(:fields) {}
-		
-		it "should remove deferred state" do
-			subject.add('etag') {'abcd'}
-			
-			2.times {subject.flatten!}
-			
-			expect(subject.fields).to be == [['trailers', 'etag'], ['etag', 'abcd']]
-		end
-	end
-	
 	describe '#fields' do
 		it 'should add fields in order' do
 			expect(subject.fields).to be == fields
@@ -182,10 +170,14 @@ RSpec.describe Protocol::HTTP::Headers do
 	end
 	
 	describe '#trailers' do
-		it "can dynamically generate trailers" do
-			subject.add('etag') {"etag!"}
+		it "can add trailers" do
+			subject.add('trailers', 'etag')
 			
-			expect(subject.trailers.to_h).to be == {'etag' => 'etag!'}
+			subject.trailers!
+			
+			subject.add('etag', 'abcd')
+			
+			expect(subject.trailers.to_h).to be == {'etag' => 'abcd'}
 		end
 	end
 	

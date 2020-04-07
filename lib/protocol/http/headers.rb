@@ -53,7 +53,6 @@ module Protocol
 				
 				# Marks where trailers start in the @fields array.
 				@tail = nil
-				@deferred = []
 			end
 			
 			def initialize_dup(other)
@@ -61,14 +60,13 @@ module Protocol
 				
 				@fields = @fields.dup
 				@indexed = @indexed.dup
-				@deferred = @deferred.dup
+				@tail = nil
 			end
 			
 			def clear
 				@fields.clear
 				@indexed = nil
 				@tail = nil
-				@deferred.clear
 			end
 			
 			# An array of `[key, value]` pairs.
@@ -84,25 +82,13 @@ module Protocol
 				@tail != nil
 			end
 			
-			def flatten!
-				unless @deferred.empty?
-					@tail ||= @fields.size
-					
-					@deferred.each do |key, value|
-						self.add(key, value.call)
-					end
-					
-					@deferred.clear
-				end
-			end
-			
 			# Enumerate all trailers, including evaluating all deferred headers.
 			def trailers(&block)
 				return nil unless self.include?(TRAILERS)
 				
-				return to_enum(:trailers) unless block_given?
+				trailers!
 				
-				flatten!
+				return to_enum(:trailers) unless block_given?
 				
 				if @tail
 					@fields.drop(@tail).each(&block)
@@ -112,17 +98,8 @@ module Protocol
 			def freeze
 				return if frozen?
 				
-				# Ensure all deferred headers are evaluated:
-				self.flatten!
-				
 				# Ensure @indexed is generated:
 				self.to_h
-				
-				# Remove all trailers:
-				self.delete(TRAILERS)
-				
-				# No longer has stateful trailers:
-				@tail = nil
 				
 				@fields.freeze
 				@indexed.freeze
@@ -163,14 +140,8 @@ module Protocol
 			# Add the specified header key value pair.
 			# @param key [String] the header key.
 			# @param value [String] the header value to assign.
-			# @yield dynamically generate the value when used as a trailer.
-			def add(key, value = nil, &block)
-				if block_given?
-					@deferred << [key, block]
-					self[TRAILERS] = key
-				else
-					self[key] = value
-				end
+			def add(key, value)
+				self[key] = value
 			end
 			
 			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
