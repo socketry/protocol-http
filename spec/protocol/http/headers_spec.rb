@@ -35,7 +35,7 @@ RSpec.describe Protocol::HTTP::Headers do
 	end
 	
 	before(:each) do
-		fields.each do |name, value|
+		fields&.each do |name, value|
 			subject.add(name, value)
 		end
 	end
@@ -63,6 +63,18 @@ RSpec.describe Protocol::HTTP::Headers do
 	describe '#empty?' do
 		it "shouldn't be empty" do
 			expect(subject).to_not be_empty
+		end
+	end
+	
+	describe '#flatten' do
+		let(:fields) {}
+		
+		it "should remove deferred state" do
+			subject.add('etag') {'abcd'}
+			
+			2.times {subject.flatten!}
+			
+			expect(subject.fields).to be == [['trailers', 'etag'], ['etag', 'abcd']]
 		end
 	end
 	

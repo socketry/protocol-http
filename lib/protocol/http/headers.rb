@@ -91,6 +91,8 @@ module Protocol
 					@deferred.each do |key, value|
 						self.add(key, value.call)
 					end
+					
+					@deferred.clear
 				end
 			end
 			
