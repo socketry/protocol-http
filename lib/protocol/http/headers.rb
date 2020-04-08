@@ -75,13 +75,26 @@ module Protocol
 				
 				@fields = @fields.dup
 				@indexed = @indexed.dup
-				@tail = nil
 			end
 			
 			def clear
 				@fields.clear
 				@indexed = nil
 				@tail = nil
+			end
+			
+			# Flatten trailers into the headers.
+			def flatten!
+				if @tail
+					self.delete(TRAILERS)
+					@tail = nil
+				end
+				
+				return self
+			end
+			
+			def flatten
+				self.dup.flatten!
 			end
 			
 			# An array of `[key, value]` pairs.
@@ -92,7 +105,7 @@ module Protocol
 				@tail != nil
 			end
 			
-			# Enumerate all trailers, including evaluating all deferred headers.
+			# Record the current headers, and prepare to receive trailers.
 			def trailers!(&block)
 				return nil unless self.include?(TRAILERS)
 				
@@ -290,7 +303,6 @@ module Protocol
 					@fields == other
 				end
 			end
-			
 			
 			# Used for merging objects into a sequential list of headers. Normalizes header keys and values.
 			class Merged

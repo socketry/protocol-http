@@ -181,6 +181,35 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	describe '#flatten!' do
+		it "can flatten trailers" do
+			subject.add('trailers', 'etag')
+			trailers = subject.trailers!
+			subject.add('etag', 'abcd')
+			
+			subject.flatten!
+			
+			expect(subject).to_not include('trailers')
+			expect(subject).to include('etag')
+		end
+	end
+	
+	describe '#flatten' do
+		it "can flatten trailers" do
+			subject.add('trailers', 'etag')
+			trailers = subject.trailers!
+			subject.add('etag', 'abcd')
+			
+			copy = subject.flatten
+			
+			expect(subject).to include('trailers')
+			expect(subject).to include('etag')
+			
+			expect(copy).to_not include('trailers')
+			expect(copy).to include('etag')
+		end
+	end
+	
 	describe 'set-cookie' do
 		it "can extract parsed cookies" do
 			expect(subject['set-cookie']).to be_kind_of(Protocol::HTTP::Header::Cookie)
