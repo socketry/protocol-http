@@ -35,6 +35,7 @@ module Protocol
 		class Headers
 			Split = Header::Split
 			Multiple = Header::Multiple
+			
 			TRAILERS = 'trailers'
 			
 			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`. If the underlying array is frozen, it will be duped.
