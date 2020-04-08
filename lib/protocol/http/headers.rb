@@ -118,6 +118,15 @@ module Protocol
 				end
 			end
 			
+			# Enumerate all trailers, if there are any.
+			def trailers(&block)
+				return to_enum(:trailers) unless block_given?
+				
+				if @tail
+					@fields.drop(@tail).each(&block)
+				end
+			end
+			
 			def freeze
 				return if frozen?
 				

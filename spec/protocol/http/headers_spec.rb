@@ -181,6 +181,16 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	describe '#trailers' do
+		it "can enumerate trailers" do
+			subject.add('trailers', 'etag')
+			subject.trailers!
+			subject.add('etag', 'abcd')
+			
+			expect(subject.trailers.to_h).to be == {'etag' => 'abcd'}
+		end
+	end
+	
 	describe '#flatten!' do
 		it "can flatten trailers" do
 			subject.add('trailers', 'etag')
