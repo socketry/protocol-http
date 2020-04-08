@@ -169,15 +169,15 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
-	describe '#trailers' do
+	describe '#trailers!' do
 		it "can add trailers" do
 			subject.add('trailers', 'etag')
 			
-			subject.trailers!
+			trailers = subject.trailers!
 			
 			subject.add('etag', 'abcd')
 			
-			expect(subject.trailers.to_h).to be == {'etag' => 'abcd'}
+			expect(trailers.to_h).to be == {'etag' => 'abcd'}
 		end
 	end
 	

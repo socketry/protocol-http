@@ -48,12 +48,6 @@ module Protocol
 			attr_accessor :body
 			attr_accessor :protocol
 			
-			def trailers
-				if @headers.respond_to?(:trailers)
-					@headers.trailers
-				end
-			end
-			
 			# Send the request to the given connection.
 			def call(connection)
 				connection.call(self)

@@ -42,12 +42,6 @@ module Protocol
 			attr_accessor :body
 			attr_accessor :protocol
 			
-			def trailers
-				if @headers.respond_to?(:trailers)
-					@headers.trailers
-				end
-			end
-			
 			def hijack?
 				false
 			end

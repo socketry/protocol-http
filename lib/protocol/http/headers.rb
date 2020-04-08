@@ -40,7 +40,9 @@ module Protocol
 			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`.
 			# @return [Headers] an instance of headers.
 			def self.[] headers
-				if headers.is_a?(self)
+				if headers.nil?
+					self.new
+				elsif headers.is_a?(self)
 					headers
 				else
 					self.new(headers.to_a)
@@ -72,23 +74,18 @@ module Protocol
 			# An array of `[key, value]` pairs.
 			attr :fields
 			
-			# Mark the subsequent headers as trailers.
-			def trailers!
-				@tail ||= @fields.size
-			end
-			
 			# @return the trailers if there are any.
 			def trailers?
 				@tail != nil
 			end
 			
 			# Enumerate all trailers, including evaluating all deferred headers.
-			def trailers(&block)
+			def trailers!(&block)
 				return nil unless self.include?(TRAILERS)
 				
-				trailers!
+				@tail ||= @fields.size
 				
-				return to_enum(:trailers) unless block_given?
+				return to_enum(:trailers!) unless block_given?
 				
 				if @tail
 					@fields.drop(@tail).each(&block)
@@ -280,6 +277,7 @@ module Protocol
 					@fields == other
 				end
 			end
+			
 			
 			# Used for merging objects into a sequential list of headers. Normalizes header keys and values.
 			class Merged
