@@ -51,7 +51,7 @@ module Protocol
 			
 			# Use Methods.constants to get all constants.
 			self.each do |name, value|
-				define_method(name.downcase) do |location, headers = [], body = nil|
+				define_method(name.downcase) do |location, headers = nil, body = nil|
 					self.call(
 						Request[value, location.to_str, Headers[headers], body]
 					)

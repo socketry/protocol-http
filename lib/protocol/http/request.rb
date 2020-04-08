@@ -28,7 +28,7 @@ module Protocol
 		class Request
 			prepend Body::Reader
 			
-			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = [], body = nil, protocol = nil)
+			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = Headers.new, body = nil, protocol = nil)
 				@scheme = scheme
 				@authority = authority
 				@method = method

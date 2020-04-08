@@ -28,7 +28,7 @@ module Protocol
 		class Response
 			prepend Body::Reader
 			
-			def initialize(version = nil, status = 200, headers = [], body = nil, protocol = nil)
+			def initialize(version = nil, status = 200, headers = Headers.new, body = nil, protocol = nil)
 				@version = version
 				@status = status
 				@headers = headers
@@ -82,7 +82,7 @@ module Protocol
 				@status == 500
 			end
 			
-			def self.[](status, headers = [], body = nil, protocol = nil)
+			def self.[](status, headers = nil, body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)
 				headers = ::Protocol::HTTP::Headers[headers]
 				

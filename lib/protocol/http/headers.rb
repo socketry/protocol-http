@@ -37,16 +37,28 @@ module Protocol
 			Multiple = Header::Multiple
 			TRAILERS = 'trailers'
 			
-			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`.
+			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`. If the underlying array is frozen, it will be duped.
 			# @return [Headers] an instance of headers.
 			def self.[] headers
 				if headers.nil?
-					self.new
-				elsif headers.is_a?(self)
-					headers
-				else
-					self.new(headers.to_a)
+					return self.new
 				end
+				
+				if headers.is_a?(self)
+					if headers.frozen?
+						return headers.dup
+					else
+						return headers
+					end
+				end
+				
+				fields = headers.to_a
+				
+				if fields.frozen?
+					fields = fields.dup
+				end
+				
+				return self.new(fields)
 			end
 			
 			def initialize(fields = [], indexed = nil)
