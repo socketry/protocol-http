@@ -55,6 +55,10 @@ module Protocol
 					@body.empty?
 				end
 				
+				def ready?
+					@body.ready?
+				end
+				
 				def length
 					@body.length
 				end

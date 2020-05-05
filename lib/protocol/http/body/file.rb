@@ -65,6 +65,10 @@ module Protocol
 					@remaining == 0
 				end
 				
+				def ready?
+					true
+				end
+				
 				def rewind
 					@file.seek(@offset)
 				end

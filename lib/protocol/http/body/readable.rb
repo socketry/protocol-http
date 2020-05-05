@@ -44,6 +44,13 @@ module Protocol
 					false
 				end
 				
+				# Whether calling read will block.
+				# We prefer pessimistic implementation, and thus default to `false`.
+				# @return [Boolean]
+				def ready?
+					false
+				end
+				
 				def length
 					nil
 				end

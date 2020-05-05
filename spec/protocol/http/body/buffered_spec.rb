@@ -92,6 +92,10 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
+	describe '#ready?' do
+		it {is_expected.to be_ready}
+	end
+	
 	describe "#finish" do
 		it "returns self" do
 			expect(subject.finish).to be == subject

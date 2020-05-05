@@ -42,6 +42,10 @@ module Protocol
 					true
 				end
 				
+				def ready?
+					true
+				end
+				
 				def length
 					@length
 				end

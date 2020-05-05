@@ -39,6 +39,10 @@ RSpec.describe Protocol::HTTP::Body::File do
 			
 			expect(chunk.encoding).to be == Encoding::BINARY
 		end
+		
+		describe '#ready?' do
+			it {is_expected.to be_ready}
+		end
 	end
 	
 	context 'partial file' do

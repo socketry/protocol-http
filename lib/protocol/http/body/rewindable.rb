@@ -39,6 +39,10 @@ module Protocol
 					(@index >= @chunks.size) && super
 				end
 				
+				def ready?
+					(@index < @chunks.size) || super
+				end
+				
 				# A rewindable body wraps some other body. Convert it to a buffered body 
 				def buffered
 					Buffered.new(@chunks)

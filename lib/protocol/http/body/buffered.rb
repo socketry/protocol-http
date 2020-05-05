@@ -72,6 +72,11 @@ module Protocol
 					@index >= @chunks.length
 				end
 				
+				# A buffered response is always ready.
+				def ready?
+					true
+				end
+				
 				def read
 					if chunk = @chunks[@index]
 						@index += 1
