@@ -53,7 +53,7 @@ module Protocol
 			self.each do |name, value|
 				define_method(name.downcase) do |location, headers = nil, body = nil|
 					self.call(
-						Request[value, location.to_str, Headers[headers], body]
+						Request[value, location.to_s, Headers[headers], body]
 					)
 				end
 			end

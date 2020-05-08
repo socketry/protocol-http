@@ -110,11 +110,9 @@ module Protocol
 				return buffer
 			end
 			
-			def to_str
+			def to_s
 				append(String.new)
 			end
-			
-			alias to_s to_str
 			
 			# Merges two references as specified by RFC2396, similar to `URI.join`.
 			def + other

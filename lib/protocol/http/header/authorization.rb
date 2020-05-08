@@ -26,21 +26,23 @@ module Protocol
 	module HTTP
 		module Header
 			# Used for basic authorization.
-			# @example headers.add('authorization', Authorization.new("samuel", "password"))
-			class Authorization
-				KEY = "Authorization"
-				
-				def initialize(username, password)
-					@username = username
-					@password = password
+			#
+			# ~~~ ruby
+			# headers.add('authorization', Authorization.basic("my_username", "my_password"))
+			# ~~~
+			class Authorization < String
+				# Splits the header and 
+				# @return [Tuple(String, String)]
+				def credentials
+					self.split(/\s+/, 2)
 				end
 				
-				def encoded
-					"#{@username}:#{@password}"
-				end
-				
-				def to_str
-					'Basic %s' % Base64.strict_encode64(self.encoded)
+				def self.basic(username, password)
+					encoded = "#{username}:#{password}"
+					
+					self.new(
+						"Basic #{Base64.strict_encode64(encoded)}"
+					)
 				end
 			end
 		end

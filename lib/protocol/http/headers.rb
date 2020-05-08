@@ -28,6 +28,7 @@ require_relative 'header/cache_control'
 require_relative 'header/etag'
 require_relative 'header/etags'
 require_relative 'header/vary'
+require_relative 'header/authorization'
 
 module Protocol
 	module HTTP
@@ -170,6 +171,7 @@ module Protocol
 			end
 			
 			# Add the specified header key value pair.
+			#
 			# @param key [String] the header key.
 			# @param value [String] the header value to assign.
 			def add(key, value)
@@ -216,8 +218,6 @@ module Protocol
 				'user-agent' => false,
 				'referer' => false,
 				'host' => false,
-				'authorization' => false,
-				'proxy-authorization' => false,
 				'if-modified-since' => false,
 				'if-unmodified-since' => false,
 				'from' => false,
@@ -232,6 +232,10 @@ module Protocol
 				# Headers specifically for proxies:
 				'via' => Split,
 				'x-forwarded-for' => Split,
+				
+				# Authorization headers:
+				'authorization' => Header::Authorization,
+				'proxy-authorization' => Header::Authorization,
 				
 				# Cache validations:
 				'etag' => Header::ETag,

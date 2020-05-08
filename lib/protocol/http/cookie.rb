@@ -40,7 +40,7 @@ module Protocol
 				URL.escape(@value)
 			end
 			
-			def to_str
+			def to_s
 				buffer = String.new.b
 				
 				buffer << encoded_name << '=' << encoded_value
