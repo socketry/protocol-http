@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,8 @@ require_relative 'wrapper'
 module Protocol
 	module HTTP
 		module Body
-			# Invokes a callback once the body has finished reading.
-			class Streamable < Wrapper
+			# Invokes a callback once the body has completed, either successfully or due to an error.
+			class Completable < Wrapper
 				def self.wrap(message, &block)
 					if body = message&.body and !body.empty?
 						message.body = self.new(message.body, block)
