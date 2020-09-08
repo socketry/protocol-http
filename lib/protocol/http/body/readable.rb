@@ -60,6 +60,21 @@ module Protocol
 					nil
 				end
 				
+				# Should the internal mechanism prefer to use {call}?
+				# @returns [Boolean]
+				def stream?
+					false
+				end
+				
+				# Write the body to the given stream.
+				def call(stream)
+					while chunk = self.read
+						stream.write(chunk)
+					end
+				ensure
+					stream.close($!)
+				end
+				
 				# Read all remaining chunks into a buffered body and close the underlying input.
 				def finish
 					# Internally, this invokes `self.each` which then invokes `self.close`.
