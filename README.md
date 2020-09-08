@@ -2,29 +2,29 @@
 
 Provides abstractions for working with the HTTP protocol.
 
-[![Build Status](https://travis-ci.com/socketry/protocol-http.svg?branch=master)](http://travis-ci.com/socketry/protocol-http)
+[![Development Status](https://github.com/socketry/protocol-http/workflows/Development/badge.svg)](https://github.com/socketry/protocol-http/actions?workflow=Development)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-```ruby
+``` ruby
 gem 'protocol-http'
 ```
 
 And then execute:
 
-	$ bundle
+    $ bundle
 
 Or install it yourself as:
 
-	$ gem install protocol-http
+    $ gem install protocol-http
 
 ## Usage
 
 ### Headers
 
-```ruby
+``` ruby
 require 'protocol/http/headers'
 
 headers = Protocol::HTTP::Headers.new
@@ -37,7 +37,7 @@ headers['content-type']
 
 ### Reference
 
-```ruby
+``` ruby
 require 'protocol/http/reference'
 
 reference = Protocol::HTTP::Reference.new("/search", q: 'kittens')
@@ -48,7 +48,7 @@ reference.to_s
 
 ### URL
 
-```ruby
+``` ruby
 require 'protocol/http/url'
 
 reference = Protocol::HTTP::Reference.parse("/search?q=kittens")
@@ -59,17 +59,17 @@ parameters = Protocol::HTTP::URL.decode(reference.query_string)
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+1.  Fork it
+2.  Create your feature branch (`git checkout -b my-new-feature`)
+3.  Commit your changes (`git commit -am 'Add some feature'`)
+4.  Push to the branch (`git push origin my-new-feature`)
+5.  Create new Pull Request
 
 ## License
 
 Released under the MIT license.
 
-Copyright, 2019, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).  
+Copyright, 2019, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
