@@ -56,6 +56,7 @@ module Protocol
 					@length = length
 					
 					@index = 0
+					@digest = nil
 				end
 				
 				attr :chunks
