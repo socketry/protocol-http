@@ -30,7 +30,7 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 	
 	describe ".wrap" do
 		context "when body is a Body::Readable" do
-			let(:body) {Protocol::HTTP::Body::Buffered.new}
+			let(:body) {Protocol::HTTP::Body::Readable.new}
 			
 			it "returns the body" do
 				expect(subject).to be == body
