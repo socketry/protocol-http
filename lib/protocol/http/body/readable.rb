@@ -83,11 +83,15 @@ module Protocol
 				
 				# Enumerate all chunks until finished, then invoke `#close`.
 				def each
-					while chunk = self.read
-						yield chunk
+					return to_enum(:each) unless block_given?
+					
+					begin
+						while chunk = self.read
+							yield chunk
+						end
+					ensure
+						self.close($!)
 					end
-				ensure
-					self.close($!)
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.

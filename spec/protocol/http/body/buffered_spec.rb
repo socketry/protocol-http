@@ -127,4 +127,32 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 			expect(subject.read).to be == "Hello"
 		end
 	end
+	
+	describe "#each" do
+		let(:result) { [] }
+		
+		context "when passed a block" do
+			it "iterates over chunks" do
+				subject.each { |chunk| result << chunk }
+				expect(result).to be == body
+			end
+		end
+		
+		context "without a block" do
+			it "returns an enumerator" do
+				expect(subject.each).to be_a(Enumerator)
+			end
+			
+			it "can be chained with enumerator methods" do
+				subject.each.with_index do |chunk, index|
+					if index.zero?
+						result << chunk.upcase
+					else
+						result << chunk.downcase
+					end
+				end
+				expect(result).to be == ["HELLO", "world"]
+			end
+		end
+	end
 end
