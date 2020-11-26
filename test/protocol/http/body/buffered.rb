@@ -122,7 +122,37 @@ describe Protocol::HTTP::Body::Buffered do
 			expect(body.read).to be == "Hello"
 		end
 	end
-
+	
+	with "#each" do
+		with "a block" do
+			it "iterates over chunks" do
+				result = []
+				body.each{|chunk| result << chunk}
+				expect(result).to be == source
+			end
+		end
+		
+		with "no block" do
+			it "returns an enumerator" do
+				expect(body.each).to be_a(Enumerator)
+			end
+			
+			it "can be chained with enumerator methods" do
+				result = []
+				
+				body.each.with_index do |chunk, index|
+					if index.zero?
+						result << chunk.upcase
+					else
+						result << chunk.downcase
+					end
+				end
+				
+				expect(result).to be == ["HELLO", "world"]
+			end
+		end
+	end
+	
 	with '#inspect' do
 		it "can be inspected" do
 			expect(body.inspect).to be =~ /\d+ chunks, \d+ bytes/
