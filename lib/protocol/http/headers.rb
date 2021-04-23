@@ -37,7 +37,7 @@ module Protocol
 			Split = Header::Split
 			Multiple = Header::Multiple
 			
-			TRAILERS = 'trailers'
+			TRAILER = 'trailer'
 			
 			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`. If the underlying array is frozen, it will be duped.
 			# @return [Headers] an instance of headers.
@@ -67,7 +67,7 @@ module Protocol
 				@fields = fields
 				@indexed = indexed
 				
-				# Marks where trailers start in the @fields array.
+				# Marks where trailer start in the @fields array.
 				@tail = nil
 			end
 			
@@ -84,10 +84,10 @@ module Protocol
 				@tail = nil
 			end
 			
-			# Flatten trailers into the headers.
+			# Flatten trailer into the headers.
 			def flatten!
 				if @tail
-					self.delete(TRAILERS)
+					self.delete(TRAILER)
 					@tail = nil
 				end
 				
@@ -101,27 +101,27 @@ module Protocol
 			# An array of `[key, value]` pairs.
 			attr :fields
 			
-			# @return the trailers if there are any.
-			def trailers?
+			# @return the trailer if there are any.
+			def trailer?
 				@tail != nil
 			end
 			
-			# Record the current headers, and prepare to receive trailers.
-			def trailers!(&block)
-				return nil unless self.include?(TRAILERS)
+			# Record the current headers, and prepare to receive trailer.
+			def trailer!(&block)
+				return nil unless self.include?(TRAILER)
 				
 				@tail ||= @fields.size
 				
-				return to_enum(:trailers!) unless block_given?
+				return to_enum(:trailer!) unless block_given?
 				
 				if @tail
 					@fields.drop(@tail).each(&block)
 				end
 			end
 			
-			# Enumerate all trailers, if there are any.
-			def trailers(&block)
-				return to_enum(:trailers) unless block_given?
+			# Enumerate all headers in the trailer, if there are any.
+			def trailer(&block)
+				return to_enum(:trailer) unless block_given?
 				
 				if @tail
 					@fields.drop(@tail).each(&block)

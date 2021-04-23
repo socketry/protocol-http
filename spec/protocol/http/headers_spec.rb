@@ -169,53 +169,53 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
-	describe '#trailers!' do
-		it "can add trailers" do
-			subject.add('trailers', 'etag')
+	describe '#trailer!' do
+		it "can add trailer" do
+			subject.add('trailer', 'etag')
 			
-			trailers = subject.trailers!
+			trailer = subject.trailer!
 			
 			subject.add('etag', 'abcd')
 			
-			expect(trailers.to_h).to be == {'etag' => 'abcd'}
+			expect(trailer.to_h).to be == {'etag' => 'abcd'}
 		end
 	end
 	
-	describe '#trailers' do
-		it "can enumerate trailers" do
-			subject.add('trailers', 'etag')
-			subject.trailers!
+	describe '#trailer' do
+		it "can enumerate trailer" do
+			subject.add('trailer', 'etag')
+			subject.trailer!
 			subject.add('etag', 'abcd')
 			
-			expect(subject.trailers.to_h).to be == {'etag' => 'abcd'}
+			expect(subject.trailer.to_h).to be == {'etag' => 'abcd'}
 		end
 	end
 	
 	describe '#flatten!' do
-		it "can flatten trailers" do
-			subject.add('trailers', 'etag')
-			trailers = subject.trailers!
+		it "can flatten trailer" do
+			subject.add('trailer', 'etag')
+			trailer = subject.trailer!
 			subject.add('etag', 'abcd')
 			
 			subject.flatten!
 			
-			expect(subject).to_not include('trailers')
+			expect(subject).to_not include('trailer')
 			expect(subject).to include('etag')
 		end
 	end
 	
 	describe '#flatten' do
-		it "can flatten trailers" do
-			subject.add('trailers', 'etag')
-			trailers = subject.trailers!
+		it "can flatten trailer" do
+			subject.add('trailer', 'etag')
+			trailer = subject.trailer!
 			subject.add('etag', 'abcd')
 			
 			copy = subject.flatten
 			
-			expect(subject).to include('trailers')
+			expect(subject).to include('trailer')
 			expect(subject).to include('etag')
 			
-			expect(copy).to_not include('trailers')
+			expect(copy).to_not include('trailer')
 			expect(copy).to include('etag')
 		end
 	end
