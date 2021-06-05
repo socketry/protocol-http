@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'protocol/http/middleware'
 require 'protocol/http/middleware/builder'
 
 RSpec.describe Protocol::HTTP::Middleware::Builder do
