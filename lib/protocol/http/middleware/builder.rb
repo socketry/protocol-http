@@ -35,15 +35,13 @@ module Protocol
 			end
 			
 			class Builder
-				def initialize(default_app = NotFound, &block)
+				def initialize(default_app = NotFound)
 					@use = []
 					@app = default_app
-					
-					instance_eval(&block) if block_given?
 				end
 				
-				def use(middleware, *args, &block)
-					@use << proc {|app| middleware.new(app, *args, &block)}
+				def use(middleware, *arguments, **options, &block)
+					@use << proc {|app| middleware.new(app, *arguments, **options, &block)}
 				end
 				
 				def run(app)
@@ -56,7 +54,11 @@ module Protocol
 			end
 			
 			def self.build(&block)
-				Builder.new(&block).to_app
+				builder = Builder.new
+				
+				builder.instance_eval(&block)
+				
+				return builder.to_app
 			end
 		end
 	end
