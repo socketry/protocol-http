@@ -40,8 +40,8 @@ module Protocol
 					@app = default_app
 				end
 				
-				def use(middleware, *arguments, &block)
-					@use << proc {|app| middleware.new(app, *arguments, &block)}
+				def use(middleware, *arguments, **options, &block)
+					@use << proc {|app| middleware.new(app, *arguments, **options, &block)}
 				end
 				
 				ruby2_keywords(:use) if respond_to?(:ruby2_keywords, true)
