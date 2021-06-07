@@ -73,7 +73,7 @@ module Protocol
 				end
 				
 				def max_age
-					if value = self.find{|value| value.start_with?(MAX_AGE)}
+					if value = self.find{|v| v.start_with?(MAX_AGE)}
 						_, age = value.split('=', 2)
 						
 						return Integer(age)
