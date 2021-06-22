@@ -32,6 +32,10 @@ module Protocol
 				@directives = directives
 			end
 			
+			attr :name
+			attr :value
+			attr :directives
+			
 			def encoded_name
 				URL.escape(@name)
 			end
@@ -61,17 +65,24 @@ module Protocol
 				return buffer
 			end
 			
-			def self.parse string
-				head, *options = string.split(/\s*;\s*/)
+			def self.parse(string)
+				head, *directives = string.split(/\s*;\s*/)
 				
 				key, value = head.split('=')
-				directives.collect{|directive| directive.split('=', 2)}.to_h
+				directives = self.parse_directives(directives)
 				
 				self.new(
 					URI.decode(key),
 					URI.decode(value),
 					directives,
 				)
+			end
+			
+			def self.parse_directives(strings)
+				strings.collect do |string|
+					key, value = string.split('=', 2)
+					[key, value || true]
+				end.to_h
 			end
 		end
 	end
