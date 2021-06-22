@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 require_relative 'multiple'
+require_relative '../cookie'
 
 module Protocol
 	module HTTP
