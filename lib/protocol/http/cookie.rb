@@ -72,8 +72,8 @@ module Protocol
 				directives = self.parse_directives(directives)
 				
 				self.new(
-					URI.decode(key),
-					URI.decode(value),
+					URL.unescape(key),
+					URL.unescape(value),
 					directives,
 				)
 			end
