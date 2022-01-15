@@ -23,13 +23,14 @@
 module Protocol
 	module HTTP
 		module URL
-			# Escapes a generic string, using percent encoding.
+			# Escapes a string using percent encoding.
 			def self.escape(string, encoding = string.encoding)
 				string.b.gsub(/([^a-zA-Z0-9_.\-]+)/) do |m|
 					'%' + m.unpack('H2' * m.bytesize).join('%').upcase
 				end.force_encoding(encoding)
 			end
 			
+			# Unescapes a percent encoded string.
 			def self.unescape(string, encoding = string.encoding)
 				string.b.gsub(/%(\h\h)/) do |hex|
 					Integer(hex, 16).chr
@@ -39,7 +40,7 @@ module Protocol
 			# According to https://tools.ietf.org/html/rfc3986#section-3.3, we escape non-pchar.
 			NON_PCHAR = /([^a-zA-Z0-9_\-\.~!$&'()*+,;=:@\/]+)/.freeze
 			
-			# Escapes a path
+			# Escapes non-path characters using percent encoding.
 			def self.escape_path(path)
 				encoding = path.encoding
 				path.b.gsub(NON_PCHAR) do |m|
@@ -47,7 +48,7 @@ module Protocol
 				end.force_encoding(encoding)
 			end
 			
-			# Encodes a hash or array into a query string
+			# Encodes a hash or array into a query string.
 			def self.encode(value, prefix = nil)
 				case value
 				when Array
@@ -67,9 +68,12 @@ module Protocol
 				end
 			end
 			
+			# Scan a string for URL-encoded key/value pairs.
+			# @yields {|key, value| ...}
+			# 	@parameter key [String] The unescaped key.
+			# 	@parameter value [String] The unescaped key.
 			def self.scan(string)
-				# TODO Ruby 2.6 doesn't require `.each`
-				string.split('&').each do |assignment|
+				string.split('&') do |assignment|
 					key, value = assignment.split('=', 2)
 					
 					yield unescape(key), unescape(value)
