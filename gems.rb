@@ -9,7 +9,7 @@ group :maintenance, optional: true do
 	gem "bake-modernize"
 	gem "bake-gem"
 	
-	gem "utopia-project"
+	gem "utopia-project", "~> 0.18"
 end
 
 group :test do
