@@ -179,6 +179,14 @@ RSpec.describe Protocol::HTTP::Headers do
 			
 			expect(trailer.to_h).to be == {'etag' => 'abcd'}
 		end
+		
+		it "can add trailer without explicit header" do
+			trailer = subject.trailer!
+			
+			subject.add('etag', 'abcd')
+			
+			expect(trailer.to_h).to be == {'etag' => 'abcd'}
+		end
 	end
 	
 	describe '#trailer' do
