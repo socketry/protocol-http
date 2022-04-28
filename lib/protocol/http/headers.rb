@@ -110,7 +110,7 @@ module Protocol
 			def trailer!(&block)
 				@tail ||= @fields.size
 				
-				return to_enum(:trailer!) unless block_given?
+				return to_enum(:trailer) unless block_given?
 				
 				if @tail
 					@fields.drop(@tail).each(&block)
