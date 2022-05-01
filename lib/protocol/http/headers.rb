@@ -101,20 +101,27 @@ module Protocol
 			# An array of `[key, value]` pairs.
 			attr :fields
 			
-			# @return the trailer if there are any.
+			# @returns Whether there are any trailers.
 			def trailer?
 				@tail != nil
 			end
 			
-			# Record the current headers, and prepare to receive trailer.
+			# Record the current headers, and prepare to add trailers.
+			#
+			# This method is typically used after headers are sent to capture any
+			# additional headers which should then be sent as trailers.
+			#
+			# A sender that intends to generate one or more trailer fields in a
+			# message should generate a trailer header field in the header section of
+			# that message to indicate which fields might be present in the trailers.
+			#
+			# @parameter names [Array] The trailer header names which will be added later.
+			# @yields block {|name, value| ...} The trailer headers if any.
+			# @returns An enumerator which is suitable for iterating over trailers.
 			def trailer!(&block)
 				@tail ||= @fields.size
 				
-				return to_enum(:trailer) unless block_given?
-				
-				if @tail
-					@fields.drop(@tail).each(&block)
-				end
+				return trailer(&block)
 			end
 			
 			# Enumerate all headers in the trailer, if there are any.
