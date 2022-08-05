@@ -1,0 +1,18 @@
+protocol-http1:
+  url: https://github.com/socketry/protocol-http1.git
+  command: bundle exec rspec
+protocol-http2:
+  url: https://github.com/socketry/protocol-http2.git
+  command: bundle exec rspec
+async-http:
+  url: https://github.com/socketry/async-http.git
+  command: bundle exec rspec
+protocol-websocket:
+  url: https://github.com/socketry/protocol-websocket.git
+  command: bundle exec rspec
+async-websocket:
+  url: https://github.com/socketry/async-websocket.git
+  command: bundle exec rspec
+falcon:
+  url: https://github.com/socketry/falcon.git
+  command: bundle exec rspec
