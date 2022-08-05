@@ -72,7 +72,7 @@ module Protocol
 						stream.write(chunk)
 					end
 				ensure
-					stream.close($!)
+					stream.close
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.
