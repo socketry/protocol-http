@@ -76,6 +76,11 @@ module Protocol
 					@buffer ||= read_next
 					chunk = nil
 					
+					unless @buffer
+						buffer&.clear
+						return
+					end
+
 					if @buffer.bytesize > length
 						chunk = @buffer.byteslice(0, length)
 						@buffer = @buffer.byteslice(length, @buffer.bytesize)
@@ -94,7 +99,12 @@ module Protocol
 				end
 				
 				def write(buffer)
-					@output.write(buffer)
+					if @output
+						@output.write(buffer)
+						return buffer.bytesize
+					else
+						raise IOError, "Stream is not writable, output has been closed!"
+					end
 				end
 				
 				alias write_nonblock write
@@ -104,17 +114,21 @@ module Protocol
 				
 				def close_read
 					@input&.close
+					@input = nil
 				end
 				
 				# close must never be called on the input stream. huh?
 				def close_write
 					@output&.close
+					@output = nil
 				end
 				
 				# Close the input and output bodies.
 				def close
 					self.close_read
 					self.close_write
+					
+					return nil
 				ensure
 					@closed = true
 				end
@@ -132,11 +146,11 @@ module Protocol
 				private
 				
 				def read_next
-					if chunk = @input&.read
-						return chunk
+					if @input
+						return @input.read
 					else
 						@input = nil
-						return nil
+						raise IOError, "Stream is not readable, input has been closed!"
 					end
 				end
 			end
