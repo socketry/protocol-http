@@ -127,4 +127,10 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 			expect(subject.read).to be == "Hello"
 		end
 	end
+
+	describe '#inspect' do
+		it "can be inspected" do
+			expect(subject.inspect).to include(/\d+ chunks, \d+ bytes/)
+		end
+	end
 end
