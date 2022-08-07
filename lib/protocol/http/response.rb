@@ -28,19 +28,17 @@ module Protocol
 		class Response
 			prepend Body::Reader
 			
-			def initialize(version = nil, status = 200, headers = Headers.new, body = nil, protocol = nil)
+			def initialize(version = nil, status = 200, headers = Headers.new, body = nil)
 				@version = version
 				@status = status
 				@headers = headers
 				@body = body
-				@protocol = protocol
 			end
 			
 			attr_accessor :version
 			attr_accessor :status
 			attr_accessor :headers
 			attr_accessor :body
-			attr_accessor :protocol
 			
 			def hijack?
 				false
@@ -82,11 +80,11 @@ module Protocol
 				@status == 500
 			end
 			
-			def self.[](status, headers = nil, body = nil, protocol = nil)
+			def self.[](status, headers = nil, body = nil)
 				body = Body::Buffered.wrap(body)
 				headers = ::Protocol::HTTP::Headers[headers]
 				
-				self.new(nil, status, headers, body, protocol)
+				self.new(nil, status, headers, body)
 			end
 			
 			def self.for_exception(exception)

@@ -34,7 +34,6 @@ RSpec.describe Protocol::HTTP::Response do
 			status: 200,
 			headers: headers,
 			body: body,
-			protocol: nil
 		)}
 		
 		it {is_expected.to_not be_hijack}
