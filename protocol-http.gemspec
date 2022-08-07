@@ -7,8 +7,11 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::HTTP::VERSION
 	
 	spec.summary = "Provides abstractions to handle HTTP protocols."
-	spec.authors = ["Samuel Williams"]
+	spec.authors = ["Samuel Williams", "Bruno Sutic", "Bryan Powell", "Olle Jonsson", "Yuta Iwama"]
 	spec.license = "MIT"
+	
+	spec.cert_chain  = ['release.cert']
+	spec.signing_key = File.expand_path('~/.gem/release.pem')
 	
 	spec.homepage = "https://github.com/socketry/protocol-http"
 	
