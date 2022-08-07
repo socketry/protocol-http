@@ -130,7 +130,7 @@ RSpec.describe Protocol::HTTP::Body::Buffered do
 
 	describe '#inspect' do
 		it "can be inspected" do
-			expect(subject.inspect).to include(/\d+ chunks, \d+ bytes/)
+			expect(subject.inspect).to be =~ /\d+ chunks, \d+ bytes/
 		end
 	end
 end

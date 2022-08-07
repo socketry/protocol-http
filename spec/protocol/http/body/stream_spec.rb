@@ -37,6 +37,10 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(subject.read(0)).to be == ""
 		end
 
+		it "can read the entire input" do
+			expect(subject.read).to be == "HelloWorld"
+		end
+
 		it "should read from the input into the given buffer" do
 			buffer = String.new
 			expect(subject.read(5, buffer)).to be == "Hello"
