@@ -33,6 +33,10 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(subject.read(5)).to be == "Hello"
 		end
 
+		it "can handle zero-length read" do
+			expect(subject.read(0)).to be == ""
+		end
+
 		it "should read from the input into the given buffer" do
 			buffer = String.new
 			expect(subject.read(5, buffer)).to be == "Hello"
