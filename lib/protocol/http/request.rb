@@ -48,8 +48,14 @@ module Protocol
 			attr_accessor :body
 			attr_accessor :protocol
 			
+			# Get the request target. For compatibility.
 			def path
 				self.target
+			end
+
+			# Set the request target to a path. For compatibility.
+			def path= value
+				self.target = value
 			end
 			
 			# Send the request to the given connection.
