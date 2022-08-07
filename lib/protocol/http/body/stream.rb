@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+#
 # Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,14 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'buffered'
+
 module Protocol
 	module HTTP
 		module Body
 			# The input stream is an IO-like object which contains the raw HTTP POST data. When applicable, its external encoding must be “ASCII-8BIT” and it must be opened in binary mode, for Ruby 1.9 compatibility. The input stream must respond to gets, each, read and rewind.
 			class Stream
-				def initialize(input, output)
+				def initialize(input, output = Buffered.new)
 					@input = input
 					@output = output
+					
+					raise ArgumentError, "Non-writable output!" unless output.respond_to?(:write)
 					
 					# Will hold remaining data in `#read`.
 					@buffer = nil
@@ -45,29 +49,62 @@ module Protocol
 				# @param buffer [String] the buffer which will receive the data
 				# @return a buffer containing the data
 				def read(length = nil, buffer = nil)
-					buffer ||= Async::IO::Buffer.new
-					buffer.clear
+					return '' if length == 0
 					
-					until buffer.bytesize == length
-						@buffer = read_next if @buffer.nil?
-						break if @buffer.nil?
-						
-						remaining_length = length - buffer.bytesize if length
-						
-						if remaining_length && remaining_length < @buffer.bytesize
-							# We know that we are not going to reuse the original buffer.
-							# But byteslice will generate a hidden copy. So let's freeze it first:
-							@buffer.freeze
-							
-							buffer << @buffer.byteslice(0, remaining_length)
-							@buffer = @buffer.byteslice(remaining_length, @buffer.bytesize)
-						else
-							buffer << @buffer
-							@buffer = nil
-						end
+					buffer ||= Async::IO::Buffer.new
+
+					# Take any previously buffered data and replace it into the given buffer.
+					if @buffer
+						buffer.replace(@buffer)
+						@buffer = nil
 					end
 					
-					return nil if buffer.empty? && length && length > 0
+					if length
+						while buffer.bytesize < length and chunk = read_next
+							buffer << chunk
+						end
+						
+						# This ensures the subsequent `slice!` works correctly.
+						buffer.force_encoding(Encoding::BINARY)
+
+						# This will be at least one copy:
+						@buffer = buffer.byteslice(length, buffer.bytesize)
+						
+						# This should be zero-copy:
+						buffer.slice!(length)
+						
+						if buffer.empty?
+							return nil
+						else
+							return buffer
+						end
+					else
+						while chunk = read_next
+							buffer << chunk
+						end
+						
+						return buffer
+					end
+				end
+				
+				# Read at most `length` bytes from the stream. Will avoid reading from the underlying stream if possible.
+				def read_partial(length = nil)
+					if @buffer
+						buffer = @buffer
+						@buffer = nil
+					else
+						buffer = read_next
+					end
+					
+					if buffer and length
+						if buffer.bytesize > length
+							# This ensures the subsequent `slice!` works correctly.
+							buffer.force_encoding(Encoding::BINARY)
+
+							@buffer = buffer.byteslice(length, buffer.bytesize)
+							buffer.slice!(length)
+						end
+					end
 					
 					return buffer
 				end
@@ -80,7 +117,7 @@ module Protocol
 						buffer&.clear
 						return
 					end
-
+					
 					if @buffer.bytesize > length
 						chunk = @buffer.byteslice(0, length)
 						@buffer = @buffer.byteslice(length, @buffer.bytesize)
@@ -124,10 +161,10 @@ module Protocol
 				end
 				
 				# Close the input and output bodies.
-				def close
+				def close(error = nil)
 					self.close_read
 					self.close_write
-					
+
 					return nil
 				ensure
 					@closed = true

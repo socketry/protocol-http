@@ -1,5 +1,3 @@
-
-
 # Middleware Design
 
 `Body::Writable` is a queue of String chunks.
