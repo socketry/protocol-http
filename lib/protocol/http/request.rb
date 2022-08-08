@@ -39,13 +39,28 @@ module Protocol
 				@protocol = protocol
 			end
 			
+			# The request scheme, usually one of "http" or "https".
 			attr_accessor :scheme
+
+			# The request authority, usually a hostname and port number.
 			attr_accessor :authority
+
+			# The request method, usually one of "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT" or "OPTIONS".
 			attr_accessor :method
+
+			# The request path, usually a path and query string.
 			attr_accessor :path
+
+			# The request version, usually "http/1.0", "http/1.1", "h2", or "h3".
 			attr_accessor :version
+
+			# The request headers, contains metadata associated with the request such as the user agent, accept (content type), accept-language, etc.
 			attr_accessor :headers
+
+			# The request body, an instance of Protocol::HTTP::Body::Readable or similar.
 			attr_accessor :body
+
+			# The request protocol, usually empty, but occasionally "websocket" or "webtransport", can be either single value `String` or multi-value `Array` of `String` instances. In HTTP/1, it is used to request a connection upgrade, and in HTTP/2 it is used to indicate a specfic protocol for the stream.
 			attr_accessor :protocol
 			
 			# Send the request to the given connection.

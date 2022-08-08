@@ -64,7 +64,7 @@ def call(stream)
 end
 
 def call(stream)
-	return @app.call(stream)
+	@app.call(stream)
 end
 ~~~
 
