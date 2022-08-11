@@ -2,7 +2,7 @@
 
 Provides abstractions for working with the HTTP protocol.
 
-[![Development Status](https://github.com/socketry/protocol-http/workflows/Development/badge.svg)](https://github.com/socketry/protocol-http/actions?workflow=Development)
+[![Development Status](https://github.com/socketry/protocol-http/workflows/Test/badge.svg)](https://github.com/socketry/protocol-http/actions?workflow=Test)
 
 ## Features
 

@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 env:
-  CONSOLE_OUTPUT: Text
+  CONSOLE_OUTPUT: XTerm
   BUNDLE_WITH: maintenance
 
 jobs:

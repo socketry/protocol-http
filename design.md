@@ -136,3 +136,32 @@ response.read -> "dlroW olleH"
 ~~~
 
 The value of this uni-directional flow is that it is natural for the stream to be taken out of the scope imposed by the nested `call(request)` model. However, the user must explicitly close the stream, since it's no longer scoped to the client and/or server.
+
+## Connection Upgrade
+
+### HTTP/1
+
+```
+GET /path/to/websocket HTTP/1.1
+connection: upgrade
+upgrade: websocket
+```
+
+Request.new(GET, ..., protocol = websocket)
+-> Response.new(101, ..., protocol = websocket)
+
+```
+101 Switching Protocols
+upgrade: websocket
+```
+
+### HTTP/2
+
+```
+:method CONNECT
+:path /path/to/websocket
+:protocol websocket
+```
+
+Request.new(CONNECT, ..., protocol = websocket)
+-> Response.new(200, ..., protocol = websocket)
