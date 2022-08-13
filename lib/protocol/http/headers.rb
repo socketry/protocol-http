@@ -340,11 +340,11 @@ module Protocol
 					return self
 				end
 				
-				# @yield [String, String] header key (lower case) and value (as string).
+				# @yields [String, String] header key (lower case string) and value (as string).
 				def each(&block)
 					@all.each do |headers|
 						headers.each do |key, value|
-							yield key.downcase, value.to_s
+							yield key.to_s.downcase, value.to_s
 						end
 					end
 				end
