@@ -56,7 +56,6 @@ module Protocol
 					@length = length
 					
 					@index = 0
-					@digest = nil
 				end
 				
 				attr :chunks
@@ -87,7 +86,6 @@ module Protocol
 				end
 				
 				def write(chunk)
-					@digest&.update(chunk)
 					@chunks << chunk
 				end
 				
