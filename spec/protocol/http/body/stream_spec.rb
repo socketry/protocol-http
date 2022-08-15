@@ -59,6 +59,15 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(subject.read(2)).to be == "ld"
 			expect(subject.read(2)).to be == nil
 		end
+		
+		it "can read partial input into the given buffer" do
+			buffer = String.new
+			expect(subject.read(100, buffer)).to be == "HelloWorld"
+			expect(buffer).to be == "HelloWorld"
+			
+			expect(subject.read(2, buffer)).to be == nil
+			expect(buffer).to be == ""
+		end
 	end
 
 	describe "#read_nonblock" do
@@ -75,6 +84,18 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(subject.read_nonblock(5, buffer)).to be == "World"
 			expect(buffer).to be == "World"
 			expect(subject.read_nonblock(5, buffer)).to be nil
+			expect(buffer).to be == ""
+		end
+		
+		it "can read partial input into the given buffer" do
+			buffer = String.new
+			expect(subject.read_nonblock(100, buffer)).to be == "Hello"
+			expect(buffer).to be == "Hello"
+			
+			expect(subject.read_nonblock(100, buffer)).to be == "World"
+			expect(buffer).to be == "World"
+			
+			expect(subject.read_nonblock(2, buffer)).to be == nil
 			expect(buffer).to be == ""
 		end
 	end

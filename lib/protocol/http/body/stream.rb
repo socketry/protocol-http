@@ -59,6 +59,8 @@ module Protocol
 						if @buffer
 							buffer.replace(@buffer)
 							@buffer = nil
+						else
+							buffer.clear
 						end
 						
 						if length
