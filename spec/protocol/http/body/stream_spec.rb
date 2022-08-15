@@ -50,6 +50,15 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(subject.read(5, buffer)).to be nil
 			expect(buffer).to be == ""
 		end
+		
+		it "can read partial input" do
+			expect(subject.read(2)).to be == "He"
+			expect(subject.read(2)).to be == "ll"
+			expect(subject.read(2)).to be == "oW"
+			expect(subject.read(2)).to be == "or"
+			expect(subject.read(2)).to be == "ld"
+			expect(subject.read(2)).to be == nil
+		end
 	end
 
 	describe "#read_nonblock" do
