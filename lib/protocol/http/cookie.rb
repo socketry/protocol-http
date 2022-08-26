@@ -68,7 +68,7 @@ module Protocol
 			def self.parse(string)
 				head, *directives = string.split(/\s*;\s*/)
 				
-				key, value = head.split('=')
+				key, value = head.split('=', 2)
 				directives = self.parse_directives(directives)
 				
 				self.new(

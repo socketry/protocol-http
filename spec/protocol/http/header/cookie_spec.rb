@@ -36,4 +36,15 @@ RSpec.describe Protocol::HTTP::Header::Cookie do
 			expect(session.directives).to include('secure')
 		end
 	end
+
+	context "session=123==; secure" do
+		it "has named cookie" do
+			expect(cookies).to include('session')
+
+			session = cookies['session']
+			expect(session).to have_attributes(name: 'session')
+			expect(session).to have_attributes(value: '123==')
+			expect(session.directives).to include('secure')
+		end
+	end
 end
