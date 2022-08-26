@@ -74,4 +74,10 @@ RSpec.describe Protocol::HTTP::URL do
 			end.to raise_error(/Key length exceeded/)
 		end
 	end
+
+	describe '.unescape' do
+		it "succeds with hex characters" do
+			expect(Protocol::HTTP::URL.unescape("%3A")).to be == ":"
+		end
+	end
 end
