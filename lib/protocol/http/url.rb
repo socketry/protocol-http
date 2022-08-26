@@ -33,7 +33,7 @@ module Protocol
 			# Unescapes a percent encoded string.
 			def self.unescape(string, encoding = string.encoding)
 				string.b.gsub(/%(\h\h)/) do |hex|
-					Integer(hex, 16).chr
+					Integer(hex[1..], 16).chr
 				end.force_encoding(encoding)
 			end
 			
