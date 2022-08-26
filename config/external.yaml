@@ -9,7 +9,7 @@ async-http:
   command: bundle exec rspec
 protocol-websocket:
   url: https://github.com/socketry/protocol-websocket.git
-  command: bundle exec rspec
+  command: bundle exec sus
 async-websocket:
   url: https://github.com/socketry/async-websocket.git
   command: bundle exec rspec
