@@ -23,6 +23,9 @@
 require_relative 'body/buffered'
 require_relative 'body/reader'
 
+require_relative 'headers'
+require_relative 'methods'
+
 module Protocol
 	module HTTP
 		class Request
