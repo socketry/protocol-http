@@ -157,6 +157,8 @@ module Protocol
 				self[key] != nil
 			end
 			
+			alias key? include?
+			
 			def keys
 				self.to_h.keys
 			end

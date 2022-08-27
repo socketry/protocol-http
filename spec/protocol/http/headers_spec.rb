@@ -66,6 +66,18 @@ RSpec.describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	describe '#include?' do
+		it "should include? named fields" do
+			expect(subject).to be_include('set-cookie')
+		end
+	end
+	
+	describe '#key?' do
+		it "should key? named fields" do
+			expect(subject).to be_key('set-cookie')
+		end
+	end
+	
 	describe '#fields' do
 		it 'should add fields in order' do
 			expect(subject.fields).to be == fields
