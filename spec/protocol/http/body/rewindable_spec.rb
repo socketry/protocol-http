@@ -26,18 +26,6 @@ RSpec.describe Protocol::HTTP::Body::Rewindable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	subject {described_class.new(source)}
 	
-	it "doesn't get affected by clearing chunks" do
-		source.write("Hello World!")
-		
-		2.times do
-			chunk = subject.read
-			expect(chunk).to be == "Hello World!"
-			chunk.clear
-			
-			subject.rewind
-		end
-	end
-	
 	it "can write and read data" do
 		3.times do |i|
 			source.write("Hello World #{i}")

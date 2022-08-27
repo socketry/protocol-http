@@ -96,7 +96,6 @@ module Protocol
 					
 					self.each do |chunk|
 						buffer << chunk
-						chunk.clear
 					end
 					
 					if buffer.empty?
