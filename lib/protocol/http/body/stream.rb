@@ -151,7 +151,13 @@ module Protocol
 					end
 				end
 				
-				alias write_nonblock write
+				def write_nonblock(buffer)
+					write(buffer)
+				end
+				
+				def << (buffer)
+					write(buffer)
+				end
 				
 				def flush
 				end

@@ -115,7 +115,16 @@ RSpec.describe Protocol::HTTP::Body::Stream do
 			expect(output.chunks).to be == ["Hello", "World"]
 		end
 	end
-
+	
+	describe '#<<' do
+		it "should write to the output" do
+			subject << "Hello"
+			subject << "World"
+			
+			expect(output.chunks).to be == ["Hello", "World"]
+		end
+	end
+	
 	describe "#write_nonblock" do
 		it "should write to the output" do
 			subject.write_nonblock("Hello")
