@@ -155,7 +155,7 @@ module Protocol
 					write(buffer)
 				end
 				
-				def << (buffer)
+				def <<(buffer)
 					write(buffer)
 				end
 				

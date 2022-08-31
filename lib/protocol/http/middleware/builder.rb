@@ -25,15 +25,6 @@ require_relative '../middleware'
 module Protocol
 	module HTTP
 		class Middleware
-			module NotFound
-				def self.close
-				end
-				
-				def self.call(request)
-					Response[404, Headers[], []]
-				end
-			end
-			
 			class Builder
 				def initialize(default_app = NotFound)
 					@use = []

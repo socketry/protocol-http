@@ -55,7 +55,16 @@ module Protocol
 				end
 				
 				def self.call(request)
-					Response[200, {}, []]
+					Response[200]
+				end
+			end
+			
+			module NotFound
+				def self.close
+				end
+				
+				def self.call(request)
+					Response[404]
 				end
 			end
 			
@@ -65,15 +74,6 @@ module Protocol
 				
 				def self.call(request)
 					Response[200, Headers['content-type' => 'text/plain'], ["Hello World!"]]
-				end
-			end
-			
-			module NotFound
-				def self.close
-				end
-				
-				def self.call(request)
-					Response[404, Headers[], []]
 				end
 			end
 		end
