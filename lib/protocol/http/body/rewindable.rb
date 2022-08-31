@@ -48,6 +48,10 @@ module Protocol
 					Buffered.new(@chunks)
 				end
 				
+				def stream?
+					false
+				end
+				
 				def read
 					if @index < @chunks.size
 						chunk = @chunks[@index]

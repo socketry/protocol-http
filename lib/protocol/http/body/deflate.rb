@@ -89,6 +89,12 @@ module Protocol
 					self.new(body, Zlib::Deflate.new(level, window_size))
 				end
 				
+				def stream?
+					# We might want to revisit this design choice.
+					# We could wrap the streaming body in a Deflate stream, but that would require an extra stream wrapper which we don't have right now. See also `Digestable#stream?`.
+					false
+				end
+				
 				def read
 					return if @stream.finished?
 					

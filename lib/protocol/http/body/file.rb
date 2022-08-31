@@ -73,6 +73,10 @@ module Protocol
 					@file.seek(@offset)
 				end
 				
+				def stream?
+					false
+				end
+				
 				def read
 					if @remaining > 0
 						amount = [@remaining, @block_size].min

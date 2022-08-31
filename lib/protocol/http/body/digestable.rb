@@ -50,6 +50,10 @@ module Protocol
 					@digest.hexdigest.dump
 				end
 				
+				def stream?
+					false
+				end
+				
 				def read
 					if chunk = super
 						@digest.update(chunk)
