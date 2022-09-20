@@ -5,6 +5,7 @@
 /doc/
 /pkg/
 /spec/reports/
+/spec/protocol/http/body/reader_spec.txt
 /tmp/
 /external/
 
