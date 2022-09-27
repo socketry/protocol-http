@@ -57,9 +57,9 @@ module Protocol
 				end
 				
 				# Write the body of the response to the given file path.
-				def save(path, mode = ::File::WRONLY|::File::CREAT, *args)
+				def save(path, mode = ::File::WRONLY|::File::CREAT, **options)
 					if @body
-						::File.open(path, mode, *args) do |file|
+						::File.open(path, mode, **options) do |file|
 							self.each do |chunk|
 								file.write(chunk)
 							end
