@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2022, by Samuel Williams.
 
 def generator
 	100000.times do |i|
