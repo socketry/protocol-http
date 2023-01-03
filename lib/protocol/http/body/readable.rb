@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2019-2022, by Samuel Williams.
 
-require 'async/io/buffer'
-
 module Protocol
 	module HTTP
 		module Body
