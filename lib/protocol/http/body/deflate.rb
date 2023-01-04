@@ -21,16 +21,6 @@ module Protocol
 					'gzip' => GZIP,
 				}
 				
-				def self.encoding_name(window_size)
-					if window_size <= -8
-						return 'deflate'
-					elsif window_size >= 16
-						return 'gzip'
-					else
-						return 'compress'
-					end
-				end
-				
 				def initialize(body, stream)
 					super(body)
 					

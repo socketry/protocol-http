@@ -13,8 +13,8 @@ module Protocol
 				CLOSE = 'close'
 				UPGRADE = 'upgrade'
 				
-				def initialize(value)
-					super(value.downcase)
+				def initialize(value = nil)
+					super(value&.downcase)
 				end
 				
 				def << value

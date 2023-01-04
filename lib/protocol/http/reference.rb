@@ -14,14 +14,14 @@ module Protocol
 			# Generate a reference from a path and user parameters. The path may contain a `#fragment` or `?query=parameters`.
 			def self.parse(path = '/', parameters = nil)
 				base, fragment = path.split('#', 2)
-				path, query_string = base.split('?', 2)
+				path, query = base.split('?', 2)
 				
-				self.new(path, query_string, fragment, parameters)
+				self.new(path, query, fragment, parameters)
 			end
 			
-			def initialize(path = '/', query_string = nil, fragment = nil, parameters = nil)
+			def initialize(path = '/', query = nil, fragment = nil, parameters = nil)
 				@path = path
-				@query_string = query_string
+				@query = query
 				@fragment = fragment
 				@parameters = parameters
 			end
@@ -30,7 +30,7 @@ module Protocol
 			attr_accessor :path
 			
 			# The un-parsed query string, e.g. 'x=10&y=20'
-			attr_accessor :query_string
+			attr_accessor :query
 			
 			# A fragment, the part after the '#'
 			attr_accessor :fragment
@@ -42,7 +42,7 @@ module Protocol
 				return self if frozen?
 				
 				@path.freeze
-				@query_string.freeze
+				@query.freeze
 				@fragment.freeze
 				@parameters.freeze
 				
@@ -50,7 +50,7 @@ module Protocol
 			end
 			
 			def to_ary
-				[@path, @query_string, @fragment, @parameters]
+				[@path, @query, @fragment, @parameters]
 			end
 			
 			def <=> other
@@ -69,8 +69,8 @@ module Protocol
 				@parameters and !@parameters.empty?
 			end
 			
-			def query_string?
-				@query_string and !@query_string.empty?
+			def query?
+				@query and !@query.empty?
 			end
 			
 			def fragment?
@@ -78,8 +78,8 @@ module Protocol
 			end
 			
 			def append(buffer)
-				if query_string?
-					buffer << URL.escape_path(@path) << '?' << @query_string
+				if query?
+					buffer << URL.escape_path(@path) << '?' << @query
 					buffer << '&' << URL.encode(@parameters) if parameters?
 				else
 					buffer << URL.escape_path(@path)
@@ -103,7 +103,7 @@ module Protocol
 				
 				self.class.new(
 					expand_path(self.path, other.path, true),
-					other.query_string,
+					other.query,
 					other.fragment,
 					other.parameters,
 				)
@@ -114,34 +114,34 @@ module Protocol
 				self.class.new(@path, nil, nil, nil)
 			end
 			
-			# @option path [String] Append the string to this reference similar to `File.join`.
-			# @option parameters [Hash] Append the parameters to this reference.
-			# @option fragment [String] Set the fragment to this value.
-			def with(path: nil, parameters: nil, fragment: @fragment)
+			# Update the reference with the given path, parameters and fragment.
+			# @argument path [String] Append the string to this reference similar to `File.join`.
+			# @argument parameters [Hash] Append the parameters to this reference.
+			# @argument fragment [String] Set the fragment to this value.
+			# @argument pop [Boolean] If the path contains a trailing filename, pop the last component of the path before appending the new path.
+			# @argument merge [Boolean] If the parameters are specified, merge them with the existing parameters.
+			def with(path: nil, parameters: nil, fragment: @fragment, pop: true, merge: true)
 				if @parameters
-					if parameters
+					if parameters and merge
 						parameters = @parameters.merge(parameters)
 					else
 						parameters = @parameters
 					end
 				end
 				
+				if @query and !merge
+					query = nil
+				else
+					query = @query
+				end
+				
 				if path
-					path = expand_path(@path, path, false)
+					path = expand_path(@path, path, pop)
 				else
 					path = @path
 				end
 				
-				self.class.new(path, @query_string, fragment, parameters)
-			end
-			
-			# The arguments to this function are legacy, prefer to use `with`.
-			def dup(path = nil, parameters = nil, merge_parameters = true)
-				if merge_parameters
-					with(path: path, parameters: parameters)
-				else
-					self.base.with(path: path, parameters: parameters)
-				end
+				self.class.new(path, query, fragment, parameters)
 			end
 			
 			private
@@ -154,33 +154,58 @@ module Protocol
 				end
 			end
 			
+			def expand_absolute_path(path, parts)
+				parts.each do |part|
+					if part == '..'
+						path.pop
+					elsif part == '.'
+						# Do nothing.
+					else
+						path << part
+					end
+				end
+				
+				if path.first != ''
+					path.unshift('')
+				end
+			end
+			
+			def expand_relative_path(path, parts)
+				parts.each do |part|
+					if part == '..' and path.any?
+						path.pop
+					elsif part == '.'
+						# Do nothing.
+					else
+						path << part
+					end
+				end
+			end
+			
 			# @param pop [Boolean] whether to remove the last path component of the base path, to conform to URI merging behaviour, as defined by RFC2396.
 			def expand_path(base, relative, pop = true)
 				if relative.start_with? '/'
 					return relative
-				else
-					path = split(base)
-					
-					# RFC2396 Section 5.2:
-					# 6) a) All but the last segment of the base URI's path component is
-					# copied to the buffer.  In other words, any characters after the
-					# last (right-most) slash character, if any, are excluded.
-					path.pop if pop or path.last == ''
-					
-					parts = split(relative)
-					
-					parts.each do |part|
-						if part == '..'
-							path.pop
-						elsif part == '.'
-							# Do nothing.
-						else
-							path << part
-						end
-					end
-					
-					return path.join('/')
 				end
+				
+				path = split(base)
+				
+				# RFC2396 Section 5.2:
+				# 6) a) All but the last segment of the base URI's path component is
+				# copied to the buffer.  In other words, any characters after the
+				# last (right-most) slash character, if any, are excluded.
+				path.pop if pop or path.last == ''
+				
+				parts = split(relative)
+				
+				# Absolute path:
+				if path.first == ''
+					expand_absolute_path(path, parts)
+				else
+					expand_relative_path(path, parts)
+				end	
+				
+				return path.join('/')
 			end
 		end
 	end

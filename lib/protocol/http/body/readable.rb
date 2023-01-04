@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2019-2022, by Samuel Williams.
 
-require 'async/io/buffer'
-
 module Protocol
 	module HTTP
 		module Body
@@ -22,12 +20,14 @@ module Protocol
 				def close(error = nil)
 				end
 				
-				# Will read return any data?
+				# Optimistically determine whether read (may) return any data.
+				# If this returns true, then calling read will definitely return nil.
+				# If this returns false, then calling read may return nil.
 				def empty?
 					false
 				end
 				
-				# Whether calling read will block.
+				# Whether calling read will return a chunk of data without blocking.
 				# We prefer pessimistic implementation, and thus default to `false`.
 				# @return [Boolean]
 				def ready?

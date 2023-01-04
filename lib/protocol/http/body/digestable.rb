@@ -18,6 +18,7 @@ module Protocol
 					end
 				end
 				
+				# @parameter callback [Block] The callback is invoked when the digest is complete.
 				def initialize(body, digest = Digest::SHA256.new, callback = nil)
 					super(body)
 					
@@ -29,8 +30,12 @@ module Protocol
 					@digest
 				end
 				
-				def etag
-					@digest.hexdigest.dump
+				def etag(weak: false)
+					if weak
+						"W/\"#{digest.hexdigest}\""
+					else
+						"\"#{digest.hexdigest}\""
+					end
 				end
 				
 				def stream?

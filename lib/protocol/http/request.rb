@@ -62,7 +62,7 @@ module Protocol
 				@method == Methods::CONNECT
 			end
 			
-			def self.[](method, path, headers, body)
+			def self.[](method, path, headers = nil, body = nil)
 				body = Body::Buffered.wrap(body)
 				headers = ::Protocol::HTTP::Headers[headers]
 				

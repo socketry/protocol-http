@@ -59,14 +59,14 @@ reference.to_s
 
 ### URL
 
-{ruby Protocol::HTTP::URL} is used to parse incoming URLs to extract the query string and other relevant details.
+{ruby Protocol::HTTP::URL} is used to parse incoming URLs to extract the query and other relevant details.
 
 ``` ruby
 require 'protocol/http/url'
 
 reference = Protocol::HTTP::Reference.parse("/search?q=kittens")
 
-parameters = Protocol::HTTP::URL.decode(reference.query_string)
+parameters = Protocol::HTTP::URL.decode(reference.query)
 # => {"q"=>"kittens"}
 ```
 

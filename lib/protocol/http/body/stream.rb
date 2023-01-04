@@ -10,7 +10,7 @@ module Protocol
 		module Body
 			# The input stream is an IO-like object which contains the raw HTTP POST data. When applicable, its external encoding must be “ASCII-8BIT” and it must be opened in binary mode, for Ruby 1.9 compatibility. The input stream must respond to gets, each, read and rewind.
 			class Stream
-				def initialize(input, output = Buffered.new)
+				def initialize(input = nil, output = Buffered.new)
 					@input = input
 					@output = output
 					
@@ -36,8 +36,8 @@ module Protocol
 					def read(length = nil, buffer = nil)
 						return '' if length == 0
 						
-						buffer ||= Async::IO::Buffer.new
-
+						buffer ||= String.new.force_encoding(Encoding::BINARY)
+						
 						# Take any previously buffered data and replace it into the given buffer.
 						if @buffer
 							buffer.replace(@buffer)

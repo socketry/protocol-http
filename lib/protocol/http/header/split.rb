@@ -11,7 +11,11 @@ module Protocol
 				COMMA = /\s*,\s*/
 				
 				def initialize(value)
-					super(value.split(COMMA))
+					if value
+						super(value.split(COMMA))
+					else
+						super([])
+					end
 				end
 				
 				def << value
@@ -19,7 +23,7 @@ module Protocol
 				end
 				
 				def to_s
-					join(", ")
+					join(",")
 				end
 			end
 		end

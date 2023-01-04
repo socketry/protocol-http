@@ -53,6 +53,7 @@ module Protocol
 				
 				def rewind
 					@file.seek(@offset)
+					@remaining = @length
 				end
 				
 				def stream?

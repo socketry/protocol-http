@@ -60,7 +60,7 @@ module Protocol
 				string.split('&') do |assignment|
 					key, value = assignment.split('=', 2)
 					
-					yield unescape(key), unescape(value)
+					yield unescape(key), value.nil? ? value : unescape(value)
 				end
 			end
 			
