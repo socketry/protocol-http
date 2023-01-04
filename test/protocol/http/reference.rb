@@ -8,6 +8,18 @@ require 'protocol/http/reference'
 describe Protocol::HTTP::Reference do
 	let(:reference) {subject.new}
 	
+	with '#base' do
+		let(:reference) {subject.new('/foo/bar', "foo=bar", "baz", {x: 10})}
+		
+		it "returns reference with only the path" do
+			expect(reference.base).to have_attributes(
+				path: be == reference.path,
+				parameters: be_nil,
+				fragment: be_nil,
+			)
+		end
+	end
+	
 	with '#+' do
 		let(:absolute) {subject['/foo/bar']}
 		let(:relative) {subject['foo/bar']}
@@ -37,60 +49,80 @@ describe Protocol::HTTP::Reference do
 		end
 	end
 	
-	with '#dup' do
-		let(:parameters) {{x: 10}}
-		let(:path) {"foo/bar.html"}
-		
-		it "can add parameters" do
-			copy = reference.dup(nil, parameters)
-			expect(copy.parameters).to be == parameters
-		end
-		
+	with '#with' do
 		it "can update path" do
-			copy = reference.dup(path)
+			copy = reference.with(path: "foo/bar.html")
 			expect(copy.path).to be == "/foo/bar.html"
 		end
 		
 		it "can append path components" do
-			copy = reference.dup("foo/").dup("bar/")
+			copy = reference.with(path: "foo/").with(path: "bar/")
 			
 			expect(copy.path).to be == "/foo/bar/"
 		end
 		
 		it "can append empty path components" do
-			copy = reference.dup("")
+			copy = reference.with(path: "")
 			
 			expect(copy.path).to be == reference.path
 		end
 		
-		it "can delete last path component" do
-			copy = reference.dup("hello").dup("")
+		it "can append parameters" do
+			copy = reference.with(parameters: {x: 10})
 			
-			expect(copy.path).to be == "/hello/"
+			expect(copy.parameters).to be == {x: 10}
 		end
 		
 		it "can merge parameters" do
-			reference.parameters = {y: 20}
-			copy = reference.dup(nil, parameters, true)
+			copy = reference.with(parameters: {x: 10}).with(parameters: {y: 20})
+			
 			expect(copy.parameters).to be == {x: 10, y: 20}
 		end
 		
-		it "can replace parameters" do
-			reference.parameters = {y: 20}
-			copy = reference.dup(nil, parameters, false)
-			expect(copy.parameters).to be == parameters
+		it "can copy parameters" do
+			copy = reference.with(parameters: {x: 10}).with(path: "foo")
+			
+			expect(copy.parameters).to be == {x: 10}
+			expect(copy.path).to be == "/foo"
 		end
 		
-		it "can nest path with absolute base" do
-			copy = reference.with(path: "foo").with(path: "bar")
+		it "can replace path with absolute path" do
+			copy = reference.with(path: "foo").with(path: "/bar")
 			
-			expect(copy.path).to be == "/foo/bar"
+			expect(copy.path).to be == "/bar"
 		end
 		
-		it "can nest path with relative base" do
-			copy = reference.with(path: "foo").with(path: "bar")
+		it "can replace path with relative path" do
+			copy = reference.with(path: "foo").with(path: "../../bar")
 			
-			expect(copy.path).to be == "/foo/bar"
+			expect(copy.path).to be == "/bar"
+		end
+		
+		with "#query" do
+			let(:reference) {subject.new('foo/bar/baz.html', "x=10", nil, nil)}
+			
+			it "can replace query" do
+				copy = reference.with(parameters: nil, merge: false)
+				
+				expect(copy.parameters).to be_nil
+				expect(copy.query).to be_nil
+			end
+		end
+		
+		with "relative path" do
+			let(:reference) {subject.new('foo/bar/baz.html', nil, nil, nil)}
+			
+			it "can compute new relative path" do
+				copy = reference.with(path: "../index.html")
+				
+				expect(copy.path).to be == "foo/index.html"
+			end
+			
+			it "can compute relative path with more uplevels" do
+				copy = reference.with(path: "../../../index.html")
+				
+				expect(copy.path).to be == "../index.html"
+			end
 		end
 	end
 	

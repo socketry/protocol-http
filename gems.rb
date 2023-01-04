@@ -19,4 +19,6 @@ group :test do
 	gem "sus", "~> 0.16.0"
 	gem "bake-test"
 	gem "bake-test-external"
+	
+	gem "covered"
 end

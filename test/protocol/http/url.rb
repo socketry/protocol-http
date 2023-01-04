@@ -31,24 +31,37 @@ describe Protocol::HTTP::URL do
 	
 	it_behaves_like ValidParameters, {'foo' => [{'bar' => 'baz'}, {'bar' => 'bob'}]}
 	
-	let(:encoded) {Protocol::HTTP::URL.encode(parameters)}
-	
-	with "basic parameters" do
-		let(:parameters) {{x: "10", y: "20"}}
+	RoundTrippedParameters = Sus::Shared("round-tripped parameters") do
+		let(:encoded) {Protocol::HTTP::URL.encode(parameters)}
 		let(:decoded) {Protocol::HTTP::URL.decode(encoded, symbolize_keys: true)}
 		
-		it "can symbolize keys" do
+		it "can round-trip parameters" do
 			expect(decoded).to be == parameters
 		end
 	end
 	
+	with "basic parameters" do
+		let(:parameters) {{x: "10", y: "20"}}
+		
+		it_behaves_like RoundTrippedParameters
+	end
+	
 	with "nested parameters" do
 		let(:parameters) {{things: [{x: "10"}, {x: "20"}]}}
-		let(:decoded) {Protocol::HTTP::URL.decode(encoded, symbolize_keys: true)}
 		
-		it "can symbolize keys" do
-			expect(decoded).to be == parameters
-		end
+		it_behaves_like RoundTrippedParameters
+	end
+	
+	with "nil values" do
+		let(:parameters) {{x: nil}}
+		
+		it_behaves_like RoundTrippedParameters
+	end
+	
+	with "nil values in arrays" do
+		let(:parameters) {{x: ["1", nil, "2"]}}
+		
+		it_behaves_like RoundTrippedParameters
 	end
 	
 	with '.decode' do

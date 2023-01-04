@@ -26,4 +26,39 @@ describe Protocol::HTTP::Header::CacheControl do
 			)
 		end
 	end
+	
+	with "static" do
+		it "correctly parses cache header" do
+			expect(header).to have_attributes(
+				static?: be == true,
+			)
+		end
+	end
+	
+	with "dynamic" do
+		it "correctly parses cache header" do
+			expect(header).to have_attributes(
+				dynamic?: be == true,
+			)
+		end
+	end
+	
+	with "streaming" do
+		it "correctly parses cache header" do
+			expect(header).to have_attributes(
+				streaming?: be == true,
+			)
+		end
+	end
+	
+	with "#<<" do
+		let(:header) {subject.new}
+		
+		it "can append values" do
+			header << "max-age=60"
+			expect(header).to have_attributes(
+				max_age: be == 60,
+			)
+		end
+	end
 end

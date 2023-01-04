@@ -33,6 +33,10 @@ module Protocol
 				@status == 100
 			end
 			
+			def ok?
+				@status == 200
+			end
+			
 			def success?
 				@status and @status >= 200 && @status < 300
 			end
@@ -61,9 +65,12 @@ module Protocol
 				@status == 400
 			end
 			
-			def server_failure?
+			def internal_server_error?
 				@status == 500
 			end
+			
+			# @deprecated Use {#internal_server_error?} instead.
+			alias server_failure? internal_server_error?
 			
 			def self.[](status, headers = nil, body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)

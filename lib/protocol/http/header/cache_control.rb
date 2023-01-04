@@ -19,8 +19,8 @@ module Protocol
 				DYNAMIC = 'dynamic'
 				STREAMING = 'streaming'
 				
-				def initialize(value)
-					super(value.downcase)
+				def initialize(value = nil)
+					super(value&.downcase)
 				end
 				
 				def << value

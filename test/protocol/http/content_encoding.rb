@@ -9,18 +9,7 @@ require 'protocol/http/content_encoding'
 describe Protocol::HTTP::ContentEncoding do
 	with 'complete text/plain response' do
 		let(:middleware) {subject.new(Protocol::HTTP::Middleware::HelloWorld)}
-		
-		it "can request resource with compression" do
-			compressor = Protocol::HTTP::AcceptEncoding.new(middleware)
-			
-			response = compressor.get("/index", {'accept-encoding' => 'gzip'})
-			expect(response).to be(:success?)
-			
-			expect(response.headers['vary']).to be(:include?, 'accept-encoding')
-			
-			expect(response.body).to be_a(Protocol::HTTP::Body::Inflate)
-			expect(response.read).to be == "Hello World!"
-		end
+		let(:accept_encoding) {Protocol::HTTP::AcceptEncoding.new(middleware)}
 		
 		it "can request resource without compression" do
 			response = middleware.get("/index")
@@ -29,6 +18,26 @@ describe Protocol::HTTP::ContentEncoding do
 			expect(response.headers).not.to have_keys('content-encoding')
 			expect(response.headers['vary']).to be(:include?, 'accept-encoding')
 			
+			expect(response.read).to be == "Hello World!"
+		end
+		
+		it "can request a resource with the identity encoding" do
+			response = accept_encoding.get("/index", {'accept-encoding' => 'identity'})
+			
+			expect(response).to be(:success?)
+			expect(response.headers).not.to have_keys('content-encoding')
+			expect(response.headers['vary']).to be(:include?, 'accept-encoding')
+			
+			expect(response.read).to be == "Hello World!"
+		end
+		
+		it "can request resource with compression" do
+			response = accept_encoding.get("/index", {'accept-encoding' => 'gzip'})
+			expect(response).to be(:success?)
+			
+			expect(response.headers['vary']).to be(:include?, 'accept-encoding')
+			
+			expect(response.body).to be_a(Protocol::HTTP::Body::Inflate)
 			expect(response.read).to be == "Hello World!"
 		end
 	end

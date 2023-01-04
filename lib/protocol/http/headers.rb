@@ -315,6 +315,14 @@ module Protocol
 					@all = all
 				end
 				
+				def fields
+					each.to_a
+				end
+				
+				def flatten
+					Headers.new(fields)
+				end
+				
 				def clear
 					@all.clear
 				end
@@ -327,6 +335,8 @@ module Protocol
 				
 				# @yields [String, String] header key (lower case string) and value (as string).
 				def each(&block)
+					return to_enum unless block_given?
+					
 					@all.each do |headers|
 						headers.each do |key, value|
 							yield key.to_s.downcase, value.to_s

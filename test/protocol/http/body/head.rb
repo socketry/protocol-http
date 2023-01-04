@@ -10,6 +10,10 @@ describe Protocol::HTTP::Body::Head do
 	with "zero length" do
 		let(:body) {subject.new(0)}
 		
+		it "should be ready" do
+			expect(body).to be(:ready?)
+		end
+		
 		it "should be empty" do
 			expect(body).to be(:empty?)
 		end

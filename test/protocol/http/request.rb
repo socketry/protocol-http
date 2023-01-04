@@ -40,5 +40,13 @@ describe Protocol::HTTP::Request do
 		it "should have a string representation" do
 			expect(request.to_s).to be == "http://localhost: GET /index.html HTTP/1.0"
 		end
+		
+		it "can apply the request to a connection" do
+			connection = proc{|request| request}
+			
+			expect(connection).to receive(:call).with(request)
+			
+			request.call(connection)
+		end
 	end
 end

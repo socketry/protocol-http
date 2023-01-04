@@ -34,4 +34,18 @@ describe Protocol::HTTP::Header::Connection do
 			expect(header).to be(:upgrade?)
 		end
 	end
+	
+	with "#<<" do
+		let(:header) {subject.new}
+		
+		it "can append values" do
+			header << "close"
+			expect(header).to be(:close?)
+			
+			header << "upgrade"
+			expect(header).to be(:upgrade?)
+			
+			expect(header.to_s).to be == "close,upgrade"
+		end
+	end
 end

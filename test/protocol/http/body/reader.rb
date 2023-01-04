@@ -15,7 +15,23 @@ class TestReader
 end
 
 describe Protocol::HTTP::Body::Reader do
-	let(:reader) {TestReader.new(%w(the quick brown fox))}
+	let(:body) {Protocol::HTTP::Body::Buffered.wrap('thequickbrownfox')}
+	let(:reader) {TestReader.new(body)}
+	
+	with '#finish' do
+		it 'returns a buffered representation' do
+			expect(reader.finish).to be == body
+		end
+	end
+	
+	with '#close' do
+		it 'closes the underlying body' do
+			expect(body).to receive(:close)
+			reader.close
+			
+			expect(reader).not.to be(:body?)
+		end
+	end
 	
 	with '#save' do
 		let(:path) { File.expand_path('reader_spec.txt', __dir__) }
@@ -26,7 +42,7 @@ describe Protocol::HTTP::Body::Reader do
 		end
 
 		it 'mirrors the interface of File.open' do
-			reader.save(path, nil, mode: 'w')
+			reader.save(path, 'w')
 			expect(File.read(path)).to be == 'thequickbrownfox'
 		end
 	end

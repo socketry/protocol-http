@@ -30,10 +30,10 @@ module Protocol
 						chunk = @stream.inflate(chunk)
 						
 						@output_length += chunk.bytesize
-					elsif !@stream.closed?
-						chunk = @stream.finish
+					# elsif !@stream.closed?
+					# 	chunk = @stream.finish
 						
-						@output_length += chunk.bytesize
+					# 	@output_length += chunk.bytesize
 					end
 					
 					if chunk.empty? and @stream.finished?

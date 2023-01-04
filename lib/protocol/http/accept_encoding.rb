@@ -17,7 +17,9 @@ module Protocol
 			
 			DEFAULT_WRAPPERS = {
 				'gzip' => Body::Inflate.method(:for),
-				'identity' => ->(body){body},
+				
+				# There is no point including this:
+				# 'identity' => ->(body){body},
 			}
 			
 			def initialize(app, wrappers = DEFAULT_WRAPPERS)

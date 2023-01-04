@@ -12,12 +12,74 @@ describe Protocol::HTTP::Headers do
 			['Content-Type', 'text/html'],
 			['Set-Cookie', 'hello=world'],
 			['Accept', '*/*'],
-			['Set-Cookie', 'foo=bar'],
-			['Connection', 'Keep-Alive']
+			['set-cookie', 'foo=bar'],
+			['connection', 'Keep-Alive']
 		]
 	end
 	
 	let(:headers) {subject[fields]}
+	
+	with '.[]' do
+		it "can be constructed from frozen array" do
+			self.fields.freeze
+			
+			expect(headers.fields).not.to be(:frozen?)
+		end
+	end
+	
+	with '#keys' do
+		it 'should return keys' do
+			expect(headers.keys).to be == ['content-type', 'set-cookie', 'accept', 'connection']
+		end
+	end
+	
+	with '#trailer?' do
+		it 'should not be a trailer' do
+			expect(headers).not.to be(:trailer?)
+		end
+	end
+	
+	with '#merge' do
+		it 'should merge headers' do
+			other = subject[[
+				# This will replace the original one:
+				['Content-Type', 'text/plain'],
+				
+				# This will be appended:
+				['Set-Cookie', 'goodbye=world'],
+			]]
+			
+			merged = headers.merge(other)
+			
+			expect(merged.to_h).to be == {
+				"content-type" => "text/plain",
+				"set-cookie" => ["hello=world", "foo=bar", "goodbye=world"],
+				"accept" => ["*/*"],
+				"connection" => ["keep-alive"]
+			}
+		end
+	end
+	
+	with '#extract' do
+		it 'can extract named fields' do
+			# Force the headers to be indexed:
+			headers.to_h
+			
+			expect(headers.extract(['content-type', 'set-cookie'])).to be == [
+				["Content-Type", "text/html"],
+				["Set-Cookie", "hello=world"],
+				["set-cookie", "foo=bar"],
+			]
+		end
+	end
+	
+	with '#clear' do
+		it "should clear headers" do
+			headers.clear
+			
+			expect(headers.fields).to be(:empty?)
+		end
+	end
 	
 	with '#freeze' do
 		it "can't modify frozen headers" do
@@ -26,6 +88,12 @@ describe Protocol::HTTP::Headers do
 			expect(headers.fields).to be == fields
 			expect(headers.fields).to be(:frozen?)
 			expect(headers.to_h).to be(:frozen?)
+		end
+		
+		it "returns duplicated headers if they are frozen" do
+			headers.freeze
+			
+			expect(subject[headers]).not.to be(:frozen?)
 		end
 	end
 	
@@ -72,6 +140,12 @@ describe Protocol::HTTP::Headers do
 	with '#to_h' do
 		it 'should generate array values for duplicate keys' do
 			expect(headers.to_h['set-cookie']).to be == ['hello=world', 'foo=bar']
+		end
+	end
+	
+	with '#inspect' do
+		it "should generate a string representation" do
+			expect(headers.inspect).to be == "#<Protocol::HTTP::Headers #{fields.inspect}>"
 		end
 	end
 	
@@ -232,6 +306,60 @@ describe Protocol::HTTP::Headers do
 		
 		it "should normalize to lower case" do
 			expect(headers['connection']).to be == ['keep-alive']
+		end
+	end
+end
+
+describe Protocol::HTTP::Headers::Merged do
+	let(:merged) do
+		Protocol::HTTP::Headers::Merged.new(
+			Protocol::HTTP::Headers.new('content-type' => 'text/html'),
+			Protocol::HTTP::Headers.new('content-encoding' => 'gzip')
+		)
+	end
+	
+	with '#flatten' do
+		let(:flattened) {merged.flatten}
+		
+		it "can combine all headers" do
+			expect(flattened).to be_a Protocol::HTTP::Headers
+			expect(flattened.fields).to be == [
+				['content-type', 'text/html'],
+				['content-encoding', 'gzip']
+			]
+		end
+	end
+	
+	with '#clear' do
+		it 'can clear all headers' do
+			merged.clear
+			
+			expect(merged.flatten).to be(:empty?)
+		end
+	end
+	
+	with '#each' do
+		it 'can iterate over all headers' do
+			expect(merged.each.to_a).to be == [
+				['content-type', 'text/html'],
+				['content-encoding', 'gzip']
+			]
+		end
+	end
+	
+	with 'non-normalized case' do
+		let(:merged) do
+			Protocol::HTTP::Headers::Merged.new(
+				Protocol::HTTP::Headers.new('Content-Type' => 'text/html'),
+				Protocol::HTTP::Headers.new('Content-Encoding' => 'gzip')
+			)
+		end
+		
+		it "can normalize case" do
+			expect(merged.each.to_a).to be == [
+				['content-type', 'text/html'],
+				['content-encoding', 'gzip']
+			]
 		end
 	end
 end

@@ -86,6 +86,18 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
+	with '#call' do
+		let(:output) {Protocol::HTTP::Body::Buffered.new}
+		let(:stream) {Protocol::HTTP::Body::Stream.new(nil, output)}
+		
+		it "can stream data" do
+			body.call(stream)
+			
+			expect(output).not.to be(:empty?)
+			expect(output.chunks).to be == source
+		end
+	end
+	
 	with "#read" do
 		it "retrieves chunks of content" do
 			expect(body.read).to be == "Hello"

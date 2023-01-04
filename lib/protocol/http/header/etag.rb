@@ -12,7 +12,7 @@ module Protocol
 				end
 				
 				def weak?
-					self.start_with('\W')
+					self.start_with?('W/')
 				end
 			end
 		end

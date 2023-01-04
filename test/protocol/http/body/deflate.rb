@@ -8,10 +8,17 @@ require 'protocol/http/body/buffered'
 require 'protocol/http/body/deflate'
 require 'protocol/http/body/inflate'
 
+require 'securerandom'
+
 describe Protocol::HTTP::Body::Deflate do
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
 	let(:compressed_body) {Protocol::HTTP::Body::Deflate.for(body)}
 	let(:decompressed_body) {Protocol::HTTP::Body::Inflate.for(compressed_body)}
+	
+	it "should not be a stream" do
+		expect(compressed_body).not.to be(:stream?)
+		expect(decompressed_body).not.to be(:stream?)
+	end
 	
 	it "should round-trip data" do
 		body.write("Hello World!")
@@ -20,23 +27,34 @@ describe Protocol::HTTP::Body::Deflate do
 		expect(decompressed_body.join).to be == "Hello World!"
 	end
 	
-	it "should read chunks" do
-		body.write("Hello ")
-		body.write("World!")
+	let(:data) {"Hello World!" * 10_000}
+	
+	it "should round-trip data" do
+		body.write(data)
 		body.close
 		
-		expect(body.read).to be == "Hello "
-		expect(body.read).to be == "World!"
-		expect(body.read).to be == nil
+		expect(decompressed_body.read).to be == data
+		expect(decompressed_body.read).to be == nil
+		
+		expect(compressed_body.ratio).to be < 1.0
+		expect(decompressed_body.ratio).to be > 1.0
 	end
 	
 	it "should round-trip chunks" do
-		body.write("Hello ")
-		body.write("World!")
+		10.times do
+			body.write("Hello World!")
+		end
 		body.close
 		
-		expect(decompressed_body.read).to be == "Hello "
-		expect(decompressed_body.read).to be == "World!"
+		10.times do
+			expect(decompressed_body.read).to be == "Hello World!"
+		end
 		expect(decompressed_body.read).to be == nil
+	end
+	
+	with '#inspect' do
+		it "can generate string representation" do
+			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered 0 chunks, 0 bytes> | #<Protocol::HTTP::Body::Deflate 100.0%>"
+		end
 	end
 end

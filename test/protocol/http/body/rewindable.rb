@@ -9,6 +9,10 @@ describe Protocol::HTTP::Body::Rewindable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
+	it "should not be a stream" do
+		expect(body).not.to be(:stream?)
+	end
+	
 	it "can write and read data" do
 		3.times do |i|
 			source.write("Hello World #{i}")
@@ -24,6 +28,7 @@ describe Protocol::HTTP::Body::Rewindable do
 		3.times do
 			body.rewind
 			
+			expect(body).to be(:ready?)
 			expect(body.read).to be == "Hello World 0"
 		end
 	end
@@ -42,6 +47,21 @@ describe Protocol::HTTP::Body::Rewindable do
 		end
 	end
 	
+	with '#buffered' do
+		it "can generate buffered representation" do
+			3.times do |i|
+				source.write("Hello World #{i}")
+			end
+			
+			expect(body.buffered).to be(:empty?)
+			
+			# Read one chunk into the internal buffer:
+			body.read
+			
+			expect(body.buffered.chunks).to be == ["Hello World 0"]
+		end
+	end
+	
 	with '#empty?' do
 		it "can read and re-read the body" do
 			source.write("Hello World")
@@ -53,6 +73,12 @@ describe Protocol::HTTP::Body::Rewindable do
 			body.rewind
 			expect(body.read).to be == "Hello World"
 			expect(body).to be(:empty?)
+		end
+	end
+	
+	with '#inspect' do
+		it "can generate string representation" do
+			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Rewindable 0/0 chunks read>"
 		end
 	end
 end
