@@ -24,8 +24,8 @@ $ bundle add protocol-http
 
 This gem does not provide any specific client or server implementation, rather it's used by several other gems.
 
-- [Protocol::HTTP1] & [Protocol::HTTP2] which provide client and server implementations.
-- [Async::HTTP] which provides connection pooling and concurrency.
+- [Protocol::HTTP1](https://github.com/socketry/protocol-http1) & [Protocol::HTTP2](https://github.com/socketry/protocol-http2) which provide client and server implementations.
+- [Async::HTTP](https://github.com/socketry/async-http) which provides connection pooling and concurrency.
 
 ## Usage
 
@@ -44,7 +44,7 @@ headers['content-type']
 # => "image/jpeg"
 ```
 
-### Reference
+### Hypertext References
 
 {ruby Protocol::HTTP::Reference} is used to construct "hypertext references" which consist of a path and URL-encoded key/value pairs.
 
@@ -57,7 +57,7 @@ reference.to_s
 # => "/search?q=kittens"
 ```
 
-### URL
+### URL Parsing
 
 {ruby Protocol::HTTP::URL} is used to parse incoming URLs to extract the query and other relevant details.
 
