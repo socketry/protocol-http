@@ -2,7 +2,7 @@
 
 # Released under the MIT License.
 # Copyright, 2022, by Dan Olson.
-# Copyright, 2022-2023, by Samuel Williams.
+# Copyright, 2023, by Samuel Williams.
 
 require 'protocol/http/body/reader'
 

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
-# Copyright, 2020, by Bruno Sutic.
+# Copyright, 2023, by Samuel Williams.
 
 require 'protocol/http/body/buffered'
 
