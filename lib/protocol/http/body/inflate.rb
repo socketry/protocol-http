@@ -23,17 +23,20 @@ module Protocol
 					return if @stream.finished?
 					
 					# The stream might have been closed while waiting for the chunk to come in.
-					if chunk = super
+					while chunk = super
 						@input_length += chunk.bytesize
 						
 						# It's possible this triggers the stream to finish.
 						chunk = @stream.inflate(chunk)
 						
+						break unless chunk&.empty?
+					end
+					
+					if chunk
 						@output_length += chunk.bytesize
-					# elsif !@stream.closed?
-					# 	chunk = @stream.finish
-						
-					# 	@output_length += chunk.bytesize
+					elsif !@stream.closed?
+						chunk = @stream.finish
+						@output_length += chunk.bytesize
 					end
 					
 					if chunk.empty? and @stream.finished?
