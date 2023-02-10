@@ -16,3 +16,6 @@ async-websocket:
 falcon:
   url: https://github.com/socketry/falcon.git
   command: bundle exec rspec
+async-rest:
+  url: https://github.com/socketry/async-rest.git
+  command: bundle exec sus
