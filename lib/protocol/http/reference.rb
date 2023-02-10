@@ -120,7 +120,7 @@ module Protocol
 			# @argument fragment [String] Set the fragment to this value.
 			# @argument pop [Boolean] If the path contains a trailing filename, pop the last component of the path before appending the new path.
 			# @argument merge [Boolean] If the parameters are specified, merge them with the existing parameters.
-			def with(path: nil, parameters: nil, fragment: @fragment, pop: true, merge: true)
+			def with(path: nil, parameters: nil, fragment: @fragment, pop: false, merge: true)
 				if @parameters
 					if parameters and merge
 						parameters = @parameters.merge(parameters)

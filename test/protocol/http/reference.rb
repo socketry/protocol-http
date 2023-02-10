@@ -50,6 +50,14 @@ describe Protocol::HTTP::Reference do
 	end
 	
 	with '#with' do
+		it "can nest paths" do
+			reference = subject.new('/foo')
+			expect(reference.path).to be == '/foo'
+			
+			nested_resource = reference.with(path: 'bar')
+			expect(nested_resource.path).to be == '/foo/bar'
+		end
+		
 		it "can update path" do
 			copy = reference.with(path: "foo/bar.html")
 			expect(copy.path).to be == "/foo/bar.html"
@@ -113,13 +121,13 @@ describe Protocol::HTTP::Reference do
 			let(:reference) {subject.new('foo/bar/baz.html', nil, nil, nil)}
 			
 			it "can compute new relative path" do
-				copy = reference.with(path: "../index.html")
+				copy = reference.with(path: "../index.html", pop: true)
 				
 				expect(copy.path).to be == "foo/index.html"
 			end
 			
 			it "can compute relative path with more uplevels" do
-				copy = reference.with(path: "../../../index.html")
+				copy = reference.with(path: "../../../index.html", pop: true)
 				
 				expect(copy.path).to be == "../index.html"
 			end
