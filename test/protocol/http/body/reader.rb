@@ -40,7 +40,13 @@ describe Protocol::HTTP::Body::Reader do
 			reader.save(path)
 			expect(File.read(path)).to be == 'thequickbrownfox'
 		end
-
+		
+		it 'saves by truncating an existing file if it exists' do
+			File.write(path, 'hello' * 100)
+			reader.save(path)
+			expect(File.read(path)).to be == 'thequickbrownfox'
+		end
+		
 		it 'mirrors the interface of File.open' do
 			reader.save(path, 'w')
 			expect(File.read(path)).to be == 'thequickbrownfox'
