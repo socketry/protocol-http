@@ -19,6 +19,7 @@ module Protocol
 					# Will hold remaining data in `#read`.
 					@buffer = nil
 					@closed = false
+					@closed_read = false
 				end
 				
 				attr :input
@@ -146,6 +147,7 @@ module Protocol
 				end
 				
 				def close_read
+					@closed_read = true
 					@input&.close
 					@input = nil
 				end
@@ -181,8 +183,7 @@ module Protocol
 				def read_next
 					if @input
 						return @input.read
-					else
-						@input = nil
+					elsif @closed_read
 						raise IOError, "Stream is not readable, input has been closed!"
 					end
 				end
