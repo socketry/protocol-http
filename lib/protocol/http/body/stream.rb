@@ -148,6 +148,8 @@ module Protocol
 				
 				def close_read
 					@closed_read = true
+					@buffer = nil
+					
 					@input&.close
 					@input = nil
 				end

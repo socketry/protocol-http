@@ -11,6 +11,18 @@ describe Protocol::HTTP::Body::Stream do
 	let(:output) {Protocol::HTTP::Body::Buffered.new}
 	let(:stream) {subject.new(input, output)}
 	
+	with 'no input' do
+		let(:input) {nil}
+		
+		it "should be empty" do
+			expect(stream).to be(:empty?)
+		end
+		
+		it "should read nothing" do
+			expect(stream.read).to be == ""
+		end
+	end
+	
 	with '#empty?' do
 		it "should be empty" do
 			expect(stream).to be(:empty?)
@@ -113,8 +125,9 @@ describe Protocol::HTTP::Body::Stream do
 	
 	with '#close_read' do
 		it "should close the input" do
+			stream.read(1)
 			stream.close_read
-			expect{stream.read(5)}.to raise_exception(IOError)
+			expect{stream.read(1)}.to raise_exception(IOError)
 		end
 	end
 	
