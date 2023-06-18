@@ -4,9 +4,10 @@ Copyright, 2018-2023, by Samuel Williams.
 Copyright, 2019, by Yuta Iwama.  
 Copyright, 2020, by Olle Jonsson.  
 Copyright, 2020, by Bryan Powell.  
-Copyright, 2020, by Bruno Sutic.  
+Copyright, 2020-2023, by Bruno Sutic.  
 Copyright, 2022, by Herrick Fang.  
 Copyright, 2022, by Dan Olson.  
+Copyright, 2023, by Genki Takiuchi.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
