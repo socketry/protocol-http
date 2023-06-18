@@ -2,7 +2,8 @@
 
 Provides abstractions for working with the HTTP protocol.
 
-[![Development Status](https://github.com/socketry/protocol-http/workflows/Test/badge.svg)](https://github.com/socketry/protocol-http/actions?workflow=Test)
+[![Development
+Status](https://github.com/socketry/protocol-http/workflows/Test/badge.svg)](https://github.com/socketry/protocol-http/actions?workflow=Test)
 
 ## Features
 
@@ -12,7 +13,14 @@ Provides abstractions for working with the HTTP protocol.
 
 ## Usage
 
-Please see the [project documentation](https://socketry.github.io/protocol-http).
+Please see the [project documentation](https://github.com/socketry/protocol-http) for more details.
+
+  - [Getting Started](https://github.com/socketry/protocol-httpguides/getting-started/index) - This guide explains how
+    to use `protocol-http` for building abstract HTTP interfaces.
+
+  - [Design Overview](https://github.com/socketry/protocol-httpguides/design-overview/index) - The interfaces provided
+    by <code class="language-ruby">Protocol::HTTP</code> underpin all downstream implementations. Therefore, we provide
+    some justification for the design choices.
 
 ## Contributing
 
@@ -26,7 +34,10 @@ We welcome contributions to this project.
 
 ## See Also
 
-  - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this interface.
-  - [protocol-http2](https://github.com/socketry/protocol-http2) — HTTP/2 client/server implementation using this interface.
-  - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP protocols & TLS.
+  - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this
+    interface.
+  - [protocol-http2](https://github.com/socketry/protocol-http2) — HTTP/2 client/server implementation using this
+    interface.
+  - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP
+    protocols & TLS.
   - [async-websocket](https://github.com/socketry/async-websocket) — Asynchronous client and server WebSockets.

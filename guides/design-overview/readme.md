@@ -1,6 +1,6 @@
 # Design Overview
 
-The interfaces provided by {ruby Protocol::HTTP} underpin all downstream implementations. Therefore, we provide some justification for the design choices.
+This guide explains the high level design of `protocol-http` in the context of wider design patterns that can be used to implement HTTP clients and servers.
 
 ## Request/Response Model
 
