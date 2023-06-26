@@ -20,7 +20,7 @@ module Protocol
 		# The call method is called for each request. The close method is called when the server is shutting down.
 		#
 		# You do not need to use the Middleware class to implement middleware. You can implement the interface directly.
-		class Middleware < Methods
+		class Middleware
 			# Convert a block to a middleware delegate.
 			def self.for(&block)
 				def block.close
