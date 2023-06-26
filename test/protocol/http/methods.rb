@@ -31,13 +31,11 @@ describe Protocol::HTTP::Methods do
 	it_behaves_like ValidMethod, "DELETE"
 	it_behaves_like ValidMethod, "HEAD"
 	it_behaves_like ValidMethod, "OPTIONS"
-	it_behaves_like ValidMethod, "LINK"
-	it_behaves_like ValidMethod, "UNLINK"
 	it_behaves_like ValidMethod, "TRACE"
 	it_behaves_like ValidMethod, "CONNECT"
 	
-	it "defines exactly 11 methods" do
-		expect(subject.constants.length).to be == 11
+	it "defines exactly 9 methods" do
+		expect(subject.constants.length).to be == 9
 	end
 	
 	with '.valid?' do

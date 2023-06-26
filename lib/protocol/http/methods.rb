@@ -5,19 +5,50 @@
 
 module Protocol
 	module HTTP
-		# All supported HTTP methods
+		# Provides a convenient interface for commonly supported HTTP methods.
+		#
+		# | Method Name | Request Body | Response Body | Safe | Idempotent | Cacheable |
+		# | ----------- | ------------ | ------------- | ---- | ---------- | --------- |
+		# | GET         | Optional     | Yes           | Yes  | Yes        | Yes       |
+		# | HEAD        | Optional     | No            | Yes  | Yes        | Yes       |
+		# | POST        | Yes          | Yes           | No   | No         | Yes       |
+		# | PUT         | Yes          | Yes           | No   | Yes        | No        |
+		# | DELETE      | Optional     | Yes           | No   | Yes        | No        |
+		# | CONNECT     | Optional     | Yes           | No   | No         | No        |
+		# | OPTIONS     | Optional     | Yes           | Yes  | Yes        | No        |
+		# | TRACE       | No           | Yes           | Yes  | Yes        | No        |
+		# | PATCH       | Yes          | Yes           | No   | No         | No        |
+		#
+		# These methods are defined in this module using lower case names. They are for convenience only and you should not overload those methods.
+		#
+		# See <https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods> for more details.
 		class Methods
+			# The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
 			GET = 'GET'
-			POST = 'POST'
-			PUT = 'PUT'
-			PATCH = 'PATCH'
-			DELETE = 'DELETE'
+			
+			# The HEAD method asks for a response identical to a GET request, but without the response body.
 			HEAD = 'HEAD'
-			OPTIONS = 'OPTIONS'
-			LINK = 'LINK'
-			UNLINK = 'UNLINK'
-			TRACE = 'TRACE'
+			
+			# The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
+			POST = 'POST'
+			
+			# The PUT method replaces all current representations of the target resource with the request payload.
+			PUT = 'PUT'
+			
+			# The DELETE method deletes the specified resource.
+			DELETE = 'DELETE'
+			
+			# The CONNECT method establishes a tunnel to the server identified by the target resource.
 			CONNECT = 'CONNECT'
+			
+			# The OPTIONS method describes the communication options for the target resource.
+			OPTIONS = 'OPTIONS'
+			
+			# The TRACE method performs a message loop-back test along the path to the target resource.
+			TRACE = 'TRACE'
+			
+			# The PATCH method applies partial modifications to a resource.
+			PATCH = 'PATCH'
 			
 			def self.valid?(name)
 				const_defined?(name)
@@ -26,13 +57,18 @@ module Protocol
 				return false
 			end
 			
+			# Enumerate all HTTP methods.
+			# @yields {|name, value| ...}
+			# 	@parameter name [Symbol] The name of the method, e.g. `:GET`.
+			# 	@parameter value [String] The value of the method, e.g. `"GET"`.
 			def self.each
+				return to_enum(:each) unless block_given?
+				
 				constants.each do |name|
 					yield name, const_get(name)
 				end
 			end
 			
-			# Use Methods.constants to get all constants.
 			self.each do |name, value|
 				define_method(name.downcase) do |location, headers = nil, body = nil|
 					self.call(
