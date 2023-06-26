@@ -12,7 +12,7 @@ describe Protocol::HTTP::ContentEncoding do
 		let(:accept_encoding) {Protocol::HTTP::AcceptEncoding.new(middleware)}
 		
 		it "can request resource without compression" do
-			response = middleware.call(Protocol::HTTP::Request["GET", "/index"])
+			response = middleware.get("/index")
 			
 			expect(response).to be(:success?)
 			expect(response.headers).not.to have_keys('content-encoding')
@@ -22,7 +22,7 @@ describe Protocol::HTTP::ContentEncoding do
 		end
 		
 		it "can request a resource with the identity encoding" do
-			response = accept_encoding.call(Protocol::HTTP::Request["GET", "/index", {'accept-encoding' => 'identity'}])
+			response = accept_encoding.get("/index", {'accept-encoding' => 'identity'})
 			
 			expect(response).to be(:success?)
 			expect(response.headers).not.to have_keys('content-encoding')
@@ -32,7 +32,7 @@ describe Protocol::HTTP::ContentEncoding do
 		end
 		
 		it "can request resource with compression" do
-			response = accept_encoding.call(Protocol::HTTP::Request["GET", "/index", {'accept-encoding' => 'gzip'}])
+			response = accept_encoding.get("/index", {'accept-encoding' => 'gzip'})
 			expect(response).to be(:success?)
 			
 			expect(response.headers['vary']).to be(:include?, 'accept-encoding')
@@ -52,7 +52,7 @@ describe Protocol::HTTP::ContentEncoding do
 		let(:client) {subject.new(app)}
 		
 		it "can request resource with compression" do
-			response = client.call(Protocol::HTTP::Request["GET", "/index", {'accept-encoding' => 'gzip'}])
+			response = client.get("/index", {'accept-encoding' => 'gzip'})
 			expect(response).to be(:success?)
 			
 			expect(response.headers).not.to have_keys('content-encoding')
@@ -70,7 +70,7 @@ describe Protocol::HTTP::ContentEncoding do
 		let(:client) {subject.new(app)}
 		
 		it "does not compress response" do
-			response = client.call(Protocol::HTTP::Request["GET", "/index", {'accept-encoding' => 'gzip'}])
+			response = client.get("/index", {'accept-encoding' => 'gzip'})
 			
 			expect(response).to be(:success?)
 			expect(response.headers).to have_keys('content-encoding')
