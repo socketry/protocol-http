@@ -5,7 +5,23 @@
 
 module Protocol
 	module HTTP
-		# All supported HTTP methods, as outlined by <https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods>.
+		# Provides a convenient interface for commonly supported HTTP methods.
+		#
+		# | Method Name | Request Body | Response Body | Safe | Idempotent | Cacheable |
+		# | ----------- | ------------ | ------------- | ---- | ---------- | --------- |
+		# | GET         | Optional     | Yes           | Yes  | Yes        | Yes       |
+		# | HEAD        | Optional     | No            | Yes  | Yes        | Yes       |
+		# | POST        | Yes          | Yes           | No   | No         | Yes       |
+		# | PUT         | Yes          | Yes           | No   | Yes        | No        |
+		# | DELETE      | Optional     | Yes           | No   | Yes        | No        |
+		# | CONNECT     | Optional     | Yes           | No   | No         | No        |
+		# | OPTIONS     | Optional     | Yes           | Yes  | Yes        | No        |
+		# | TRACE       | No           | Yes           | Yes  | Yes        | No        |
+		# | PATCH       | Yes          | Yes           | No   | No         | No        |
+		#
+		# These methods are defined in this module using lower case names. They are for convenience only and you should not overload those methods.
+		#
+		# See <https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods> for more details.
 		class Methods
 			# The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
 			GET = 'GET'

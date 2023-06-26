@@ -10,6 +10,16 @@ require_relative 'response'
 
 module Protocol
 	module HTTP
+		# The middleware interface provides a convenient wrapper for implementing HTTP middleware.
+		#
+		# A middleware instance generally needs to respond to two methods:
+		#
+		# - `call(request)` -> `response`
+		# - `close()`
+		#
+		# The call method is called for each request. The close method is called when the server is shutting down.
+		#
+		# You do not need to use the Middleware class to implement middleware. You can implement the interface directly.
 		class Middleware < Methods
 			# Convert a block to a middleware delegate.
 			def self.for(&block)
