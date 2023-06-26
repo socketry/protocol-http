@@ -10,7 +10,7 @@ require_relative 'response'
 
 module Protocol
 	module HTTP
-		class Middleware
+		class Middleware < Methods
 			# Convert a block to a middleware delegate.
 			def self.for(&block)
 				def block.close
