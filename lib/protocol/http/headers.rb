@@ -241,8 +241,13 @@ module Protocol
 				'set-cookie' => Header::SetCookie,
 				'cookie' => Header::Cookie,
 				
+				# Date headers:
+				# These headers include a comma as part of the formatting so they can't be concatenated.
 				'date' => Header::Date,
 				'expires' => Header::Date,
+				'last-modified' => Header::Date,
+				'if-modified-since' => Header::Date,
+				'if-unmodified-since' => Header::Date,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all headers with the given key, and return the merged value.
