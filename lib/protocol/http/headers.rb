@@ -12,6 +12,7 @@ require_relative 'header/etag'
 require_relative 'header/etags'
 require_relative 'header/vary'
 require_relative 'header/authorization'
+require_relative 'header/date'
 
 module Protocol
 	module HTTP
@@ -239,6 +240,9 @@ module Protocol
 				# Custom headers:
 				'set-cookie' => Header::SetCookie,
 				'cookie' => Header::Cookie,
+				
+				'date' => Header::Date,
+				'expires' => Header::Date,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all headers with the given key, and return the merged value.
