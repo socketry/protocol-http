@@ -209,8 +209,6 @@ module Protocol
 				'user-agent' => false,
 				'referer' => false,
 				'host' => false,
-				'if-modified-since' => false,
-				'if-unmodified-since' => false,
 				'from' => false,
 				'location' => false,
 				'max-forwards' => false,
