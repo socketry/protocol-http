@@ -22,7 +22,7 @@ module Protocol
 				end
 				
 				def keep_alive?
-					self.include?(KEEP_ALIVE)
+					self.include?(KEEP_ALIVE) && !close?
 				end
 				
 				def close?
