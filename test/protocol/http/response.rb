@@ -25,6 +25,10 @@ describe Protocol::HTTP::Response do
 			expect(response).to be(:success?)
 		end
 		
+		it "should be final" do
+			expect(response).to be(:final?)
+		end
+		
 		it "should not be informational" do
 			expect(response).not.to be(:informational?)
 		end
@@ -35,6 +39,10 @@ describe Protocol::HTTP::Response do
 	end
 	
 	RedirectionResponse = Sus::Shared("redirection response") do
+		it "should be final" do
+			expect(response).to be(:final?)
+		end
+		
 		it "should be a redirection" do
 			expect(response).to be(:redirection?)
 		end
@@ -51,6 +59,10 @@ describe Protocol::HTTP::Response do
 	FailureResponse = Sus::Shared("failure response") do
 		it "should not be successful" do
 			expect(response).not.to be(:success?)
+		end
+		
+		it "should be final" do
+			expect(response).to be(:final?)
 		end
 		
 		it "should not be informational" do
