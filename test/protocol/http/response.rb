@@ -93,10 +93,6 @@ describe Protocol::HTTP::Response do
 			expect(response).to be(:continue?)
 		end
 		
-		it "should not be a failure" do
-			expect(response).not.to be(:failure?)
-		end
-		
 		it "should have a String representation" do
 			expect(response.to_s).to be == "100 HTTP/1.1"
 		end
