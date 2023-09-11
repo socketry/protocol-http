@@ -6,7 +6,7 @@ protocol-http2:
   command: bundle exec sus
 async-http:
   url: https://github.com/socketry/async-http.git
-  command: bundle exec rspec
+  command: bundle exec sus
 protocol-websocket:
   url: https://github.com/socketry/protocol-websocket.git
   command: bundle exec sus
@@ -15,7 +15,7 @@ async-websocket:
   command: bundle exec sus
 falcon:
   url: https://github.com/socketry/falcon.git
-  command: bundle exec rspec
+  command: bundle exec sus
 async-rest:
   url: https://github.com/socketry/async-rest.git
   command: bundle exec sus
