@@ -10,9 +10,23 @@ describe Protocol::HTTP::Response do
 	let(:headers) {Protocol::HTTP::Headers.new}
 	let(:body) {nil}
 	
+	InformationalResponse = Sus::Shared("informational response") do
+		it "should be informational" do
+			expect(response).to be(:informational?)
+		end
+		
+		it "should not be a failure" do
+			expect(response).not.to be(:failure?)
+		end
+	end
+	
 	SuccessfulResponse = Sus::Shared("successful response") do
 		it "should be successful" do
 			expect(response).to be(:success?)
+		end
+		
+		it "should not be informational" do
+			expect(response).not.to be(:informational?)
 		end
 		
 		it "should not be a failure" do
@@ -25,6 +39,10 @@ describe Protocol::HTTP::Response do
 			expect(response).to be(:redirection?)
 		end
 		
+		it "should not be informational" do
+			expect(response).not.to be(:informational?)
+		end
+		
 		it "should not be a failure" do
 			expect(response).not.to be(:failure?)
 		end
@@ -33,6 +51,10 @@ describe Protocol::HTTP::Response do
 	FailureResponse = Sus::Shared("failure response") do
 		it "should not be successful" do
 			expect(response).not.to be(:success?)
+		end
+		
+		it "should not be informational" do
+			expect(response).not.to be(:informational?)
 		end
 		
 		it "should be a failure" do
@@ -51,7 +73,38 @@ describe Protocol::HTTP::Response do
 			expect(response).not.to be(:preserve_method?)
 		end
 	end
-			
+	
+	with "100 Continue" do
+		let(:response) {subject.new("HTTP/1.1", 100, headers)}
+		
+		it "should have attributes" do
+			expect(response).to have_attributes(
+				version: be == "HTTP/1.1",
+				status: be == 100,
+				headers: be == headers,
+				body: be == nil,
+				protocol: be == nil
+			)
+		end
+		
+		it_behaves_like InformationalResponse
+		
+		it "should be a continue" do
+			expect(response).to be(:continue?)
+		end
+		
+		it "should not be a failure" do
+			expect(response).not.to be(:failure?)
+		end
+		
+		it "should have a String representation" do
+			expect(response.to_s).to be == "100 HTTP/1.1"
+		end
+		
+		it "should have an Array representation" do
+			expect(response.to_ary).to be == [100, headers, nil]
+		end
+	end
 	
 	with "301 Moved Permanently" do
 		let(:response) {subject.new("HTTP/1.1", 301, headers, body)}

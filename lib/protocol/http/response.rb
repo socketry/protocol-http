@@ -33,6 +33,15 @@ module Protocol
 				@status == 100
 			end
 			
+			def informational?
+				@status and @status >= 100 && @status < 200
+			end
+			
+			def final?
+				# 101 is effectively a final status.
+				@status and @status >= 200 || @status == 101
+			end
+			
 			def ok?
 				@status == 200
 			end
