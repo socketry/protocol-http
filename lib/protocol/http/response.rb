@@ -29,42 +29,63 @@ module Protocol
 				false
 			end
 			
+			# Whether the status is 100 (continue).
 			def continue?
 				@status == 100
 			end
 			
+			# Whether the status is considered informational.
+			def informational?
+				@status and @status >= 100 && @status < 200
+			end
+			
+			# Whether the status is considered final. Note that 101 is considered final.
+			def final?
+				# 101 is effectively a final status.
+				@status and @status >= 200 || @status == 101
+			end
+			
+			# Whether the status is 200 (ok).
 			def ok?
 				@status == 200
 			end
 			
+			# Whether the status is considered successful.
 			def success?
 				@status and @status >= 200 && @status < 300
 			end
 			
+			# Whether the status is 206 (partial content).
 			def partial?
 				@status == 206
 			end
 			
+			# Whether the status is considered a redirection.
 			def redirection?
 				@status and @status >= 300 && @status < 400
 			end
 			
+			# Whether the status is 304 (not modified).
 			def not_modified?
 				@status == 304
 			end
 			
+			# Whether the status is 307 (temporary redirect) and should preserve the method of the request when following the redirect.
 			def preserve_method?
 				@status == 307 || @status == 308
 			end
 			
+			# Whether the status is considered a failure.
 			def failure?
 				@status and @status >= 400 && @status < 600
 			end
 			
+			# Whether the status is 400 (bad request).
 			def bad_request?
 				@status == 400
 			end
 			
+			# Whether the status is 500 (internal server error).
 			def internal_server_error?
 				@status == 500
 			end
