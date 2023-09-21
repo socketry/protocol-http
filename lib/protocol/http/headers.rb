@@ -287,7 +287,7 @@ module Protocol
 			end
 			
 			def [] key
-				to_h[key]
+				to_h[key.downcase]
 			end
 			
 			# A hash table of `{key, policy[key].map(values)}`

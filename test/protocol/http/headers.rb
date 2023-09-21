@@ -153,6 +153,10 @@ describe Protocol::HTTP::Headers do
 		it 'can lookup fields' do
 			expect(headers['content-type']).to be == 'text/html'
 		end
+
+		it 'can lookup case-insensitive fields' do
+			expect(headers['Content-Type']).to be == 'text/html'
+		end
 	end
 	
 	with '#[]=' do
