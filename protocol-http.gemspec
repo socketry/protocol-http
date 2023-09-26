@@ -15,6 +15,10 @@ Gem::Specification.new do |spec|
 	
 	spec.homepage = "https://github.com/socketry/protocol-http"
 	
+	spec.metadata = {
+		"documentation_uri" => "https://socketry.github.io/protocol-http/",
+	}
+	
 	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
 	spec.required_ruby_version = ">= 2.7.6"
