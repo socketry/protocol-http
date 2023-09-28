@@ -12,14 +12,11 @@ Provides abstractions for working with the HTTP protocol.
 
 ## Usage
 
-Please see the [project documentation](https://github.com/socketry/protocol-http) for more details.
+Please see the [project documentation](https://socketry.github.io/protocol-http/) for more details.
 
-  - [Getting Started](https://github.com/socketry/protocol-httpguides/getting-started/index) - This guide explains how
-    to use `protocol-http` for building abstract HTTP interfaces.
+  - [Getting Started](https://socketry.github.io/protocol-http/guides/getting-started/index) - This guide explains how to use `protocol-http` for building abstract HTTP interfaces.
 
-  - [Design Overview](https://github.com/socketry/protocol-httpguides/design-overview/index) - The interfaces provided
-    by <code class="language-ruby">Protocol::HTTP</code> underpin all downstream implementations. Therefore, we provide
-    some justification for the design choices.
+  - [Design Overview](https://socketry.github.io/protocol-http/guides/design-overview/index) - This guide explains the high level design of `protocol-http` in the context of wider design patterns that can be used to implement HTTP clients and servers.
 
 ## Contributing
 
