@@ -8,7 +8,7 @@ Provides abstractions for working with the HTTP protocol.
 
   - General abstractions for HTTP requests and responses.
   - Symmetrical interfaces for client and server.
-  - Light-weight middlewar model for building applications.
+  - Light-weight middleware model for building applications.
 
 ## Usage
 
