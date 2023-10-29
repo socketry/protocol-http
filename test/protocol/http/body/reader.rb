@@ -5,6 +5,7 @@
 # Copyright, 2023, by Samuel Williams.
 
 require 'protocol/http/body/reader'
+require 'protocol/http/body/buffered'
 
 class TestReader
 	include Protocol::HTTP::Body::Reader
