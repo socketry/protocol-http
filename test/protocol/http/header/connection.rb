@@ -29,6 +29,13 @@ describe Protocol::HTTP::Header::Connection do
 		end
 	end
 	
+	with "close, keep-alive" do
+		it "should prioritize close over keep-alive" do
+			expect(header).to be(:close?)
+			expect(header).not.to be(:keep_alive?)
+		end
+	end
+	
 	with "upgrade" do
 		it "should indiciate connection can be upgraded" do
 			expect(header).to be(:upgrade?)
