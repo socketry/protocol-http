@@ -98,6 +98,10 @@ module Protocol
 						return buffer
 					end
 					
+					def readpartial
+						read_partial or raise EOFError, "End of file reached!"
+					end
+					
 					def read_nonblock(length, buffer = nil)
 						@buffer ||= read_next
 						chunk = nil
