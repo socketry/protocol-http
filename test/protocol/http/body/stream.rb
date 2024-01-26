@@ -123,6 +123,14 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
+	with '#readpartial' do
+		it "can read partial input" do
+			expect(stream.readpartial(20)).to be == "Hello"
+			expect(stream.readpartial(20)).to be == "World"
+			expect{stream.readpartial(20)}.to raise_exception(EOFError)
+		end
+	end
+	
 	with '#close_read' do
 		it "should close the input" do
 			stream.read(1)
