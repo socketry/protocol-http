@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::HTTP::VERSION
 	
 	spec.summary = "Provides abstractions to handle HTTP protocols."
-	spec.authors = ["Samuel Williams", "Bruno Sutic", "Herrick Fang", "Bryan Powell", "Dan Olson", "Genki Takiuchi", "Olle Jonsson", "Yuta Iwama"]
+	spec.authors = ["Samuel Williams", "Bruno Sutic", "Herrick Fang", "Thomas Morgan", "Bryan Powell", "Dan Olson", "Genki Takiuchi", "Marcelo Junior", "Olle Jonsson", "Yuta Iwama"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ['release.cert']
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 	
 	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
-	spec.required_ruby_version = ">= 2.7.6"
+	spec.required_ruby_version = ">= 3.0"
 	
 	spec.add_dependency "base64"
 end
