@@ -3,8 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require 'base64'
-
 module Protocol
 	module HTTP
 		module Header
@@ -21,10 +19,10 @@ module Protocol
 				end
 				
 				def self.basic(username, password)
-					encoded = "#{username}:#{password}"
+					strict_base64_encoded = ["#{username}:#{password}"].pack('m0')
 					
 					self.new(
-						"Basic #{Base64.strict_encode64(encoded)}"
+						"Basic #{strict_base64_encoded}"
 					)
 				end
 			end
