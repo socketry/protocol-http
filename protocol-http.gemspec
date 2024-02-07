@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::HTTP::VERSION
 	
 	spec.summary = "Provides abstractions to handle HTTP protocols."
-	spec.authors = ["Samuel Williams", "Bruno Sutic", "Herrick Fang", "Thomas Morgan", "Bryan Powell", "Dan Olson", "Genki Takiuchi", "Marcelo Junior", "Olle Jonsson", "Yuta Iwama"]
+	spec.authors = ["Samuel Williams", "Thomas Morgan", "Bruno Sutic", "Herrick Fang", "Bryan Powell", "Dan Olson", "Earlopain", "Genki Takiuchi", "Marcelo Junior", "Olle Jonsson", "Yuta Iwama"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ['release.cert']
