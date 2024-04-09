@@ -25,24 +25,20 @@ module Protocol
 				end
 				
 				def finish
-					if @body
-						result = super
-						
-						@callback.call
-						
-						@body = nil
-						
-						return result
+					super.tap do
+						if @callback
+							@callback.call
+							@callback = nil
+						end
 					end
 				end
 				
 				def close(error = nil)
-					if @body
-						super
-						
-						@callback.call(error)
-						
-						@body = nil
+					super.tap do
+						if @callback
+							@callback.call(error)
+							@callback = nil
+						end
 					end
 				end
 			end
