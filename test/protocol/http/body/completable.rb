@@ -5,6 +5,7 @@
 
 require 'protocol/http/body/completable'
 require 'protocol/http/body/buffered'
+require 'protocol/http/request'
 
 describe Protocol::HTTP::Body::Completable do
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
@@ -75,6 +76,11 @@ describe Protocol::HTTP::Body::Completable do
 			2.times do
 				completable.finish
 			end
+		end
+		
+		it "doesn't break #read after finishing" do
+			completable.finish
+			expect(completable.read).to be_nil
 		end
 	end
 end
