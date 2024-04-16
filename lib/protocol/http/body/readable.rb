@@ -92,6 +92,16 @@ module Protocol
 						return buffer
 					end
 				end
+				
+				def as_json
+					{
+						class: self.class.name,
+						length: self.length,
+						stream: self.stream?,
+						ready: self.ready?,
+						empty: self.empty?
+					}
+				end
 			end
 		end
 	end

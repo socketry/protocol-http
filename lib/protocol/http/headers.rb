@@ -299,6 +299,8 @@ module Protocol
 				end
 			end
 			
+			alias as_json to_h
+			
 			def inspect
 				"#<#{self.class} #{@fields.inspect}>"
 			end

@@ -73,6 +73,19 @@ module Protocol
 				@method != Methods::POST && (@body.nil? || @body.empty?)
 			end
 			
+			def as_json
+				{
+					scheme: @scheme,
+					authority: @authority,
+					method: @method,
+					path: @path,
+					version: @version,
+					headers: @headers&.as_json,
+					body: @body&.as_json,
+					protocol: @protocol
+				}
+			end
+			
 			def to_s
 				"#{@scheme}://#{@authority}: #{@method} #{@path} #{@version}"
 			end

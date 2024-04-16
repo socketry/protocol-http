@@ -13,6 +13,7 @@ describe Protocol::HTTP::Response do
 	InformationalResponse = Sus::Shared("informational response") do
 		it "should be informational" do
 			expect(response).to be(:informational?)
+			expect(response.as_json).to have_keys(status: be_within(100...200))
 		end
 		
 		it "should not be a failure" do
@@ -23,6 +24,7 @@ describe Protocol::HTTP::Response do
 	SuccessfulResponse = Sus::Shared("successful response") do
 		it "should be successful" do
 			expect(response).to be(:success?)
+			expect(response.as_json).to have_keys(status: be_within(200...300))
 		end
 		
 		it "should be final" do
@@ -45,6 +47,7 @@ describe Protocol::HTTP::Response do
 		
 		it "should be a redirection" do
 			expect(response).to be(:redirection?)
+			expect(response.as_json).to have_keys(status: be_within(300...400))
 		end
 		
 		it "should not be informational" do
@@ -71,6 +74,7 @@ describe Protocol::HTTP::Response do
 		
 		it "should be a failure" do
 			expect(response).to be(:failure?)
+			expect(response.as_json).to have_keys(status: be_within(400...600))
 		end
 	end
 	
@@ -97,6 +101,18 @@ describe Protocol::HTTP::Response do
 				body: be == nil,
 				protocol: be == nil
 			)
+		end
+		
+		with "#as_json" do
+			it "generates a JSON representation" do
+				expect(response.as_json).to have_keys(
+					version: be == "HTTP/1.1",
+					status: be == 100,
+					headers: be == headers.as_json,
+					body: be == nil,
+					protocol: be == nil,
+				)
+			end
 		end
 		
 		it_behaves_like InformationalResponse
@@ -143,6 +159,7 @@ describe Protocol::HTTP::Response do
 	end
 	
 	with "200 OK" do
+		let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello, World!")}
 		let(:response) {subject.new("HTTP/1.0", 200, headers, body)}
 		
 		it "should have attributes" do
@@ -153,6 +170,18 @@ describe Protocol::HTTP::Response do
 				body: be == body,
 				protocol: be == nil
 			)
+		end
+		
+		with "#as_json" do
+			it "generates a JSON representation" do
+				expect(response.as_json).to have_keys(
+					version: be == "HTTP/1.0",
+					status: be == 200,
+					headers: be == headers.as_json,
+					body: be == body.as_json,
+					protocol: be == nil,
+				)
+			end
 		end
 		
 		it_behaves_like SuccessfulResponse

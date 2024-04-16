@@ -51,6 +51,13 @@ module Protocol
 					@body.read
 				end
 				
+				def as_json
+					{
+						class: self.class.name,
+						body: @body&.as_json
+					}
+				end
+				
 				def inspect
 					@body.inspect
 				end

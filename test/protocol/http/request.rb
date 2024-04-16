@@ -25,6 +25,21 @@ describe Protocol::HTTP::Request do
 			)
 		end
 		
+		with "#as_json" do
+			it "generates a JSON representation" do
+				expect(request.as_json).to be == {
+					scheme: "http",
+					authority: "localhost",
+					method: "GET",
+					path: "/index.html",
+					version: "HTTP/1.0",
+					headers: headers.as_json,
+					body: nil,
+					protocol: nil
+				}
+			end
+		end
+		
 		it "should not be HEAD" do
 			expect(request).not.to be(:head?)
 		end
