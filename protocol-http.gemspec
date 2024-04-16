@@ -17,9 +17,10 @@ Gem::Specification.new do |spec|
 	
 	spec.metadata = {
 		"documentation_uri" => "https://socketry.github.io/protocol-http/",
+		"source_code_uri" => "https://github.com/socketry/protocol-http.git",
 	}
 	
 	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
-	spec.required_ruby_version = ">= 3.0"
+	spec.required_ruby_version = ">= 3.1"
 end
