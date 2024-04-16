@@ -63,4 +63,13 @@ describe Protocol::HTTP::Body::Wrapper do
 			expect(message.body).to be_a(Protocol::HTTP::Body::Wrapper)
 		end
 	end
+	
+	with "#as_json" do
+		it "generates a JSON representation" do
+			expect(body.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Wrapper",
+				body: be == source.as_json
+			)
+		end
+	end
 end

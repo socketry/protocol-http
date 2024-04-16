@@ -104,6 +104,16 @@ module Protocol
 				Response[500, Headers['content-type' => 'text/plain'], ["#{exception.class}: #{exception.message}"]]
 			end
 			
+			def as_json
+				{
+					version: @version,
+					status: @status,
+					headers: @headers&.as_json,
+					body: @body&.as_json,
+					protocol: @protocol
+				}
+			end
+			
 			def to_s
 				"#{@status} #{@version}"
 			end
