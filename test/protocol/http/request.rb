@@ -5,6 +5,8 @@
 
 require 'protocol/http/request'
 
+require 'json'
+
 describe Protocol::HTTP::Request do
 	let(:headers) {Protocol::HTTP::Headers.new}
 	let(:body) {nil}
@@ -37,6 +39,10 @@ describe Protocol::HTTP::Request do
 					body: nil,
 					protocol: nil
 				}
+			end
+			
+			it "generates a JSON string" do
+				expect(JSON.dump(request)).to be == request.to_json
 			end
 		end
 		

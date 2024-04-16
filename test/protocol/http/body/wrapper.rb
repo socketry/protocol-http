@@ -71,5 +71,9 @@ describe Protocol::HTTP::Body::Wrapper do
 				body: be == source.as_json
 			)
 		end
+		
+		it "generates a JSON string" do
+			expect(JSON.dump(body)).to be == body.to_json
+		end
 	end
 end

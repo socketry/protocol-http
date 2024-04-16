@@ -93,7 +93,7 @@ module Protocol
 					end
 				end
 				
-				def as_json
+				def as_json(...)
 					{
 						class: self.class.name,
 						length: self.length,
@@ -101,6 +101,10 @@ module Protocol
 						ready: self.ready?,
 						empty: self.empty?
 					}
+				end
+				
+				def to_json(...)
+					as_json.to_json(...)
 				end
 			end
 		end

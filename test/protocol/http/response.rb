@@ -113,6 +113,10 @@ describe Protocol::HTTP::Response do
 					protocol: be == nil,
 				)
 			end
+			
+			it "generates a JSON string" do
+				expect(JSON.dump(response)).to be == response.to_json
+			end
 		end
 		
 		it_behaves_like InformationalResponse
@@ -181,6 +185,10 @@ describe Protocol::HTTP::Response do
 					body: be == body.as_json,
 					protocol: be == nil,
 				)
+			end
+			
+			it "generates a JSON string" do
+				expect(JSON.dump(response)).to be == response.to_json
 			end
 		end
 		
