@@ -42,4 +42,20 @@ describe Protocol::HTTP::Body::Readable do
 			expect(body.join).to be_nil
 		end
 	end
+	
+	with "#as_json" do
+		it "generates a JSON representation" do
+			expect(body.as_json).to have_keys(
+				class: be == subject.name,
+				length: be_nil,
+				stream: be == false,
+				ready: be == false,
+				empty: be == false,
+			)
+		end
+		
+		it "generates a JSON string" do
+			expect(JSON.dump(body)).to be == body.to_json
+		end
+	end
 end
