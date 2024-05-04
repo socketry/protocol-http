@@ -30,7 +30,13 @@ module Protocol
 			def self.build(&block)
 				builder = Builder.new
 				
-				builder.instance_eval(&block)
+				if block_given?
+					if block.arity == 0
+						builder.instance_exec(&block)
+					else
+						yield builder
+					end
+				end
 				
 				return builder.to_app
 			end

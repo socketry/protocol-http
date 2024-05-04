@@ -29,4 +29,16 @@ describe Protocol::HTTP::Middleware::Builder do
 		
 		expect(app).to be_a(Protocol::HTTP::Middleware)
 	end
+	
+	it "provides the builder as an argument" do
+		current_self = self
+		
+		app = Protocol::HTTP::Middleware.build do |builder|
+			builder.use Protocol::HTTP::Middleware
+			
+			expect(self).to be_equal(current_self)
+		end
+		
+		expect(app).to be_a(Protocol::HTTP::Middleware)
+	end
 end
