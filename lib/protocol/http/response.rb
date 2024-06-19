@@ -8,9 +8,27 @@ require_relative 'body/reader'
 
 module Protocol
 	module HTTP
+		# Represents an HTTP response which can be used both server and client-side.
+		#
+		# ~~~ ruby
+		# require 'protocol/http'
+		# 
+		# # Long form:
+		# Protocol::HTTP::Response.new("http/1.1", 200, Protocol::HTTP::Headers[["content-type", "text/html"]], Protocol::HTTP::Body::Buffered.wrap("Hello, World!"))
+		# 
+		# # Short form:
+		# Protocol::HTTP::Response[200, {"content-type" => "text/html"}, ["Hello, World!"]]
+		# ~~~
 		class Response
 			prepend Body::Reader
 			
+			# Create a new response.
+			#
+			# @parameter version [String | Nil] The HTTP version, e.g. `"HTTP/1.1"`. If `nil`, the version may be provided by the server sending the response.
+			# @parameter status [Integer] The HTTP status code, e.g. `200`, `404`, etc.
+			# @parameter headers [Hash] The headers, e.g. `{"content-type" => "text/html"}`, etc.
+			# @parameter body [Body::Readable] The body, e.g. `"Hello, World!"`, etc.
+			# @parameter protocol [String | Array(String)] The protocol, e.g. `"websocket"`, etc.
 			def initialize(version = nil, status = 200, headers = Headers.new, body = nil, protocol = nil)
 				@version = version
 				@status = status
@@ -19,12 +37,22 @@ module Protocol
 				@protocol = protocol
 			end
 			
+			# @attribute [String | Nil] The HTTP version, usually one of `"HTTP/1.1"`, `"HTTP/2"`, etc.
 			attr_accessor :version
+			
+			# @attribute [Integer] The HTTP status code, e.g. `200`, `404`, etc.
 			attr_accessor :status
+			
+			# @attribute [Hash] The headers, e.g. `{"content-type" => "text/html"}`, etc.
 			attr_accessor :headers
+			
+			# @attribute [Body::Readable] The body, e.g. `"Hello, World!"`, etc.
 			attr_accessor :body
+			
+			# @attribute [String | Array(String) | Nil] The protocol, e.g. `"websocket"`, etc.
 			attr_accessor :protocol
 			
+			# Whether the response is considered a hijack: the connection has been taken over by the application and the server should not send any more data.
 			def hijack?
 				false
 			end
@@ -93,6 +121,15 @@ module Protocol
 			# @deprecated Use {#internal_server_error?} instead.
 			alias server_failure? internal_server_error?
 			
+			# A short-cut method which exposes the main response variables that you'd typically care about. It follows the same order as the `Rack` response tuple, but also includes the protocol.
+			#
+			# ~~~ ruby
+			# 	Response[200, {"content-type" => "text/html"}, ["Hello, World!"]]
+			# ~~~
+			#
+			# @parameter status [Integer] The HTTP status code, e.g. `200`, `404`, etc.
+			# @parameter headers [Hash] The headers, e.g. `{"content-type" => "text/html"}`, etc.
+			# @parameter body [String | Array(String) | Body::Readable] The body, e.g. `"Hello, World!"`, etc. See {Body::Buffered.wrap} for more information about .
 			def self.[](status, headers = nil, body = nil, protocol = nil)
 				body = Body::Buffered.wrap(body)
 				headers = ::Protocol::HTTP::Headers[headers]
@@ -100,6 +137,9 @@ module Protocol
 				self.new(nil, status, headers, body, protocol)
 			end
 			
+			# Create a response for the given exception.
+			#
+			# @parameter exception [Exception] The exception to generate the response for.
 			def self.for_exception(exception)
 				Response[500, Headers['content-type' => 'text/plain'], ["#{exception.class}: #{exception.message}"]]
 			end

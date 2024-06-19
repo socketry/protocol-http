@@ -12,7 +12,11 @@ module Protocol
 			# A body which buffers all it's contents.
 			class Buffered < Readable
 				# Wraps an array into a buffered body.
-				# @return [Readable, nil] the wrapped body or nil if nil was given.
+				#
+				# For compatibility, also accepts anything that behaves like an `Array(String)`.
+				#
+				# @parameter body [String | Array(String) | Readable | nil] the body to wrap.
+				# @returns [Readable | nil] the wrapped body or nil if nil was given.
 				def self.wrap(body)
 					if body.is_a?(Readable)
 						return body
