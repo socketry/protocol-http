@@ -65,12 +65,12 @@ module Protocol
 				return to_enum(:each) unless block_given?
 				
 				constants.each do |name|
-					yield name, const_get(name)
+					yield name.downcase, const_get(name)
 				end
 			end
 			
 			self.each do |name, value|
-				define_method(name.downcase) do |location, headers = nil, body = nil|
+				define_method(name) do |location, headers = nil, body = nil|
 					self.call(
 						Request[value, location.to_s, Headers[headers], body]
 					)
