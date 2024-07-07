@@ -70,6 +70,12 @@ describe Protocol::HTTP::URL do
 				Protocol::HTTP::URL.decode("a[b][c][d][e][f][g][h][i]=10")
 			end.to raise_exception(ArgumentError, message: be =~ /Key length exceeded/)
 		end
+		
+		it "fails with missing key" do
+			expect do
+				Protocol::HTTP::URL.decode("=foo")
+			end.to raise_exception(ArgumentError, message: be =~ /Invalid key/)
+		end
 	end
 
 	with '.unescape' do

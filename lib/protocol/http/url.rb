@@ -65,9 +65,13 @@ module Protocol
 			end
 			
 			def self.split(name)
-				name.scan(/([^\[]+)|(?:\[(.*?)\])/).flatten!.compact!
+				name.scan(/([^\[]+)|(?:\[(.*?)\])/)&.tap do |parts|
+					parts.flatten!
+					parts.compact!
+				end
 			end
 			
+			# Assign a value to a nested hash.
 			def self.assign(keys, value, parent)
 				top, *middle = keys
 				
@@ -94,6 +98,10 @@ module Protocol
 				
 				self.scan(string) do |name, value|
 					keys = self.split(name)
+					
+					if keys.empty?
+						raise ArgumentError, "Invalid key path: #{name.inspect}!"
+					end
 					
 					if keys.size > maximum
 						raise ArgumentError, "Key length exceeded limit!"
