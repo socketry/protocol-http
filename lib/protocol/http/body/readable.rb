@@ -7,17 +7,11 @@
 module Protocol
 	module HTTP
 		module Body
-			# A generic base class for wrapping body instances. Typically you'd override `#read`.
-			# The implementation assumes a sequential unbuffered stream of data.
-			# 	def each -> yield(String | nil)
-			# 	def read -> String | nil
-			# 	def join -> String
-			
-			# 	def finish -> buffer the stream and close it.
-			# 	def close(error = nil) -> close the stream immediately.
-			# end
+			# An interface for reading data from a body.
+			#
+			# Typically, you'd override `#read` to return chunks of data.
 			class Readable
-				# The consumer can call stop to signal that the stream output has terminated.
+				# Close the stream immediately.
 				def close(error = nil)
 				end
 				
@@ -40,6 +34,7 @@ module Protocol
 				end
 				
 				# Read the next available chunk.
+				# @returns [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				def read
 					nil
 				end
@@ -60,12 +55,16 @@ module Protocol
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.
+				# @returns [Buffered] The buffered body.
 				def finish
 					# Internally, this invokes `self.each` which then invokes `self.close`.
 					Buffered.for(self)
 				end
 				
 				# Enumerate all chunks until finished, then invoke `#close`.
+				#
+				# @yields {|chunk| ...} The block to call with each chunk of data.
+				# 	@parameter chunk [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				def each
 					return to_enum(:each) unless block_given?
 					
@@ -79,6 +78,8 @@ module Protocol
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.
+				#
+				# @returns [String | Nil] The binary string containing all chunks of data, or `nil` if the stream has finished (or did not contain any data).
 				def join
 					buffer = String.new.force_encoding(Encoding::BINARY)
 					
