@@ -76,6 +76,11 @@ describe Protocol::HTTP::URL do
 				Protocol::HTTP::URL.decode("=foo")
 			end.to raise_exception(ArgumentError, message: be =~ /Invalid key/)
 		end
+		
+		it "fails with empty pairs" do
+			expect(Protocol::HTTP::URL.decode("a=1&&b=2")).to be == {"a" => "1", "b" => "2"}
+			expect(Protocol::HTTP::URL.decode("a&&b")).to be == {"a" => nil, "b" => nil}
+		end
 	end
 
 	with '.unescape' do

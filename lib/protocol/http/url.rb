@@ -58,6 +58,8 @@ module Protocol
 			# 	@parameter value [String] The unescaped key.
 			def self.scan(string)
 				string.split('&') do |assignment|
+					next if assignment.empty?
+					
 					key, value = assignment.split('=', 2)
 					
 					yield unescape(key), value.nil? ? value : unescape(value)
