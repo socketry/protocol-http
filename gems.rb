@@ -18,6 +18,7 @@ end
 group :test do
 	gem "covered"
 	gem "sus"
+	gem "decode"
 	
 	gem "bake-test"
 	gem "bake-test-external"
