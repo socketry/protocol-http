@@ -11,6 +11,8 @@ module Protocol
 		module Body
 			# The input stream is an IO-like object which contains the raw HTTP POST data. When applicable, its external encoding must be “ASCII-8BIT” and it must be opened in binary mode, for Ruby 1.9 compatibility. The input stream must respond to gets, each, read and rewind.
 			class Stream
+				NEWLINE = "\n"
+				
 				def initialize(input = nil, output = Buffered.new)
 					@input = input
 					@output = output
@@ -55,7 +57,7 @@ module Protocol
 							
 							# This ensures the subsequent `slice!` works correctly.
 							buffer.force_encoding(Encoding::BINARY)
-
+							
 							# This will be at least one copy:
 							@buffer = buffer.byteslice(length, buffer.bytesize)
 							
@@ -102,7 +104,7 @@ module Protocol
 						read_partial(length) or raise EOFError, "End of file reached!"
 					end
 					
-					def read_nonblock(length, buffer = nil)
+					def read_nonblock(length, buffer = nil, exception: nil)
 						@buffer ||= read_next
 						chunk = nil
 						
@@ -127,6 +129,40 @@ module Protocol
 						
 						return buffer
 					end
+					
+					# Efficiently read data from the stream until encountering pattern.
+					# @parameter pattern [String] The pattern to match.
+					# @returns [String] The contents of the stream up until the pattern, which is consumed but not returned.
+					def read_until(pattern, offset = 0, chomp: false)
+						# We don't want to split on the pattern, so we subtract the size of the pattern.
+						split_offset = pattern.bytesize - 1
+						
+						@buffer ||= read_next
+						return nil if @buffer.nil?
+						
+						until index = @buffer.index(pattern, offset)
+							offset = @buffer.bytesize - split_offset
+							
+							offset = 0 if offset < 0
+							
+							if chunk = read_next
+								@buffer << chunk
+							else
+								return nil
+							end
+						end
+						
+						@buffer.freeze
+						matched = @buffer.byteslice(0, index+(chomp ? 0 : pattern.bytesize))
+						@buffer = @buffer.byteslice(index+pattern.bytesize, @buffer.bytesize)
+						
+						return matched
+					end
+					
+					# Read a single line from the stream.
+					def gets(separator = NEWLINE, **options)
+						read_until(separator, **options)
+					end
 				end
 				
 				include Reader
@@ -145,6 +181,16 @@ module Protocol
 				end
 				
 				def <<(buffer)
+					write(buffer)
+				end
+				
+				def puts(*arguments, separator: NEWLINE)
+					buffer = ::String.new
+					
+					arguments.each do |argument|
+						buffer << argument << separator
+					end
+					
 					write(buffer)
 				end
 				

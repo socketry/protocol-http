@@ -7,6 +7,8 @@
 require 'protocol/http/body/reader'
 require 'protocol/http/body/buffered'
 
+require 'tempfile'
+
 class TestReader
 	include Protocol::HTTP::Body::Reader
 
@@ -35,22 +37,26 @@ describe Protocol::HTTP::Body::Reader do
 	end
 	
 	with '#save' do
-		let(:path) { File.expand_path('reader_spec.txt', __dir__) }
-		
 		it 'saves to the provided filename' do
-			reader.save(path)
-			expect(File.read(path)).to be == 'thequickbrownfox'
+			Tempfile.create do |file|
+				reader.save(file.path)
+				expect(File.read(file.path)).to be == 'thequickbrownfox'
+			end
 		end
 		
 		it 'saves by truncating an existing file if it exists' do
-			File.write(path, 'hello' * 100)
-			reader.save(path)
-			expect(File.read(path)).to be == 'thequickbrownfox'
+			Tempfile.create do |file|
+				File.write(file.path, 'hello' * 100)
+				reader.save(file.path)
+				expect(File.read(file.path)).to be == 'thequickbrownfox'
+			end
 		end
 		
 		it 'mirrors the interface of File.open' do
-			reader.save(path, 'w')
-			expect(File.read(path)).to be == 'thequickbrownfox'
+			Tempfile.create do |file|
+				reader.save(file.path, 'w')
+				expect(File.read(file.path)).to be == 'thequickbrownfox'
+			end
 		end
 	end
 end

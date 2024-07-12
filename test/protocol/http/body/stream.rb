@@ -131,6 +131,29 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
+	with '#read_until' do
+		it "can read until a pattern is encountered" do
+			expect(stream.read_until("o")).to be == "Hello"
+			expect(stream.read_until("d")).to be == "World"
+		end
+	end
+	
+	with '#gets' do
+		let(:input) {Protocol::HTTP::Body::Buffered.new(["Hello\nWorld\n"])}
+		
+		it "can read lines" do
+			expect(stream.gets).to be == "Hello\n"
+			expect(stream.gets).to be == "World\n"
+			expect(stream.gets).to be == nil
+		end
+		
+		it "can read lines and chomp separators" do
+			expect(stream.gets(chomp: true)).to be == "Hello"
+			expect(stream.gets(chomp: true)).to be == "World"
+			expect(stream.gets(chomp: true)).to be == nil
+		end
+	end
+	
 	with '#close_read' do
 		it "should close the input" do
 			stream.read(1)
@@ -163,6 +186,15 @@ describe Protocol::HTTP::Body::Stream do
 			stream.write_nonblock("World")
 			
 			expect(output.chunks).to be == ["Hello", "World"]
+		end
+	end
+	
+	with '#puts' do
+		it "should write lines to the output" do
+			stream.puts("Hello", "World")
+			stream.puts("Goodbye")
+			
+			expect(output.chunks).to be == ["Hello\nWorld\n", "Goodbye\n"]
 		end
 	end
 	
