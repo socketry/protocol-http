@@ -30,10 +30,14 @@ module Protocol
 				
 				# This provides a read-only interface for data, which is surprisingly tricky to implement correctly.
 				module Reader
-					# rack.hijack_io must respond to:
-					# read, write, read_nonblock, write_nonblock, flush, close, close_read, close_write, closed?
-					
-					# read behaves like IO#read. Its signature is read([length, [buffer]]). If given, length must be a non-negative Integer (>= 0) or nil, and buffer must be a String and may not be nil. If length is given and not nil, then this method reads at most length bytes from the input stream. If length is not given or nil, then this method reads all data until EOF. When EOF is reached, this method returns nil if length is given and not nil, or “” if length is not given or is nil. If buffer is given, then the read data will be placed into buffer instead of a newly created String object.
+					# Read data from the underlying stream.
+					#
+					# If given a non-negative length, it will read at most that many bytes from the stream. If the stream is at EOF, it will return nil.
+					#
+					# If the length is not given, it will read all data until EOF, or return an empty string if the stream is already at EOF.
+					#
+					# If buffer is given, then the read data will be placed into buffer instead of a newly created String object.
+					#
 					# @param length [Integer] the amount of data to read
 					# @param buffer [String] the buffer which will receive the data
 					# @return a buffer containing the data
@@ -78,7 +82,13 @@ module Protocol
 						end
 					end
 					
-					# Read at most `length` bytes from the stream. Will avoid reading from the underlying stream if possible.
+					# Read some bytes from the stream.
+					#
+					# If the length is given, at most length bytes will be read. Otherwise, one chunk of data from the underlying stream will be read.
+					#
+					# Will avoid reading from the underlying stream if there is buffered data available.
+					#
+					# @parameter length [Integer] The maximum number of bytes to read.
 					def read_partial(length = nil)
 						if @buffer
 							buffer = @buffer
@@ -100,10 +110,12 @@ module Protocol
 						return buffer
 					end
 					
+					# Similar to {read_partial} but raises an `EOFError` if the stream is at EOF.
 					def readpartial(length)
 						read_partial(length) or raise EOFError, "End of file reached!"
 					end
 					
+					# Read data from the stream without blocking if possible.
 					def read_nonblock(length, buffer = nil, exception: nil)
 						@buffer ||= read_next
 						chunk = nil
@@ -130,8 +142,11 @@ module Protocol
 						return buffer
 					end
 					
-					# Efficiently read data from the stream until encountering pattern.
+					# Read data from the stream until encountering pattern.
+					#
 					# @parameter pattern [String] The pattern to match.
+					# @parameter offset [Integer] The offset to start searching from.
+					# @parameter chomp [Boolean] Whether to remove the pattern from the returned data.
 					# @returns [String] The contents of the stream up until the pattern, which is consumed but not returned.
 					def read_until(pattern, offset = 0, chomp: false)
 						# We don't want to split on the pattern, so we subtract the size of the pattern.
@@ -160,6 +175,9 @@ module Protocol
 					end
 					
 					# Read a single line from the stream.
+					#
+					# @parameter separator [String] The line separator, defaults to `\n`.
+					# @parameter *options [Hash] Additional options, passed to {read_until}.
 					def gets(separator = NEWLINE, **options)
 						read_until(separator, **options)
 					end
@@ -167,6 +185,11 @@ module Protocol
 				
 				include Reader
 				
+				# Write data to the underlying stream.
+				#
+				# @parameter buffer [String] The data to write.
+				# @raises [IOError] If the stream is not writable.
+				# @returns [Integer] The number of bytes written.
 				def write(buffer)
 					if @output
 						@output.write(buffer)
@@ -176,14 +199,28 @@ module Protocol
 					end
 				end
 				
-				def write_nonblock(buffer)
+				# Write data to the stream using {write}.
+				#
+				# Provided for compatibility with IO-like objects.
+				#
+				# @parameter buffer [String] The data to write.
+				# @parameter exception [Boolean] Whether to raise an exception if the write would block, currently ignored.
+				# @returns [Integer] The number of bytes written.
+				def write_nonblock(buffer, exception: nil)
 					write(buffer)
 				end
 				
+				# Write data to the stream using {write}.
 				def <<(buffer)
 					write(buffer)
 				end
 				
+				# Write lines to the stream.
+				#
+				# The current implementation buffers the lines and writes them in a single operation.
+				#
+				# @parameter arguments [Array(String)] The lines to write.
+				# @parameter separator [String] The line separator, defaults to `\n`.
 				def puts(*arguments, separator: NEWLINE)
 					buffer = ::String.new
 					
@@ -194,28 +231,36 @@ module Protocol
 					write(buffer)
 				end
 				
+				# Flush the output stream.
+				#
+				# This is currently a no-op.
 				def flush
 				end
 				
+				# Close the input body.
 				def close_read
-					@closed_read = true
-					@buffer = nil
-					
-					@input&.close
-					@input = nil
+					if @input
+						@closed_read = true
+						@buffer = nil
+						
+						@input&.close
+						@input = nil
+					end
 				end
 				
-				# close must never be called on the input stream. huh?
+				# Close the output body.
 				def close_write
-					@output&.close
-					@output = nil
+					if @output
+						@output&.close
+						@output = nil
+					end
 				end
 				
 				# Close the input and output bodies.
 				def close(error = nil)
 					self.close_read
 					self.close_write
-
+					
 					return nil
 				ensure
 					@closed = true
