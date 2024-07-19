@@ -41,13 +41,13 @@ module Protocol
 				end
 				
 				# Buffer the entire request/response body.
-				# @returns [Readable] the buffered body.
+				# @returns [Reader] itself.
 				def buffered!
 					if @body
 						@body = @body.finish
-						
-						return @body
 					end
+					
+					return self
 				end
 				
 				# Write the body of the response to the given file path.

@@ -15,6 +15,8 @@ class TestReader
 	def initialize(body)
 		@body = body
 	end
+	
+	attr :body
 end
 
 describe Protocol::HTTP::Body::Reader do
@@ -29,7 +31,8 @@ describe Protocol::HTTP::Body::Reader do
 	
 	with '#buffered!' do
 		it 'buffers the body' do
-			expect(reader.buffered!).to be == body
+			expect(reader.buffered!).to be_equal(reader)
+			expect(reader.body).to be == body
 		end
 	end
 	
