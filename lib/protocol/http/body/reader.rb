@@ -10,7 +10,7 @@ module Protocol
 			# General operations for interacting with a request or response body.
 			module Reader
 				# Read chunks from the body.
-				# @yield [String] read chunks from the body.
+				# @yields {|chunk| ...} chunks from the body.
 				def each(&block)
 					if @body
 						@body.each(&block)
@@ -19,7 +19,7 @@ module Protocol
 				end
 				
 				# Reads the entire request/response body.
-				# @return [String] the entire body as a string.
+				# @returns [String] the entire body as a string.
 				def read
 					if @body
 						buffer = @body.join
@@ -30,13 +30,23 @@ module Protocol
 				end
 				
 				# Gracefully finish reading the body. This will buffer the remainder of the body.
-				# @return [Buffered] buffers the entire body.
+				# @returns [Buffered] buffers the entire body.
 				def finish
 					if @body
 						body = @body.finish
 						@body = nil
 						
 						return body
+					end
+				end
+				
+				# Buffer the entire request/response body.
+				# @returns [Readable] the buffered body.
+				def buffered!
+					if @body
+						@body = @body.finish
+						
+						return @body
 					end
 				end
 				

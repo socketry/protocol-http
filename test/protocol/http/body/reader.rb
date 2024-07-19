@@ -27,6 +27,12 @@ describe Protocol::HTTP::Body::Reader do
 		end
 	end
 	
+	with '#buffered!' do
+		it 'buffers the body' do
+			expect(reader.buffered!).to be == body
+		end
+	end
+	
 	with '#close' do
 		it 'closes the underlying body' do
 			expect(body).to receive(:close)
