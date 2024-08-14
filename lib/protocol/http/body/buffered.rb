@@ -77,8 +77,14 @@ module Protocol
 					@chunks << chunk
 				end
 				
+				def rewindable?
+					true
+				end
+				
 				def rewind
 					@index = 0
+					
+					return true
 				end
 				
 				def inspect

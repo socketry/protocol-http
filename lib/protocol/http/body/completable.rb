@@ -24,6 +24,14 @@ module Protocol
 					@callback = callback
 				end
 				
+				def rewindable?
+					false
+				end
+				
+				def rewind
+					false
+				end
+				
 				def finish
 					super.tap do
 						if @callback

@@ -54,6 +54,10 @@ module Protocol
 					@index = 0
 				end
 				
+				def rewindable?
+					true
+				end
+				
 				def inspect
 					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
 				end

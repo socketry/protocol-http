@@ -42,6 +42,14 @@ module Protocol
 					@body.ready?
 				end
 				
+				def rewind
+					@body.rewind
+				end
+				
+				def rewindable?
+					@body.rewind?
+				end
+				
 				def length
 					@body.length
 				end

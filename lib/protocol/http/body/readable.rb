@@ -29,6 +29,14 @@ module Protocol
 					false
 				end
 				
+				def rewindable?
+					false
+				end
+				
+				def rewind
+					false
+				end
+				
 				def length
 					nil
 				end
