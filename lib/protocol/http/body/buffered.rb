@@ -11,27 +11,22 @@ module Protocol
 		module Body
 			# A body which buffers all it's contents.
 			class Buffered < Readable
-				# Wraps an array into a buffered body.
+				# Tries to wrap an object in a {Buffered} instance.
 				#
 				# For compatibility, also accepts anything that behaves like an `Array(String)`.
 				#
 				# @parameter body [String | Array(String) | Readable | nil] the body to wrap.
 				# @returns [Readable | nil] the wrapped body or nil if nil was given.
-				def self.for(body)
-					if body.is_a?(Readable)
-						return body
-					elsif body.is_a?(Array)
-						return self.new(body)
-					elsif body.is_a?(String)
-						return self.new([body])
-					elsif body
-						return self.read(body)
+				def self.wrap(object)
+					if object.is_a?(Readable)
+						return object
+					elsif object.is_a?(Array)
+						return self.new(object)
+					elsif object.is_a?(String)
+						return self.new([object])
+					elsif object
+						return self.read(object)
 					end
-				end
-				
-				# @deprecated Use {#for} instead.
-				def self.wrap(body)
-					self.for(body)
 				end
 				
 				# Read the entire body into a buffered representation.
