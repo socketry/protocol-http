@@ -66,7 +66,7 @@ module Protocol
 				# @returns [Buffered] The buffered body.
 				def finish
 					# Internally, this invokes `self.each` which then invokes `self.close`.
-					Buffered.for(self)
+					Buffered.read(self)
 				end
 				
 				# Enumerate all chunks until finished, then invoke `#close`.

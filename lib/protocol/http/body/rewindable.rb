@@ -11,6 +11,14 @@ module Protocol
 		module Body
 			# A body which buffers all it's contents as it is `#read`.
 			class Rewindable < Wrapper
+				def self.for(body)
+					if body.rewindable?
+						body
+					else
+						self.new(body)
+					end
+				end
+				
 				def initialize(body)
 					super(body)
 					

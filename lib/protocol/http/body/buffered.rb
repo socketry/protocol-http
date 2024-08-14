@@ -17,7 +17,7 @@ module Protocol
 				#
 				# @parameter body [String | Array(String) | Readable | nil] the body to wrap.
 				# @returns [Readable | nil] the wrapped body or nil if nil was given.
-				def self.wrap(body)
+				def self.for(body)
 					if body.is_a?(Readable)
 						return body
 					elsif body.is_a?(Array)
@@ -25,11 +25,20 @@ module Protocol
 					elsif body.is_a?(String)
 						return self.new([body])
 					elsif body
-						return self.for(body)
+						return self.read(body)
 					end
 				end
 				
-				def self.for(body)
+				# @deprecated Use {#for} instead.
+				def self.wrap(body)
+					self.for(body)
+				end
+				
+				# Read the entire body into a buffered representation.
+				#
+				# @parameter body [Readable] the body to read.
+				# @returns [Buffered] the buffered body.
+				def self.read(body)
 					chunks = []
 					
 					body.each do |chunk|
