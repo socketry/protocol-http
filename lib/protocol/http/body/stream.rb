@@ -89,12 +89,22 @@ module Protocol
 					# Will avoid reading from the underlying stream if there is buffered data available.
 					#
 					# @parameter length [Integer] The maximum number of bytes to read.
-					def read_partial(length = nil)
+					def read_partial(length = nil, buffer = nil)
 						if @buffer
-							buffer = @buffer
-							@buffer = nil
+							if buffer
+								buffer.replace(@buffer)
+							else
+								buffer = @buffer
+								@buffer = nil
+							end
 						else
-							buffer = read_next
+							chunk = read_next
+							
+							if buffer and chunk
+								buffer.replace(chunk)
+							else
+								buffer = chunk
+							end
 						end
 						
 						if buffer and length
@@ -111,8 +121,8 @@ module Protocol
 					end
 					
 					# Similar to {read_partial} but raises an `EOFError` if the stream is at EOF.
-					def readpartial(length)
-						read_partial(length) or raise EOFError, "End of file reached!"
+					def readpartial(length, buffer = nil)
+						read_partial(length, buffer) or raise EOFError, "End of file reached!"
 					end
 					
 					# Read data from the stream without blocking if possible.

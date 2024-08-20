@@ -224,4 +224,14 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream).to be(:closed?)
 		end
 	end
+	
+	with 'IO.copy_stream' do
+		let(:output) {StringIO.new}
+		
+		it "can copy input to output" do
+			::IO.copy_stream(stream, output)
+			
+			expect(output.string).to be == "HelloWorld"
+		end
+	end
 end
