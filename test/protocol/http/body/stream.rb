@@ -147,6 +147,16 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.readpartial(20)).to be == "World"
 			expect{stream.readpartial(20)}.to raise_exception(EOFError)
 		end
+		
+		it "can read partial input with buffer" do
+			buffer = String.new
+			expect(stream.readpartial(20, buffer)).to be == "Hello"
+			expect(buffer).to be == "Hello"
+			expect(stream.readpartial(20, buffer)).to be == "World"
+			expect(buffer).to be == "World"
+			expect{stream.readpartial(20, buffer)}.to raise_exception(EOFError)
+			expect(buffer).to be == ""
+		end
 	end
 	
 	with '#read_until' do
