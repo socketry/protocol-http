@@ -95,15 +95,18 @@ module Protocol
 								buffer.replace(@buffer)
 							else
 								buffer = @buffer
-								@buffer = nil
 							end
+							@buffer = nil
 						else
-							chunk = read_next
-							
-							if buffer and chunk
-								buffer.replace(chunk)
+							if chunk = read_next
+								if buffer
+									buffer.replace(chunk)
+								else
+									buffer = chunk
+								end
 							else
-								buffer = chunk
+								buffer&.clear
+								buffer = nil
 							end
 						end
 						

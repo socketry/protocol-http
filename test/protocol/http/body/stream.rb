@@ -121,6 +121,24 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.read_partial(2)).to be == "d"
 			expect(stream.read_partial(2)).to be == nil
 		end
+		
+		it "can read partial input with buffer" do
+			buffer = String.new
+			expect(stream.read_partial(2, buffer)).to be == "He"
+			expect(buffer).to be == "He"
+			expect(stream.read_partial(2, buffer)).to be == "ll"
+			expect(buffer).to be == "ll"
+			expect(stream.read_partial(2, buffer)).to be == "o"
+			expect(buffer).to be == "o"
+			expect(stream.read_partial(2, buffer)).to be == "Wo"
+			expect(buffer).to be == "Wo"
+			expect(stream.read_partial(2, buffer)).to be == "rl"
+			expect(buffer).to be == "rl"
+			expect(stream.read_partial(2, buffer)).to be == "d"
+			expect(buffer).to be == "d"
+			expect(stream.read_partial(2, buffer)).to be == nil
+			expect(buffer).to be == ""
+		end
 	end
 	
 	with '#readpartial' do
