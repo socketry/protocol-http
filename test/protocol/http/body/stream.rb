@@ -121,6 +121,24 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.read_partial(2)).to be == "d"
 			expect(stream.read_partial(2)).to be == nil
 		end
+		
+		it "can read partial input with buffer" do
+			buffer = String.new
+			expect(stream.read_partial(2, buffer)).to be == "He"
+			expect(buffer).to be == "He"
+			expect(stream.read_partial(2, buffer)).to be == "ll"
+			expect(buffer).to be == "ll"
+			expect(stream.read_partial(2, buffer)).to be == "o"
+			expect(buffer).to be == "o"
+			expect(stream.read_partial(2, buffer)).to be == "Wo"
+			expect(buffer).to be == "Wo"
+			expect(stream.read_partial(2, buffer)).to be == "rl"
+			expect(buffer).to be == "rl"
+			expect(stream.read_partial(2, buffer)).to be == "d"
+			expect(buffer).to be == "d"
+			expect(stream.read_partial(2, buffer)).to be == nil
+			expect(buffer).to be == ""
+		end
 	end
 	
 	with '#readpartial' do
@@ -128,6 +146,16 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.readpartial(20)).to be == "Hello"
 			expect(stream.readpartial(20)).to be == "World"
 			expect{stream.readpartial(20)}.to raise_exception(EOFError)
+		end
+		
+		it "can read partial input with buffer" do
+			buffer = String.new
+			expect(stream.readpartial(20, buffer)).to be == "Hello"
+			expect(buffer).to be == "Hello"
+			expect(stream.readpartial(20, buffer)).to be == "World"
+			expect(buffer).to be == "World"
+			expect{stream.readpartial(20, buffer)}.to raise_exception(EOFError)
+			expect(buffer).to be == ""
 		end
 	end
 	
@@ -222,6 +250,16 @@ describe Protocol::HTTP::Body::Stream do
 			stream.close
 			stream.close
 			expect(stream).to be(:closed?)
+		end
+	end
+	
+	with 'IO.copy_stream' do
+		let(:output) {StringIO.new}
+		
+		it "can copy input to output" do
+			::IO.copy_stream(stream, output)
+			
+			expect(output.string).to be == "HelloWorld"
 		end
 	end
 end
