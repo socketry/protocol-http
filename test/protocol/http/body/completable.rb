@@ -83,4 +83,13 @@ describe Protocol::HTTP::Body::Completable do
 			expect(completable.read).to be_nil
 		end
 	end
+	
+	with "#rewindable?" do
+		it "is not rewindable" do
+			# Because completion can only happen once, we can't rewind the body.
+			expect(body).to be(:rewindable?)
+			expect(completable).not.to be(:rewindable?)
+			expect(completable.rewind).to be == false
+		end
+	end
 end

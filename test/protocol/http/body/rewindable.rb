@@ -4,6 +4,7 @@
 # Copyright, 2019-2023, by Samuel Williams.
 
 require 'protocol/http/body/rewindable'
+require 'protocol/http/request'
 
 describe Protocol::HTTP::Body::Rewindable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
@@ -47,6 +48,26 @@ describe Protocol::HTTP::Body::Rewindable do
 		end
 	end
 	
+	with ".wrap" do
+		with "a buffered body" do
+			let(:body) {Protocol::HTTP::Body::Buffered.new}
+			let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+			
+			it "returns the body" do
+				expect(subject.wrap(message)).to be == body
+			end
+		end
+		
+		with "a non-rewindable body" do
+			let(:body) {Protocol::HTTP::Body::Readable.new}
+			let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+			
+			it "returns a new rewindable body" do
+				expect(subject.wrap(message)).to be_a(Protocol::HTTP::Body::Rewindable)
+			end
+		end
+	end
+	
 	with '#buffered' do
 		it "can generate buffered representation" do
 			3.times do |i|
@@ -73,6 +94,12 @@ describe Protocol::HTTP::Body::Rewindable do
 			body.rewind
 			expect(body.read).to be == "Hello World"
 			expect(body).to be(:empty?)
+		end
+	end
+	
+	with "#rewindable?" do
+		it "is rewindable" do
+			expect(body).to be(:rewindable?)
 		end
 	end
 	

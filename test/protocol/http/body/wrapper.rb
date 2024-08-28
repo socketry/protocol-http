@@ -64,6 +64,20 @@ describe Protocol::HTTP::Body::Wrapper do
 		end
 	end
 	
+	with "#rewindable?" do
+		it "should proxy rewindable?" do
+			expect(source).to receive(:rewindable?).and_return(true)
+			expect(body.rewindable?).to be == true
+		end
+	end
+	
+	with "#rewind" do
+		it "should proxy rewind" do
+			expect(source).to receive(:rewind).and_return(true)
+			expect(body.rewind).to be == true
+		end
+	end
+	
 	with "#as_json" do
 		it "generates a JSON representation" do
 			expect(body.as_json).to have_keys(

@@ -117,6 +117,10 @@ describe Protocol::HTTP::Body::Buffered do
 	end
 	
 	with "#rewind" do
+		it "is rewindable" do
+			expect(body).to be(:rewindable?)
+		end
+		
 		it "positions the cursor to the beginning" do
 			expect(body.read).to be == "Hello"
 			body.rewind

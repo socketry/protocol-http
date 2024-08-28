@@ -51,7 +51,7 @@ module Protocol
 				end
 				
 				def rewindable?
-					@body.rewind?
+					@body.rewindable?
 				end
 				
 				def length
