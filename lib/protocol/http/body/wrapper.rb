@@ -10,6 +10,10 @@ module Protocol
 		module Body
 			# Wrapping body instance. Typically you'd override `#read`.
 			class Wrapper < Readable
+				# Wrap the body of the given message in a new instance of this class.
+				#
+				# @parameter message [Request | Response] the message to wrap.
+				# @returns [Wrapper | nil] the wrapped body or nil if the body was nil.
 				def self.wrap(message)
 					if body = message.body
 						message.body = self.new(body)
@@ -40,6 +44,14 @@ module Protocol
 				
 				def ready?
 					@body.ready?
+				end
+				
+				def rewind
+					@body.rewind
+				end
+				
+				def rewindable?
+					@body.rewindable?
 				end
 				
 				def length

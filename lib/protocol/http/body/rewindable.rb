@@ -11,6 +11,16 @@ module Protocol
 		module Body
 			# A body which buffers all it's contents as it is `#read`.
 			class Rewindable < Wrapper
+				def self.wrap(message)
+					if body = message.body
+						if body.rewindable?
+							body
+						else
+							message.body = self.new(body)
+						end
+					end
+				end
+				
 				def initialize(body)
 					super(body)
 					
@@ -26,7 +36,9 @@ module Protocol
 					(@index < @chunks.size) || super
 				end
 				
-				# A rewindable body wraps some other body. Convert it to a buffered body 
+				# A rewindable body wraps some other body. Convert it to a buffered body. The buffered body will share the same chunks as the rewindable body.
+				#
+				# @returns [Buffered] the buffered body. 
 				def buffered
 					Buffered.new(@chunks)
 				end
@@ -52,6 +64,10 @@ module Protocol
 				
 				def rewind
 					@index = 0
+				end
+				
+				def rewindable?
+					true
 				end
 				
 				def inspect

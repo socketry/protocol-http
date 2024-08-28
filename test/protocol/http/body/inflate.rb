@@ -14,7 +14,7 @@ describe Protocol::HTTP::Body::Inflate do
 	let(:sample) {"The quick brown fox jumps over the lazy dog."}
 	let(:chunks) {[sample] * 1024}
 	
-	let(:body) {Protocol::HTTP::Body::Buffered.for(chunks)}
+	let(:body) {Protocol::HTTP::Body::Buffered.new(chunks)}
 	let(:deflate_body) {Protocol::HTTP::Body::Deflate.for(body)}
 	let(:compressed_chunks) {deflate_body.join.each_char.to_a}
 	let(:compressed_body_chunks) {compressed_chunks}

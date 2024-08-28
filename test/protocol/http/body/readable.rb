@@ -58,4 +58,11 @@ describe Protocol::HTTP::Body::Readable do
 			expect(JSON.dump(body)).to be == body.to_json
 		end
 	end
+	
+	with "#rewindable?" do
+		it "is not rewindable" do
+			expect(body).not.to be(:rewindable?)
+			expect(body.rewind).to be == false
+		end
+	end
 end
