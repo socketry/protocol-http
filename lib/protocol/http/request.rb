@@ -25,7 +25,7 @@ module Protocol
 		class Request
 			prepend Body::Reader
 			
-			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = Headers.new, body = nil, protocol = nil)
+			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = Headers.new, body = nil, protocol = nil, interim_response = nil)
 				@scheme = scheme
 				@authority = authority
 				@method = method
@@ -34,6 +34,7 @@ module Protocol
 				@headers = headers
 				@body = body
 				@protocol = protocol
+				@interim_response = interim_response
 			end
 			
 			# @attribute [String] the request scheme, usually `"http"` or `"https"`.
@@ -60,9 +61,28 @@ module Protocol
 			# @attribute [String | Array(String) | Nil] the request protocol, usually empty, but occasionally `"websocket"` or `"webtransport"`. In HTTP/1, it is used to request a connection upgrade, and in HTTP/2 it is used to indicate a specfic protocol for the stream.
 			attr_accessor :protocol
 			
+			# @attribute [Proc] a callback which is called when an interim response is received.
+			attr_accessor :interim_response
+			
 			# Send the request to the given connection.
 			def call(connection)
 				connection.call(self)
+			end
+			
+			# Send an interim response back to the origin of this request, if possible.
+			def send_interim_response(status, headers)
+				@interim_response&.call(status, headers)
+			end
+			
+			def on_interim_response(&block)
+				if interim_response = @interim_response
+					@interim_response = ->(status, headers) do
+						block.call(status, headers)
+						interim_response.call(status, headers)
+					end
+				else
+					@interim_response = block
+				end
 			end
 			
 			# Whether this is a HEAD request: no body is expected in the response.
@@ -81,11 +101,11 @@ module Protocol
 			# @parameter path [String] The path, e.g. `"/index.html"`, `"/search?q=hello"`, etc.
 			# @parameter headers [Hash] The headers, e.g. `{"accept" => "text/html"}`, etc.
 			# @parameter body [String | Array(String) | Body::Readable] The body, e.g. `"Hello, World!"`, etc. See {Body::Buffered.wrap} for more information about .
-			def self.[](method, path, _headers = nil, _body = nil, scheme: nil, authority: nil, headers: _headers, body: _body, protocol: nil)
+			def self.[](method, path, _headers = nil, _body = nil, scheme: nil, authority: nil, headers: _headers, body: _body, protocol: nil, interim_response: nil)
 				body = Body::Buffered.wrap(body)
 				headers = Headers[headers]
 				
-				self.new(scheme, authority, method, path, nil, headers, body, protocol)
+				self.new(scheme, authority, method, path, nil, headers, body, protocol, interim_response)
 			end
 			
 			# Whether the request can be replayed without side-effects.

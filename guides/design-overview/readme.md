@@ -189,3 +189,21 @@ response.read -> "dlroW olleH"
 ~~~
 
 The value of this uni-directional flow is that it is natural for the stream to be taken out of the scope imposed by the nested `call(request)` model. However, the user must explicitly close the stream, since it's no longer scoped to the client and/or server.
+
+## Interim Response Handling
+
+Interim responses are responses that are sent before the final response. They are used for things like `103 Early Hints` and `100 Continue`. These responses are sent before the final response, and are used to signal to the client that the server is still processing the request.
+
+```ruby
+body = Body::Writable.new
+
+interim_response_callback = proc do |status, headers|
+	if status == 100
+		# Continue sending the request body.
+		body.write("Hello World")
+		body.close
+	end
+end
+
+response = client.post("/upload", {'expect' => '100-continue'}, body, interim_response: interim_response_callback)
+```
