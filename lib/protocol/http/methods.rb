@@ -70,9 +70,9 @@ module Protocol
 			end
 			
 			self.each do |name, value|
-				define_method(name) do |location, headers = nil, body = nil|
+				define_method(name) do |location, *arguments, **options|
 					self.call(
-						Request[value, location.to_s, Headers[headers], body]
+						Request[value, location.to_s, *arguments, **options]
 					)
 				end
 			end

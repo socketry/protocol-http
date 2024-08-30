@@ -130,9 +130,9 @@ module Protocol
 			# @parameter status [Integer] The HTTP status code, e.g. `200`, `404`, etc.
 			# @parameter headers [Hash] The headers, e.g. `{"content-type" => "text/html"}`, etc.
 			# @parameter body [String | Array(String) | Body::Readable] The body, e.g. `"Hello, World!"`, etc. See {Body::Buffered.wrap} for more information about .
-			def self.[](status, headers = nil, body = nil, protocol = nil)
+			def self.[](status, _headers = nil, _body = nil, headers: _headers, body: _body, protocol: nil)
 				body = Body::Buffered.wrap(body)
-				headers = ::Protocol::HTTP::Headers[headers]
+				headers = Headers[headers]
 				
 				self.new(nil, status, headers, body, protocol)
 			end

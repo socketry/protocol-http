@@ -11,6 +11,57 @@ describe Protocol::HTTP::Request do
 	let(:headers) {Protocol::HTTP::Headers.new}
 	let(:body) {nil}
 	
+	with ".[]" do
+		let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello, World!")}
+		let(:headers) {Protocol::HTTP::Headers[{"accept" => "text/html"}]}
+		
+		it "creates a new request" do
+			request = subject["GET", "/index.html", headers]
+			
+			expect(request).to have_attributes(
+				scheme: be_nil,
+				authority: be_nil,
+				method: be == "GET",
+				path: be == "/index.html",
+				version: be_nil,
+				headers: be == headers,
+				body: be_nil,
+				protocol: be_nil
+			)
+		end
+		
+		it "creates a new request with keyword arguments" do
+			request = subject["GET", "/index.html", scheme: "http", authority: "localhost", headers: headers, body: body]
+			
+			expect(request).to have_attributes(
+				scheme: be == "http",
+				authority: be == "localhost",
+				method: be == "GET",
+				path: be == "/index.html",
+				version: be_nil,
+				headers: be == headers,
+				body: be == body,
+				protocol: be_nil
+			)
+		end
+		
+		it "converts header hash to headers instance" do
+			request = subject["GET", "/index.html", {"accept" => "text/html"}]
+			
+			expect(request).to have_attributes(
+				headers: be == headers,
+			)
+		end
+		
+		it "converts array body to buffered body" do
+			request = subject["GET", "/index.html", headers: headers, body: ["Hello, World!"]]
+			
+			expect(request).to have_attributes(
+				body: be_a(Protocol::HTTP::Body::Buffered)
+			)
+		end
+	end
+	
 	with "simple GET request" do
 		let(:request) {subject.new("http", "localhost", "GET", "/index.html", "HTTP/1.0", headers, body)}
 		
@@ -23,7 +74,7 @@ describe Protocol::HTTP::Request do
 				version: be == "HTTP/1.0",
 				headers: be == headers,
 				body: be == body,
-				protocol: be == nil
+				protocol: be_nil
 			)
 		end
 		
