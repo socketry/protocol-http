@@ -275,4 +275,49 @@ describe Protocol::HTTP::Response do
 			expect(response).to be(:not_modified?)
 		end
 	end
+	
+	with ".[]" do
+		let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello, World!")}
+		let(:headers) {Protocol::HTTP::Headers[{"accept" => "text/html"}]}
+		
+		it "creates a new response" do
+			response = subject[200, headers]
+			
+			expect(response).to have_attributes(
+				version: be_nil,
+				status: be == 200,
+				headers: be == headers,
+				body: be_nil,
+				protocol: be_nil
+			)
+		end
+		
+		it "creates a new response with keyword arguments" do
+			response = subject[200, headers: headers, body: body]
+			
+			expect(response).to have_attributes(
+				version: be_nil,
+				status: be == 200,
+				headers: be == headers,
+				body: be == body,
+				protocol: be_nil
+			)
+		end
+		
+		it "converts header hash to headers instance" do
+			response = subject[200, {"accept" => "text/html"}]
+			
+			expect(response).to have_attributes(
+				headers: be == headers,
+			)
+		end
+		
+		it "converts array body to buffered body" do
+			response = subject[200, headers: headers, body: ["Hello, World!"]]
+			
+			expect(response).to have_attributes(
+				body: be_a(Protocol::HTTP::Body::Buffered)
+			)
+		end
+	end
 end

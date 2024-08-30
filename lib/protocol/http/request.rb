@@ -81,11 +81,11 @@ module Protocol
 			# @parameter path [String] The path, e.g. `"/index.html"`, `"/search?q=hello"`, etc.
 			# @parameter headers [Hash] The headers, e.g. `{"accept" => "text/html"}`, etc.
 			# @parameter body [String | Array(String) | Body::Readable] The body, e.g. `"Hello, World!"`, etc. See {Body::Buffered.wrap} for more information about .
-			def self.[](method, path, headers = nil, body = nil)
+			def self.[](method, path, _headers = nil, _body = nil, scheme: nil, authority: nil, headers: _headers, body: _body, protocol: nil)
 				body = Body::Buffered.wrap(body)
-				headers = ::Protocol::HTTP::Headers[headers]
+				headers = Headers[headers]
 				
-				self.new(nil, nil, method, path, nil, headers, body)
+				self.new(scheme, authority, method, path, nil, headers, body, protocol)
 			end
 			
 			# Whether the request can be replayed without side-effects.
