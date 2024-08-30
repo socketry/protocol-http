@@ -24,6 +24,8 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
 ### Unreleased
 
+  - [`Request[]` and `Response[]` Keyword Arguments](https://socketry.github.io/protocol-http/releases/index#request[]-and-response[]-keyword-arguments)
+
 ## See Also
 
   - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this
