@@ -18,6 +18,22 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
   - [Design Overview](https://socketry.github.io/protocol-http/guides/design-overview/index) - This guide explains the high level design of `protocol-http` in the context of wider design patterns that can be used to implement HTTP clients and servers.
 
+## Releases
+
+Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
+
+### Unreleased
+
+## See Also
+
+  - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this
+    interface.
+  - [protocol-http2](https://github.com/socketry/protocol-http2) — HTTP/2 client/server implementation using this
+    interface.
+  - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP
+    protocols & TLS.
+  - [async-websocket](https://github.com/socketry/async-websocket) — Asynchronous client and server WebSockets.
+
 ## Contributing
 
 We welcome contributions to this project.
@@ -35,13 +51,3 @@ In order to protect users of this project, we require all contributors to comply
 ### Community Guidelines
 
 This project is best served by a collaborative and respectful environment. Treat each other professionally, respect differing viewpoints, and engage constructively. Harassment, discrimination, or harmful behavior is not tolerated. Communicate clearly, listen actively, and support one another. If any issues arise, please inform the project maintainers.
-
-## See Also
-
-  - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this
-    interface.
-  - [protocol-http2](https://github.com/socketry/protocol-http2) — HTTP/2 client/server implementation using this
-    interface.
-  - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP
-    protocols & TLS.
-  - [async-websocket](https://github.com/socketry/async-websocket) — Asynchronous client and server WebSockets.

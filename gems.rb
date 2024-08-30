@@ -13,6 +13,7 @@ group :maintenance, optional: true do
 	gem "bake-gem"
 	
 	gem "utopia-project", "~> 0.18"
+	gem "bake-releases"
 end
 
 group :test do
