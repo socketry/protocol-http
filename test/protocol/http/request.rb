@@ -121,4 +121,39 @@ describe Protocol::HTTP::Request do
 			request.call(connection)
 		end
 	end
+	
+	with "interim response" do
+		let(:request) {subject.new("http", "localhost", "GET", "/index.html", "HTTP/1.0", headers, body)}
+		
+		it "should call block" do
+			request.on_interim_response do |status, headers|
+				expect(status).to be == 100
+				expect(headers).to be == {}
+			end
+			
+			request.send_interim_response(100, {})
+		end
+		
+		it "calls multiple blocks" do
+			sequence = []
+			
+			request.on_interim_response do |status, headers|
+				sequence << 1
+				
+				expect(status).to be == 100
+				expect(headers).to be == {}
+			end
+			
+			request.on_interim_response do |status, headers|
+				sequence << 2
+				
+				expect(status).to be == 100
+				expect(headers).to be == {}
+			end
+			
+			request.send_interim_response(100, {})
+			
+			expect(sequence).to be == [2, 1]
+		end
+	end
 end
