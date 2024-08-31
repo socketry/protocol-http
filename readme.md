@@ -22,7 +22,7 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
-### Unreleased
+### v0.30.0
 
   - [`Request[]` and `Response[]` Keyword Arguments](https://socketry.github.io/protocol-http/releases/index#request[]-and-response[]-keyword-arguments)
   - [Interim Response Handling](https://socketry.github.io/protocol-http/releases/index#interim-response-handling)
