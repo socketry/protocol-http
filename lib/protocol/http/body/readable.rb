@@ -63,8 +63,6 @@ module Protocol
 							stream.flush
 						end
 					end
-				ensure
-					stream.close
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.
