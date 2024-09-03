@@ -1,8 +1,8 @@
 # Releases
 
-## Unreleased
+## v0.31.0
 
-- Ensure chunks are flushed if required, when streaming.
+  - Ensure chunks are flushed if required, when streaming.
 
 ## v0.30.0
 
