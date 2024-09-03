@@ -57,6 +57,11 @@ module Protocol
 				def call(stream)
 					while chunk = self.read
 						stream.write(chunk)
+						
+						# Flush the stream unless we are immediately expecting more data:
+						unless self.ready?
+							stream.flush
+						end
 					end
 				ensure
 					stream.close

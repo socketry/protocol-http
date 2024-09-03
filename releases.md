@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+- Ensure chunks are flushed if required, when streaming.
+
 ## v0.30.0
 
 ### `Request[]` and `Response[]` Keyword Arguments

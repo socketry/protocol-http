@@ -3,6 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
+require 'protocol/http/body/stream'
 require 'protocol/http/body/readable'
 
 describe Protocol::HTTP::Body::Readable do
@@ -30,10 +31,28 @@ describe Protocol::HTTP::Body::Readable do
 		let(:output) {Protocol::HTTP::Body::Buffered.new}
 		let(:stream) {Protocol::HTTP::Body::Stream.new(nil, output)}
 		
-		it "can stream data" do
+		it "can stream (empty) data" do
 			body.call(stream)
 			
 			expect(output).to be(:empty?)
+		end
+		
+		it "flushes the stream if it is not ready" do
+			chunks = ["Hello World"]
+			
+			mock(body) do |mock|
+				mock.replace(:read) do
+					chunks.pop
+				end
+				
+				mock.replace(:ready?) do
+					false
+				end
+			end
+			
+			expect(stream).to receive(:flush)
+			
+			body.call(stream)
 		end
 	end
 	
