@@ -43,49 +43,27 @@ module Protocol
 				
 				# Read the next available chunk.
 				# @returns [String | Nil] The chunk of data, or `nil` if the stream has finished.
+				# @raises [StandardError] If an error occurs while reading.
 				def read
 					nil
 				end
 				
-				# Should the internal mechanism prefer to use {call}?
-				# @returns [Boolean]
-				def stream?
-					false
-				end
-				
-				# Write the body to the given stream.
-				def call(stream)
-					while chunk = self.read
-						stream.write(chunk)
-						
-						# Flush the stream unless we are immediately expecting more data:
-						unless self.ready?
-							stream.flush
-						end
-					end
-				end
-				
-				# Read all remaining chunks into a buffered body and close the underlying input.
-				# @returns [Buffered] The buffered body.
-				def finish
-					# Internally, this invokes `self.each` which then invokes `self.close`.
-					Buffered.read(self)
-				end
-				
 				# Enumerate all chunks until finished, then invoke `#close`.
+				#
+				# Closes the stream when finished or if an error occurs.
 				#
 				# @yields {|chunk| ...} The block to call with each chunk of data.
 				# 	@parameter chunk [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				def each
-					return to_enum(:each) unless block_given?
+					return to_enum unless block_given?
 					
-					begin
-						while chunk = self.read
-							yield chunk
-						end
-					ensure
-						self.close($!)
+					while chunk = self.read
+						yield chunk
 					end
+				rescue => error
+					raise
+				ensure
+					self.close(error)
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.
@@ -103,6 +81,34 @@ module Protocol
 					else
 						return buffer
 					end
+				end
+				
+				# Should the internal mechanism prefer to use {call}?
+				# @returns [Boolean]
+				def stream?
+					false
+				end
+				
+				# Write the body to the given stream.
+				#
+				# If the stream is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
+				#
+				def call(stream)
+					self.each do |chunk|
+						stream.write(chunk)
+						
+						# Flush the stream unless we are immediately expecting more data:
+						unless self.ready?
+							stream.flush
+						end
+					end
+				end
+				
+				# Read all remaining chunks into a buffered body and close the underlying input.
+				# @returns [Buffered] The buffered body.
+				def finish
+					# Internally, this invokes `self.each` which then invokes `self.close`.
+					Buffered.read(self)
 				end
 				
 				def as_json(...)

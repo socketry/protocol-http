@@ -27,15 +27,11 @@ module Protocol
 				# The wrapped body.
 				attr :body
 				
-				# Buffer any remaining body.
-				def finish
-					@body.finish
-				end
-				
 				def close(error = nil)
 					@body.close(error)
 					
-					super
+					# It's a no-op:
+					# super
 				end
 				
 				def empty?

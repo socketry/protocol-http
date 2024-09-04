@@ -3,16 +3,14 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/body/readable'
+require 'protocol/http/body/wrapper'
+require 'protocol/http/body/buffered'
+require 'protocol/http/request'
+require 'json'
 
 describe Protocol::HTTP::Body::Wrapper do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
-	
-	it "should proxy finish" do
-		expect(source).to receive(:finish).and_return(nil)
-		body.finish
-	end
 	
 	it "should proxy close" do
 		expect(source).to receive(:close).and_return(nil)
@@ -46,7 +44,7 @@ describe Protocol::HTTP::Body::Wrapper do
 	
 	it "should proxy inspect" do
 		expect(source).to receive(:inspect).and_return("!")
-		expect(body.inspect).to be == "!"
+		expect(body.inspect).to be(:include?, "!")
 	end
 	
 	it "should proxy call" do
