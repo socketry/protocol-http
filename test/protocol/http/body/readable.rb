@@ -63,6 +63,7 @@ describe Protocol::HTTP::Body::Readable do
 			expect(body.as_json).to have_keys(
 				class: be == subject.name,
 				length: be_nil,
+				stream: be == false,
 				ready: be == false,
 				empty: be == false,
 			)

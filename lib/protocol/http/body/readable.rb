@@ -94,6 +94,10 @@ module Protocol
 					end
 				end
 				
+				def stream?
+					false
+				end
+				
 				# Write the body to the given stream.
 				#
 				# In some cases, the stream may also be readable, such as when hijacking an HTTP/1 connection. In that case, it may be acceptable to read and write to the stream directly.
@@ -123,6 +127,7 @@ module Protocol
 					{
 						class: self.class.name,
 						length: self.length,
+						stream: self.stream?,
 						ready: self.ready?,
 						empty: self.empty?
 					}

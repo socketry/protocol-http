@@ -50,11 +50,6 @@ module Protocol
 					@body.rewindable?
 				end
 				
-				def stream?
-					# Most wrappers are not streamable by default.
-					false
-				end
-				
 				def length
 					@body.length
 				end

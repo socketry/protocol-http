@@ -73,7 +73,7 @@ module Protocol
 				end
 				
 				def call(stream)
-					IO.copy_stream(@file, stream)
+					IO.copy_stream(@file, stream, @remaining)
 				end
 				
 				def join
