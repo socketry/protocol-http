@@ -1,9 +1,9 @@
 # Releases
 
-## Unreleased
+## v0.33.0
 
-- Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
-- Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
+  - Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
+  - Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
 
 ## v0.31.0
 

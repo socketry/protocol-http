@@ -22,6 +22,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.33.0
+
+  - Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
+  - Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
+
 ### v0.31.0
 
   - Ensure chunks are flushed if required, when streaming.
