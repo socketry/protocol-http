@@ -14,6 +14,12 @@ describe Protocol::HTTP::Body::Wrapper do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
+	with '#stream?' do
+		it "should not be streamable" do
+			expect(body).not.to be(:stream?)
+		end
+	end
+	
 	it "should proxy close" do
 		expect(source).to receive(:close).and_return(nil)
 		body.close

@@ -15,10 +15,25 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			class Streamable < Readable
+				class Closed < StandardError
+				end
+				
 				def initialize(block, input = nil)
 					@block = block
 					@input = input
 					@output = nil
+				end
+				
+				# Closing a stream indicates we are no longer interested in reading from it.
+				def close(error = nil)
+					if @input
+						@input.close
+						@input = nil
+					end
+					
+					if @output
+						@output.close(error)
+					end
 				end
 				
 				attr :block
@@ -32,10 +47,20 @@ module Protocol
 						@fiber = Fiber.new do |from|
 							@from = from
 							block.call(stream)
+						rescue Closed
+							# Ignore.
+						ensure
 							@fiber = nil
+							
+							# No more chunks will be generated:
+							if from = @from
+								@from = nil
+								from.transfer(nil)
+							end
 						end
 					end
 					
+					# Can be invoked by the block to write to the stream.
 					def write(chunk)
 						if from = @from
 							@from = nil
@@ -45,12 +70,13 @@ module Protocol
 						end
 					end
 					
-					def close
-						@fiber = nil
-						
+					# Can be invoked by the block to close the stream.
+					def close(error = nil)
 						if from = @from
 							@from = nil
 							from.transfer(nil)
+						elsif @fiber
+							@fiber.raise(error || Closed)
 						end
 					end
 					

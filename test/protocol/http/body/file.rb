@@ -9,6 +9,12 @@ describe Protocol::HTTP::Body::File do
 	let(:path) {File.expand_path('file_spec.txt', __dir__)}
 	let(:body) {subject.open(path)}
 	
+	with '#stream?' do
+		it "should be streamable" do
+			expect(body).to be(:stream?)
+		end
+	end
+	
 	with '#join' do
 		it "should read entire file" do
 			expect(body.join).to be == "Hello World"
@@ -68,6 +74,16 @@ describe Protocol::HTTP::Body::File do
 		
 		it "should read specified range" do
 			expect(body.read).to be == "ll"
+		end
+	end
+	
+	with "#call" do
+		let(:output) {StringIO.new}
+		
+		it "can stream output" do
+			body.call(output)
+			
+			expect(output.string).to be == "Hello World"
 		end
 	end
 end

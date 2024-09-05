@@ -32,7 +32,7 @@ module Protocol
 					@length
 				end
 				
-				# Stop generating output; cause the next call to write to fail with the given error.
+				# Stop generating output; cause the next call to write to fail with the given error. Does not prevent existing chunks from being read. In other words, this indicates both that no more data will be or should be written to the body.
 				def close(error = nil)
 					unless @closed
 						@queue.close
@@ -49,23 +49,17 @@ module Protocol
 				end
 				
 				def ready?
-					!@queue.empty?
+					!@queue.empty? || @queue.closed?
 				end
 				
 				# Has the producer called #finish and has the reader consumed the nil token?
 				def empty?
-					@finished
+					@queue.empty? && @queue.closed?
 				end
 				
 				# Read the next available chunk.
 				def read
-					return if @finished
-					
-					unless chunk = @queue.pop
-						@finished = true
-					end
-					
-					return chunk
+					@queue.pop
 				end
 				
 				# Write a single chunk to the body. Signal completion by calling `#finish`.
@@ -89,12 +83,18 @@ module Protocol
 				private
 				
 				def status
-					if @finished
-						'finished'
-					elsif @closed
-						'closing'
+					if @queue.empty?
+						if @queue.closed?
+							'closed'
+						else
+							'waiting'
+						end
 					else
-						'waiting'
+						if @queue.closed?
+							'closing'
+						else
+							'ready'
+						end
 					end
 				end
 			end
