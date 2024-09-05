@@ -86,6 +86,8 @@ describe Protocol::HTTP::Body::Streamable do
 		with "a block that raises an error" do
 			let(:block) do
 				proc do |stream|
+					stream.write("Hello")
+					
 					raise "Oh no... a wild error appeared!"
 				end
 			end
@@ -97,6 +99,8 @@ describe Protocol::HTTP::Body::Streamable do
 				expect do
 					body.call(stream)
 				end.to raise_exception(RuntimeError, message: be =~ /Oh no... a wild error appeared!/)
+				
+				expect(stream.string).to be == "Hello"
 			end
 		end
 	end
