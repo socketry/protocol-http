@@ -74,4 +74,26 @@ describe Protocol::HTTP::Body::File do
 			expect(body.read).to be == "ll"
 		end
 	end
+	
+	with "#call" do
+		let(:output) {StringIO.new}
+		
+		it "can stream output" do
+			body.call(output)
+			
+			expect(output.string).to be == "Hello World"
+		end
+		
+		with "/dev/zero" do
+			it "can stream partial output" do
+				skip unless File.exist?('/dev/zero')
+				
+				body = subject.open('/dev/zero', 0...10)
+				
+				body.call(output)
+				
+				expect(output.string).to be == "\x00" * 10
+			end
+		end
+	end
 end
