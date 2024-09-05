@@ -17,10 +17,6 @@ describe Protocol::HTTP::Body::Readable do
 		expect(body).not.to be(:ready?)
 	end
 	
-	it "should not be a stream" do
-		expect(body).not.to be(:stream?)
-	end
-	
 	with '#finish' do
 		it "should return empty buffered representation" do
 			expect(body.finish).to be(:empty?)

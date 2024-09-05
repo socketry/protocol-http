@@ -7,9 +7,15 @@
 module Protocol
 	module HTTP
 		module Body
-			# An interface for reading data from a body.
+			# Represents a readable input streams.
 			#
 			# Typically, you'd override `#read` to return chunks of data.
+			#
+			# I n general, you read chunks of data from a body until it is empty and returns `nil`. Upon reading `nil`, the body is considered consumed and should not be read from again.
+			#
+			# Reading can also fail, for example if the body represents a streaming upload, and the connection is lost. In this case, the body will raise some kind of error.
+			#
+			# If you don't want to read from a stream, and instead want to close it immediately, you can call `close` on the body. If the body is already completely consumed, `close` will do nothing, but if there is still data to be read, it will cause the underlying stream to be reset (and possibly closed).
 			class Readable
 				# Close the stream immediately.
 				def close(error = nil)
@@ -29,63 +35,46 @@ module Protocol
 					false
 				end
 				
+				# Whether the stream can be rewound using {rewind}.
 				def rewindable?
 					false
 				end
 				
+				# Rewind the stream to the beginning.
+				# @returns [Boolean] Whether the stream was successfully rewound.
 				def rewind
 					false
 				end
 				
+				# The total length of the body, if known.
+				# @returns [Integer | Nil] The total length of the body, or `nil` if the length is unknown.
 				def length
 					nil
 				end
 				
 				# Read the next available chunk.
 				# @returns [String | Nil] The chunk of data, or `nil` if the stream has finished.
+				# @raises [StandardError] If an error occurs while reading.
 				def read
 					nil
 				end
 				
-				# Should the internal mechanism prefer to use {call}?
-				# @returns [Boolean]
-				def stream?
-					false
-				end
-				
-				# Write the body to the given stream.
-				def call(stream)
-					while chunk = self.read
-						stream.write(chunk)
-						
-						# Flush the stream unless we are immediately expecting more data:
-						unless self.ready?
-							stream.flush
-						end
-					end
-				end
-				
-				# Read all remaining chunks into a buffered body and close the underlying input.
-				# @returns [Buffered] The buffered body.
-				def finish
-					# Internally, this invokes `self.each` which then invokes `self.close`.
-					Buffered.read(self)
-				end
-				
 				# Enumerate all chunks until finished, then invoke `#close`.
+				#
+				# Closes the stream when finished or if an error occurs.
 				#
 				# @yields {|chunk| ...} The block to call with each chunk of data.
 				# 	@parameter chunk [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				def each
-					return to_enum(:each) unless block_given?
+					return to_enum unless block_given?
 					
-					begin
-						while chunk = self.read
-							yield chunk
-						end
-					ensure
-						self.close($!)
+					while chunk = self.read
+						yield chunk
 					end
+				rescue => error
+					raise
+				ensure
+					self.close(error)
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.
@@ -103,6 +92,35 @@ module Protocol
 					else
 						return buffer
 					end
+				end
+				
+				def stream?
+					false
+				end
+				
+				# Write the body to the given stream.
+				#
+				# In some cases, the stream may also be readable, such as when hijacking an HTTP/1 connection. In that case, it may be acceptable to read and write to the stream directly.
+				#
+				# If the stream is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
+				#
+				def call(stream)
+					self.each do |chunk|
+						stream.write(chunk)
+						
+						# Flush the stream unless we are immediately expecting more data:
+						unless self.ready?
+							stream.flush
+						end
+					end
+				end
+				
+				# Read all remaining chunks into a buffered body and close the underlying input.
+				#
+				# @returns [Buffered] The buffered body.
+				def finish
+					# Internally, this invokes `self.each` which then invokes `self.close`.
+					Buffered.read(self)
 				end
 				
 				def as_json(...)

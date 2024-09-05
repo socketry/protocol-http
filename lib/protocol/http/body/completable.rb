@@ -32,15 +32,6 @@ module Protocol
 					false
 				end
 				
-				def finish
-					super.tap do
-						if @callback
-							@callback.call
-							@callback = nil
-						end
-					end
-				end
-				
 				def close(error = nil)
 					super.tap do
 						if @callback

@@ -56,10 +56,6 @@ module Protocol
 					@remaining = @length
 				end
 				
-				def stream?
-					false
-				end
-				
 				def read
 					if @remaining > 0
 						amount = [@remaining, @block_size].min
@@ -70,6 +66,14 @@ module Protocol
 							return chunk
 						end
 					end
+				end
+				
+				def stream?
+					true
+				end
+				
+				def call(stream)
+					IO.copy_stream(@file, stream, @remaining)
 				end
 				
 				def join

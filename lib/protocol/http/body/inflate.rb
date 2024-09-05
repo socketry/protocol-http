@@ -15,10 +15,6 @@ module Protocol
 					self.new(body, Zlib::Inflate.new(encoding))
 				end
 				
-				def stream?
-					false
-				end
-				
 				def read
 					return if @stream.finished?
 					
