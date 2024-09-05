@@ -4,12 +4,10 @@
 # Copyright, 2018-2023, by Samuel Williams.
 
 require 'protocol/http/body/writable'
-require 'protocol/http/body/a_writable_body'
+require 'protocol/http/body/deflate'
 
 describe Protocol::HTTP::Body::Writable do
 	let(:body) {subject.new}
-	
-	it_behaves_like Protocol::HTTP::Body::AWritableBody
 	
 	with "#length" do
 		it "should be unspecified by default" do
@@ -78,6 +76,93 @@ describe Protocol::HTTP::Body::Writable do
 			expect do
 				body.write("Hello")
 			end.to raise_exception(Protocol::HTTP::Body::Writable::Closed)
+		end
+		
+		it "can write and read data" do
+			3.times do |i|
+				body.write("Hello World #{i}")
+				expect(body.read).to be == "Hello World #{i}"
+			end
+		end
+		
+		it "can buffer data in order" do
+			3.times do |i|
+				body.write("Hello World #{i}")
+			end
+			
+			3.times do |i|
+				expect(body.read).to be == "Hello World #{i}"
+			end
+		end
+	end
+	
+	with '#join' do
+		it "can join chunks" do
+			3.times do |i|
+				body.write("#{i}")
+			end
+			
+			body.close
+			
+			expect(body.join).to be == "012"
+		end
+	end
+	
+	with '#each' do
+		it "can read all data in order" do
+			3.times do |i|
+				body.write("Hello World #{i}")
+			end
+			
+			body.close
+			
+			3.times do |i|
+				chunk = body.read
+				expect(chunk).to be == "Hello World #{i}"
+			end
+		end
+		
+		it "can propagate failures" do
+			body.write("Beep boop") # This will cause a failure.
+			
+			expect do
+				body.each do |chunk|
+					raise RuntimeError.new("It was too big!")
+				end
+			end.to raise_exception(RuntimeError, message: be =~ /big/)
+			
+			expect do
+				body.write("Beep boop") # This will fail.
+			end.to raise_exception(RuntimeError, message: be =~ /big/)
+		end
+		
+		it "can propagate failures in nested bodies" do
+			nested = ::Protocol::HTTP::Body::Deflate.for(body)
+			
+			body.write("Beep boop") # This will cause a failure.
+			
+			expect do
+				nested.each do |chunk|
+					raise RuntimeError.new("It was too big!")
+				end
+			end.to raise_exception(RuntimeError, message: be =~ /big/)
+			
+			expect do
+				body.write("Beep boop") # This will fail.
+			end.to raise_exception(RuntimeError, message: be =~ /big/)
+		end
+		
+		it "will stop after finishing" do
+			body.write("Hello World!")
+			body.close
+			
+			expect(body).not.to be(:empty?)
+			
+			body.each do |chunk|
+				expect(chunk).to be == "Hello World!"
+			end
+			
+			expect(body).to be(:empty?)
 		end
 	end
 end
