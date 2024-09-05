@@ -1,5 +1,10 @@
 # Releases
 
+## Unreleased
+
+- Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
+- Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
+
 ## v0.31.0
 
   - Ensure chunks are flushed if required, when streaming.

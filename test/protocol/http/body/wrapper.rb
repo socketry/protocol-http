@@ -6,7 +6,9 @@
 require 'protocol/http/body/wrapper'
 require 'protocol/http/body/buffered'
 require 'protocol/http/request'
+
 require 'json'
+require 'stringio'
 
 describe Protocol::HTTP::Body::Wrapper do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
@@ -32,11 +34,6 @@ describe Protocol::HTTP::Body::Wrapper do
 		expect(body.length).to be == 1
 	end
 	
-	it "should proxy stream?" do
-		expect(source).to receive(:stream?).and_return(true)
-		expect(body.stream?).to be == true
-	end
-	
 	it "should proxy read" do
 		expect(source).to receive(:read).and_return("!")
 		expect(body.read).to be == "!"
@@ -45,11 +42,6 @@ describe Protocol::HTTP::Body::Wrapper do
 	it "should proxy inspect" do
 		expect(source).to receive(:inspect).and_return("!")
 		expect(body.inspect).to be(:include?, "!")
-	end
-	
-	it "should proxy call" do
-		expect(source).to receive(:call).and_return(nil)
-		body.call(nil)
 	end
 	
 	with '.wrap' do
@@ -86,6 +78,24 @@ describe Protocol::HTTP::Body::Wrapper do
 		
 		it "generates a JSON string" do
 			expect(JSON.dump(body)).to be == body.to_json
+		end
+	end
+	
+	with "#each" do
+		it "should invoke close correctly" do
+			expect(body).to receive(:close)
+			
+			body.each{}
+		end
+	end
+	
+	with "#stream" do
+		let(:stream) {StringIO.new}
+		
+		it "should invoke close correctly" do
+			expect(body).to receive(:close)
+			
+			body.call(stream)
 		end
 	end
 end

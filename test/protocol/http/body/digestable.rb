@@ -10,10 +10,6 @@ describe Protocol::HTTP::Body::Digestable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
-	it "should not be a stream" do
-		expect(body).not.to be(:stream?)
-	end
-	
 	with '.wrap' do
 		let(:source) {Protocol::HTTP::Body::Buffered.wrap("HelloWorld")}
 		let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}

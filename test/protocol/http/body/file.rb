@@ -9,10 +9,6 @@ describe Protocol::HTTP::Body::File do
 	let(:path) {File.expand_path('file_spec.txt', __dir__)}
 	let(:body) {subject.open(path)}
 	
-	it "should not be a stream" do
-		expect(body).not.to be(:stream?)
-	end
-	
 	with '#join' do
 		it "should read entire file" do
 			expect(body.join).to be == "Hello World"

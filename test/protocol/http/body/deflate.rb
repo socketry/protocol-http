@@ -15,11 +15,6 @@ describe Protocol::HTTP::Body::Deflate do
 	let(:compressed_body) {Protocol::HTTP::Body::Deflate.for(body)}
 	let(:decompressed_body) {Protocol::HTTP::Body::Inflate.for(compressed_body)}
 	
-	it "should not be a stream" do
-		expect(compressed_body).not.to be(:stream?)
-		expect(decompressed_body).not.to be(:stream?)
-	end
-	
 	it "should round-trip data" do
 		body.write("Hello World!")
 		body.close

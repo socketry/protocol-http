@@ -10,10 +10,6 @@ describe Protocol::HTTP::Body::Rewindable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
-	it "should not be a stream" do
-		expect(body).not.to be(:stream?)
-	end
-	
 	it "can write and read data" do
 		3.times do |i|
 			source.write("Hello World #{i}")

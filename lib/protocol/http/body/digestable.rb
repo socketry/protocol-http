@@ -38,10 +38,6 @@ module Protocol
 					end
 				end
 				
-				def stream?
-					false
-				end
-				
 				def read
 					if chunk = super
 						@digest.update(chunk)
