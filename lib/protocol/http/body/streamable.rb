@@ -141,6 +141,8 @@ module Protocol
 						raise "Streaming block has already been consumed!"
 					end
 					
+					block = @block
+					
 					@input = @output = @block = nil
 					
 					# Ownership of the stream is passed into the block, in other words, the block is responsible for closing the stream.
@@ -152,7 +154,7 @@ module Protocol
 				end
 				
 				def stream(input)
-					input.each do |chunk|
+					input&.each do |chunk|
 						@input&.write(chunk)
 					end
 				rescue => error
