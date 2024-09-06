@@ -1,0 +1,57 @@
+PATH
+  remote: ../..
+  specs:
+    protocol-http (0.33.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    async (2.17.0)
+      console (~> 1.26)
+      fiber-annotation
+      io-event (~> 1.6, >= 1.6.5)
+    async-http (0.75.0)
+      async (>= 2.10.2)
+      async-pool (~> 0.7)
+      io-endpoint (~> 0.11)
+      io-stream (~> 0.4)
+      protocol-http (~> 0.30)
+      protocol-http1 (~> 0.20)
+      protocol-http2 (~> 0.18)
+      traces (>= 0.10)
+    async-pool (0.8.1)
+      async (>= 1.25)
+      metrics
+      traces
+    console (1.27.0)
+      fiber-annotation
+      fiber-local (~> 1.1)
+      json
+    fiber-annotation (0.2.0)
+    fiber-local (1.1.0)
+      fiber-storage
+    fiber-storage (1.0.0)
+    io-endpoint (0.13.1)
+    io-event (1.6.5)
+    io-stream (0.4.0)
+    json (2.7.2)
+    metrics (0.10.2)
+    protocol-hpack (1.5.0)
+    protocol-http1 (0.22.0)
+      protocol-http (~> 0.22)
+    protocol-http2 (0.18.0)
+      protocol-hpack (~> 1.4)
+      protocol-http (~> 0.18)
+    traces (0.13.1)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  async
+  async-http
+  protocol-http!
+
+BUNDLED WITH
+   2.5.16

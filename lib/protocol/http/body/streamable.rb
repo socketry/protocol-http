@@ -4,6 +4,8 @@
 # Copyright, 2022, by Samuel Williams.
 
 require_relative 'readable'
+require_relative 'writable'
+
 require_relative 'stream'
 
 module Protocol
@@ -15,6 +17,14 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			class Streamable < Readable
+				def self.response(request, &block)
+					self.new(block, request.body)
+				end
+				
+				def self.request(&block)
+					self.new(block, Writable.new)
+				end
+				
 				class Closed < StandardError
 				end
 				
@@ -27,12 +37,8 @@ module Protocol
 				# Closing a stream indicates we are no longer interested in reading from it.
 				def close(error = nil)
 					if @input
-						@input.close
+						@input.close(error)
 						@input = nil
-					end
-					
-					if @output
-						@output.close(error)
 					end
 				end
 				
@@ -89,23 +95,44 @@ module Protocol
 				
 				# Invokes the block in a fiber which yields chunks when they are available.
 				def read
-					@output ||= Output.new(@input, @block)
+					if @output.nil?
+						@output = Output.new(@input, @block)
+						@block = nil
+					end
 					
-					return @output.read
+					@output.read
 				end
 				
 				def stream?
 					true
 				end
 				
+				# Invoke the block with the given stream.
+				#
+				# The block can read and write to the stream, and must close the stream when finished.
 				def call(stream)
-					raise "Streaming body has already been read!" if @output
-					
-					@block.call(stream)
+					if block = @block
+						@input = @block = nil
+						
+						# Ownership of the stream is passed into the block, in other words, the block is responsible for closing the stream.
+						block.call(stream)
+					else
+						raise "Streaming body has already been read!"
+					end
+				rescue => error
+					# If, for some reason, the block raises an error, we assume it may not have closed the stream, so we close it here:
+					stream.close
+					raise
+				end
+				
+				def stream(input)
+					input.each do |chunk|
+						@input&.write(chunk)
+					end
 				rescue => error
 					raise
 				ensure
-					self.close(error)
+					@input&.close(error)
 				end
 			end
 		end

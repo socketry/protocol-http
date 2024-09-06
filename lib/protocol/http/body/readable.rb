@@ -98,12 +98,14 @@ module Protocol
 					false
 				end
 				
+				# Invoke the body with the given stream.
+				#
+				# The default implementation simply writes each chunk to the stream. If the body is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
+				#
 				# Write the body to the given stream.
 				#
-				# In some cases, the stream may also be readable, such as when hijacking an HTTP/1 connection. In that case, it may be acceptable to read and write to the stream directly.
-				#
-				# If the stream is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
-				#
+				# @parameter stream [IO | Object] An `IO`-like object that responds to `#read`, `#write` and `#flush`.
+				# @returns [Boolean] Whether the ownership of the stream was transferred.
 				def call(stream)
 					self.each do |chunk|
 						stream.write(chunk)
@@ -113,6 +115,8 @@ module Protocol
 							stream.flush
 						end
 					end
+				ensure
+					stream.close
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.
