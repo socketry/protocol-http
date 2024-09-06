@@ -22,7 +22,7 @@ module Protocol
 				end
 				
 				def self.request(&block)
-					self.new(block, Writable.new)
+					self.new(block)
 				end
 				
 				class Closed < StandardError
@@ -30,16 +30,17 @@ module Protocol
 				
 				def initialize(block, input = nil)
 					@block = block
-					@input = input
-					@output = nil
-				end
-				
-				# Closing a stream indicates we are no longer interested in reading from it.
-				def close(error = nil)
-					if @input
-						@input.close(error)
-						@input = nil
+					
+					if input
+						@input = input
+						@finishing = true
+					else
+						# If input is nil, it means we are on the client side.
+						@input = Writable.new
+						@finishing = false
 					end
+					
+					@output = nil
 				end
 				
 				attr :block
@@ -76,13 +77,19 @@ module Protocol
 						end
 					end
 					
-					# Can be invoked by the block to close the stream.
+					# Can be invoked by the block to close the stream. Closing the output means that no more chunks will be generated.
 					def close(error = nil)
 						if from = @from
 							@from = nil
 							from.transfer(nil)
 						elsif @fiber
-							@fiber.raise(error || Closed)
+							@from = Fiber.current
+							
+							if error
+								@fiber.raise(error)
+							else
+								@fiber.transfer(nil)
+							end
 						end
 					end
 					
@@ -96,11 +103,30 @@ module Protocol
 				# Invokes the block in a fiber which yields chunks when they are available.
 				def read
 					if @output.nil?
+						if @block.nil?
+							raise "Streaming body has already been consumed!"
+						end
+						
 						@output = Output.new(@input, @block)
 						@block = nil
 					end
 					
 					@output.read
+				end
+				
+				# Closing a stream indicates we are no longer interested in reading from it.
+				def close(error = nil)
+					return unless @finishing
+					
+					if output = @output
+						@output = nil
+						output.close(error)
+					end
+					
+					if input = @input
+						@input = nil
+						input.close(error)
+					end
 				end
 				
 				def stream?
@@ -109,16 +135,16 @@ module Protocol
 				
 				# Invoke the block with the given stream.
 				#
-				# The block can read and write to the stream, and must close the stream when finished.
+				# The block can read and write to the stream, and must close the stream when finishing.
 				def call(stream)
-					if block = @block
-						@input = @block = nil
-						
-						# Ownership of the stream is passed into the block, in other words, the block is responsible for closing the stream.
-						block.call(stream)
-					else
-						raise "Streaming body has already been read!"
+					if @block.nil?
+						raise "Streaming block has already been consumed!"
 					end
+					
+					@input = @output = @block = nil
+					
+					# Ownership of the stream is passed into the block, in other words, the block is responsible for closing the stream.
+					block.call(stream)
 				rescue => error
 					# If, for some reason, the block raises an error, we assume it may not have closed the stream, so we close it here:
 					stream.close
@@ -132,7 +158,10 @@ module Protocol
 				rescue => error
 					raise
 				ensure
-					@input&.close(error)
+					@finishing = true
+					@input&.close
+					
+					self.close(error)
 				end
 			end
 		end

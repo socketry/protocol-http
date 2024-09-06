@@ -251,21 +251,21 @@ module Protocol
 				end
 				
 				# Close the input body.
-				def close_read
-					if @input
+				def close_read(error = nil)
+					if input = @input
+						@input = nil
 						@closed_read = true
 						@buffer = nil
 						
-						@input&.close
-						@input = nil
+						input&.close(error)
 					end
 				end
 				
 				# Close the output body.
-				def close_write
-					if @output
-						@output&.close
+				def close_write(error = nil)
+					if output = @output
 						@output = nil
+						output&.close(error)
 					end
 				end
 				

@@ -68,6 +68,20 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
+	with '#close_write' do
+		let(:block) do
+			proc do |stream|
+				stream.close_write
+			end
+		end
+		
+		let(:body) {subject.new(block, input)}
+		
+		it "can close the output body" do
+			expect(body.read).to be == nil
+		end
+	end
+	
 	with '#each' do
 		it "can read the body" do
 			chunks = []
