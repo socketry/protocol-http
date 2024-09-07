@@ -265,7 +265,13 @@ module Protocol
 				def close_write(error = nil)
 					if output = @output
 						@output = nil
-						output&.close(error)
+						
+						# This is a compatibility hack to work around limitations in protocol-rack and can be removed when external tests are passing without it.
+						if output.method(:close).arity == 1
+							output.close(error)
+						else
+							output.close
+						end
 					end
 				end
 				
