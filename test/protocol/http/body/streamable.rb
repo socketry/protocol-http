@@ -14,8 +14,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	let(:input) {nil}
-	let(:body) {subject.new(block, input)}
+	let(:body) {subject.new(block)}
 	
 	with "#stream?" do
 		it "should be streamable" do
@@ -75,7 +74,7 @@ describe Protocol::HTTP::Body::Streamable do
 			end
 		end
 		
-		let(:body) {subject.new(block, input)}
+		let(:body) {subject.new(block)}
 		
 		it "can close the output body" do
 			expect(body.read).to be == nil
@@ -118,7 +117,7 @@ describe Protocol::HTTP::Body::Streamable do
 				
 				expect(stream.string).to be == "Hello"
 				
-				body.stream(input)
+				body.stream(nil)
 			end
 		end
 	end
@@ -154,6 +153,8 @@ describe Protocol::HTTP::Body::Streamable do
 				end
 			end
 		end
+		
+		let(:body) {subject.new(block, input)}
 		
 		it "can read from input" do
 			expect(body.read).to be == "Hello"

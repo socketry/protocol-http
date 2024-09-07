@@ -17,6 +17,14 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			module Streamable
+				def self.new(*arguments)
+					if arguments.size == 1
+						RequestBody.new(*arguments)
+					else
+						ResponseBody.new(*arguments)
+					end
+				end
+				
 				# Represents an output wrapper around a stream, that can invoke a fiber when `#read`` is called.
 				#
 				# This behaves a little bit like a generator or lazy enumerator, in that it can be used to generate chunks of data on demand.
