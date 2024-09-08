@@ -127,7 +127,6 @@ describe Protocol::HTTP::Body::Streamable do
 			
 			it "closes the stream if an error occurs" do
 				stream = StringIO.new
-				expect(body).to receive(:close)
 				
 				expect do
 					body.call(stream)
@@ -136,6 +135,7 @@ describe Protocol::HTTP::Body::Streamable do
 				expect(stream.string).to be == "Hello"
 				
 				body.stream(nil)
+				body.close
 			end
 		end
 	end
@@ -149,7 +149,10 @@ describe Protocol::HTTP::Body::Streamable do
 		
 		it "can raise an error on the block" do
 			expect(body.read).to be == "Hello"
-			body.close(RuntimeError.new("Oh no!"))
+			
+			expect do
+				body.close(RuntimeError.new("Oh no!"))
+			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
 		end
 	end
 	
@@ -200,6 +203,28 @@ describe Protocol::HTTP::Body::Streamable do
 				expect(body.read).to be == "Hello"
 				body.close
 			end
+		end
+	end
+	
+	with "#stream" do
+		let(:block) do
+			proc do |stream|
+				while chunk = stream.read_partial
+					stream.write(chunk)
+				end
+			end
+		end
+		
+		it "can stream to output" do
+			input = Protocol::HTTP::Body::Buffered.new(["Hello", " ", "World"])
+			
+			body.stream(input)
+			
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be == " "
+			expect(body.read).to be == "World"
+			
+			body.close
 		end
 	end
 end

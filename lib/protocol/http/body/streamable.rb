@@ -47,14 +47,11 @@ module Protocol
 						@fiber = Fiber.new do |from|
 							@from = from
 							block.call(stream)
+						rescue => error
+							# Ignore.
 						ensure
 							@fiber = nil
-							
-							# No more chunks will be generated:
-							if from = @from
-								@from = nil
-								from.transfer(nil)
-							end
+							self.close(error)
 						end
 					end
 					
@@ -182,10 +179,6 @@ module Protocol
 							@input&.write(chunk)
 						end
 						@input&.close_write
-					rescue => error
-						raise
-					ensure
-						self.close(error)
 					end
 				end
 			end
