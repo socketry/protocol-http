@@ -72,13 +72,15 @@ module Protocol
 				def each
 					return to_enum unless block_given?
 					
-					while chunk = self.read
-						yield chunk
+					begin
+						while chunk = self.read
+							yield chunk
+						end
+					rescue => error
+						raise
+					ensure
+						self.close(error)
 					end
-				rescue => error
-					raise
-				ensure
-					self.close(error)
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.

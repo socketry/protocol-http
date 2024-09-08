@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2024, by Samuel Williams.
 
 require 'protocol/http/body/streamable'
 
@@ -149,7 +149,6 @@ describe Protocol::HTTP::Body::Streamable do
 		let(:block) do
 			proc do |stream|
 				while chunk = stream.read_partial
-					$stderr.puts "Got chunk: #{chunk.inspect}"
 					stream.write(chunk)
 				end
 			end

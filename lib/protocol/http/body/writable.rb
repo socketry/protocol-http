@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2018-2023, by Samuel Williams.
+# Copyright, 2024, by Samuel Williams.
 
 require_relative 'readable'
 
@@ -65,16 +65,63 @@ module Protocol
 				# Write a single chunk to the body. Signal completion by calling `#finish`.
 				def write(chunk)
 					# If the reader breaks, the writer will break.
-					# The inverse of this is less obvious (*)
 					if @closed
 						raise(@error || Closed)
 					end
 					
-					@count += 1
 					@queue.push(chunk)
+					@count += 1
 				end
 				
+				# This alias is provided for compatibility with template generation.
 				alias << write
+				
+				def close_write(error = nil)
+					@error ||= error
+					@queue.close
+				end
+				
+				class Output
+					def initialize(writable)
+						@writable = writable
+						@closed = false
+					end
+					
+					def closed?
+						@closed || @writable.closed?
+					end
+					
+					def write(chunk)
+						@writable.write(chunk)
+					end
+					
+					def close(error = nil)
+						@closed = true
+						
+						if error
+							@writable.close(error)
+						else
+							@writable.close_write
+						end
+					end
+				end
+				
+				# Create an output wrapper which can be used to write chunks to the body.
+				def output
+					output = Output.new(self)
+					
+					unless block_given?
+						return output
+					end
+					
+					begin
+						yield output
+					rescue => error
+						raise error
+					ensure
+						output.close(error)
+					end
+				end
 				
 				def inspect
 					"\#<#{self.class} #{@count} chunks written, #{status}>"

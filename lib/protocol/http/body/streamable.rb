@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022, by Samuel Williams.
+# Copyright, 2019-2024, by Samuel Williams.
 
 require_relative 'readable'
 require_relative 'writable'
@@ -137,7 +137,6 @@ module Protocol
 					
 					# Closing a stream indicates we are no longer interested in reading from it.
 					def close(error = nil)
-						$stderr.puts "Closing input: #{@input.inspect}"
 						if input = @input
 							@input = nil
 							input.close(error)

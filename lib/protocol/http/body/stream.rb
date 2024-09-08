@@ -21,6 +21,7 @@ module Protocol
 					
 					# Will hold remaining data in `#read`.
 					@buffer = nil
+					
 					@closed = false
 					@closed_read = false
 				end
@@ -257,7 +258,7 @@ module Protocol
 						@closed_read = true
 						@buffer = nil
 						
-						input&.close(error)
+						input.close(error)
 					end
 				end
 				
@@ -266,12 +267,7 @@ module Protocol
 					if output = @output
 						@output = nil
 						
-						# This is a compatibility hack to work around limitations in protocol-rack and can be removed when external tests are passing without it.
-						if output.method(:close).arity == 1
-							output.close(error)
-						else
-							output.close
-						end
+						output.close_write(error)
 					end
 				end
 				
