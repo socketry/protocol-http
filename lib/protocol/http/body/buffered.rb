@@ -56,6 +56,7 @@ module Protocol
 					self
 				end
 				
+				# Ensure that future reads return nil, but allow for rewinding.
 				def close(error = nil)
 					@index = @chunks.length
 				end
@@ -112,8 +113,6 @@ module Protocol
 				def inspect
 					if @chunks
 						"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
-					else
-						"\#<#{self.class} closed>"
 					end
 				end
 			end

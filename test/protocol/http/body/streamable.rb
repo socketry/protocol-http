@@ -96,6 +96,24 @@ describe Protocol::HTTP::Body::Streamable do
 			expect(stream.string).to be == "HelloWorld"
 		end
 		
+		it "will fail if invoked twice" do
+			stream = StringIO.new
+			body.call(stream)
+			
+			expect do
+				body.call(stream)
+			end.to raise_exception(Protocol::HTTP::Body::Streamable::ConsumedError)
+		end
+		
+		it "will fail if trying to read after streaming" do
+			stream = StringIO.new
+			body.call(stream)
+			
+			expect do
+				body.read
+			end.to raise_exception(Protocol::HTTP::Body::Streamable::ConsumedError)
+		end
+		
 		with "a block that raises an error" do
 			let(:block) do
 				proc do |stream|
@@ -125,7 +143,13 @@ describe Protocol::HTTP::Body::Streamable do
 	with '#close' do
 		it "can close the body" do
 			expect(body.read).to be == "Hello"
+			
 			body.close
+		end
+		
+		it "can raise an error on the block" do
+			expect(body.read).to be == "Hello"
+			body.close(RuntimeError.new("Oh no!"))
 		end
 	end
 	

@@ -161,6 +161,15 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
+	with "#clear" do
+		it "clears all chunks and resets length" do
+			body.clear
+			expect(body.chunks).to be(:empty?)
+			expect(body.read).to be == nil
+			expect(body.length).to be == 0
+		end
+	end
+	
 	with '#inspect' do
 		it "can be inspected" do
 			expect(body.inspect).to be =~ /\d+ chunks, \d+ bytes/

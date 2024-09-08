@@ -16,15 +16,9 @@ module Protocol
 				# @param [Integer] length The length of the response body if known.
 				# @param [Async::Queue] queue Specify a different queue implementation, e.g. `Async::LimitedQueue.new(8)` to enable back-pressure streaming.
 				def initialize(length = nil, queue: Thread::Queue.new)
-					@queue = queue
-					
 					@length = length
-					
+					@queue = queue
 					@count = 0
-					
-					@finished = false
-					
-					@closed = false
 					@error = nil
 				end
 				
@@ -34,18 +28,16 @@ module Protocol
 				
 				# Stop generating output; cause the next call to write to fail with the given error. Does not prevent existing chunks from being read. In other words, this indicates both that no more data will be or should be written to the body.
 				def close(error = nil)
-					unless @closed
-						@queue.close
-						
-						@closed = true
-						@error = error
-					end
+					@error ||= error
+					
+					@queue.clear
+					@queue.close
 					
 					super
 				end
 				
 				def closed?
-					@closed
+					@queue.closed?
 				end
 				
 				def ready?
@@ -59,22 +51,22 @@ module Protocol
 				
 				# Read the next available chunk.
 				def read
+					if @error
+						raise @error
+					end
+					
 					@queue.pop
 				end
 				
 				# Write a single chunk to the body. Signal completion by calling `#finish`.
 				def write(chunk)
-					# If the reader breaks, the writer will break.
-					if @closed
+					if @queue.closed?
 						raise(@error || Closed)
 					end
 					
 					@queue.push(chunk)
 					@count += 1
 				end
-				
-				# This alias is provided for compatibility with template generation.
-				alias << write
 				
 				def close_write(error = nil)
 					@error ||= error
@@ -94,6 +86,8 @@ module Protocol
 					def write(chunk)
 						@writable.write(chunk)
 					end
+					
+					alias << write
 					
 					def close(error = nil)
 						@closed = true

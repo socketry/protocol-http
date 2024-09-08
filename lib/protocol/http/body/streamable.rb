@@ -17,7 +17,12 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			module Streamable
+				# Raised when an operation is attempted on a closed stream.
 				class ClosedError < StandardError
+				end
+				
+				# Raised when a streaming body is consumed more than once.
+				class ConsumedError < StandardError
 				end
 				
 				def self.new(*arguments)
@@ -63,20 +68,36 @@ module Protocol
 						end
 					end
 					
+					# Indicates that no further output will be generated.
+					def close_write(error = nil)
+						# We might want to specialize the implementation later...
+						close(error)
+					end
+					
 					# Can be invoked by the block to close the stream. Closing the output means that no more chunks will be generated.
 					def close(error = nil)
 						if from = @from
 							# We are closing from within the output fiber, so we need to transfer back to `@from`:
 							@from = nil
-							from.transfer(nil)
+							if error
+								from.raise(error)
+							else
+								from.transfer(nil)
+							end
 						elsif @fiber
 							# We are closing from outside the output fiber, so we need to resume the fiber appropriately:
 							@from = Fiber.current
 							
 							if error
+								# The fiber will be resumed from where it last called write, and we will raise the error there:
 								@fiber.raise(error)
 							else
-								@fiber.transfer(nil)
+								begin
+									# If we get here, it means we are closing the fiber from the outside, so we need to transfer control back to the fiber:
+									@fiber.transfer(nil)
+								rescue Protocol::HTTP::Body::Streamable::ClosedError
+									# If the fiber then tries to write to the stream, it will raise a ClosedError, and we will end up here. We can ignore it, as we are already closing the stream and don't care about further writes.
+								end
 							end
 						end
 					end
@@ -105,7 +126,7 @@ module Protocol
 					def read
 						if @output.nil?
 							if @block.nil?
-								raise "Streaming body has already been consumed!"
+								raise ConsumedError, "Streaming body has already been consumed!"
 							end
 							
 							@output = Output.new(@input, @block)
@@ -120,7 +141,7 @@ module Protocol
 					# The block can read and write to the stream, and must close the stream when finishing.
 					def call(stream)
 						if @block.nil?
-							raise "Streaming block has already been consumed!"
+							raise ConsumedError, "Streaming block has already been consumed!"
 						end
 						
 						block = @block
@@ -153,12 +174,6 @@ module Protocol
 				class DeferredBody < Body
 					def initialize(block)
 						super(block, Writable.new)
-						@finishing = false
-					end
-					
-					def close(error = nil)
-						return unless @finishing
-						super
 					end
 					
 					# Stream the response body into the block's input.
@@ -166,12 +181,10 @@ module Protocol
 						input&.each do |chunk|
 							@input&.write(chunk)
 						end
+						@input&.close_write
 					rescue => error
 						raise
 					ensure
-						@finishing = true
-						@input&.close
-						
 						self.close(error)
 					end
 				end
