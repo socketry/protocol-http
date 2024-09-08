@@ -17,7 +17,11 @@ module Protocol
 			#
 			# If you don't want to read from a stream, and instead want to close it immediately, you can call `close` on the body. If the body is already completely consumed, `close` will do nothing, but if there is still data to be read, it will cause the underlying stream to be reset (and possibly closed).
 			class Readable
-				# Close the stream immediately.
+				# Close the stream immediately. After invoking this method, the stream should be considered closed, and all internal resources should be released.
+				#
+				# If an error occured while handling the output, it can be passed as an argument. This may be propagated to the client, for example the client may be informed that the stream was not fully read correctly.
+				#
+				# Invoking `#read` after `#close` will return `nil`.
 				def close(error = nil)
 				end
 				

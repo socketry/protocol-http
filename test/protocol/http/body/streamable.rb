@@ -62,7 +62,7 @@ describe Protocol::HTTP::Body::Streamable do
 				
 				expect do
 					@stream.write("!")
-				end.to raise_exception(RuntimeError, message: be =~ /Stream is not being read!/)
+				end.to raise_exception(Protocol::HTTP::Body::Streamable::ClosedError, message: be =~ /Stream is not being read!/)
 			end
 		end
 	end
@@ -149,6 +149,7 @@ describe Protocol::HTTP::Body::Streamable do
 		let(:block) do
 			proc do |stream|
 				while chunk = stream.read_partial
+					$stderr.puts "Got chunk: #{chunk.inspect}"
 					stream.write(chunk)
 				end
 			end
@@ -169,6 +170,13 @@ describe Protocol::HTTP::Body::Streamable do
 			body.call(stream)
 			
 			expect(output.string).to be == "Hello World"
+		end
+		
+		with '#close' do
+			it "can close the body" do
+				expect(body.read).to be == "Hello"
+				body.close
+			end
 		end
 	end
 end

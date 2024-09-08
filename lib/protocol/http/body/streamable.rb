@@ -17,11 +17,14 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			module Streamable
+				class ClosedError < StandardError
+				end
+				
 				def self.new(*arguments)
 					if arguments.size == 1
-						RequestBody.new(*arguments)
+						DeferredBody.new(*arguments)
 					else
-						ResponseBody.new(*arguments)
+						Body.new(*arguments)
 					end
 				end
 				
@@ -39,8 +42,6 @@ module Protocol
 						@fiber = Fiber.new do |from|
 							@from = from
 							block.call(stream)
-						rescue Closed
-							# Ignore.
 						ensure
 							@fiber = nil
 							
@@ -58,16 +59,18 @@ module Protocol
 							@from = nil
 							@from = from.transfer(chunk)
 						else
-							raise RuntimeError, "Stream is not being read!"
+							raise ClosedError, "Stream is not being read!"
 						end
 					end
 					
 					# Can be invoked by the block to close the stream. Closing the output means that no more chunks will be generated.
 					def close(error = nil)
 						if from = @from
+							# We are closing from within the output fiber, so we need to transfer back to `@from`:
 							@from = nil
 							from.transfer(nil)
 						elsif @fiber
+							# We are closing from outside the output fiber, so we need to resume the fiber appropriately:
 							@from = Fiber.current
 							
 							if error
@@ -134,20 +137,21 @@ module Protocol
 					
 					# Closing a stream indicates we are no longer interested in reading from it.
 					def close(error = nil)
-						if output = @output
-							@output = nil
-							output.close(error)
-						end
-						
+						$stderr.puts "Closing input: #{@input.inspect}"
 						if input = @input
 							@input = nil
 							input.close(error)
 						end
+						
+						if output = @output
+							@output = nil
+							output.close(error)
+						end
 					end
 				end
 				
-				# A request body has an extra `stream` method which can be used to stream data into the body, as the response body won't be available until the request has been sent.
-				class RequestBody < Body
+				# A deferred body has an extra `stream` method which can be used to stream data into the body, as the response body won't be available until the request has been sent.
+				class DeferredBody < Body
 					def initialize(block)
 						super(block, Writable.new)
 						@finishing = false
@@ -171,17 +175,6 @@ module Protocol
 						
 						self.close(error)
 					end
-				end
-				
-				def self.request(&block)
-					RequestBody.new(block)
-				end
-				
-				class ResponseBody < Body
-				end
-				
-				def self.response(request, &block)
-					ResponseBody.new(block, request.body)
 				end
 			end
 		end

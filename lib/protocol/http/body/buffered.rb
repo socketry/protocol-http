@@ -52,8 +52,8 @@ module Protocol
 				
 				attr :chunks
 				
-				def finish
-					self
+				def close(error = nil)
+					@chunks = []
 				end
 				
 				def length

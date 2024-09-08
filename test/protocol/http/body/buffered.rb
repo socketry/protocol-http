@@ -5,10 +5,13 @@
 # Copyright, 2020-2023, by Bruno Sutic.
 
 require 'protocol/http/body/buffered'
+require "protocol/http/body/a_readable_body"
 
 describe Protocol::HTTP::Body::Buffered do
 	let(:source) {["Hello", "World"]}
 	let(:body) {subject.wrap(source)}
+	
+	it_behaves_like Protocol::HTTP::Body::AReadableBody
 	
 	with ".wrap" do
 		with "an instance of Protocol::HTTP::Body::Readable as a source" do
