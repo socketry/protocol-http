@@ -133,9 +133,6 @@ describe Protocol::HTTP::Body::Streamable do
 				end.to raise_exception(RuntimeError, message: be =~ /Oh no... a wild error appeared!/)
 				
 				expect(stream.string).to be == "Hello"
-				
-				body.stream(nil)
-				body.close
 			end
 		end
 	end
