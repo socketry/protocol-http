@@ -68,15 +68,15 @@ module Protocol
 					end
 				end
 				
-				def stream?
-					true
-				end
+				# def stream?
+				# 	true
+				# end
 				
-				def call(stream)
-					IO.copy_stream(@file, stream, @remaining)
-				ensure
-					stream.close
-				end
+				# def call(stream)
+				# 	IO.copy_stream(@file, stream, @remaining)
+				# ensure
+				# 	stream.close
+				# end
 				
 				def join
 					return "" if @remaining == 0
