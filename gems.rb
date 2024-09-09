@@ -26,4 +26,4 @@ group :test do
 	gem "bake-test-external"
 end
 
-gem "debug", ">= 1.0.0"
+gem "async-http", path: "../async-http"

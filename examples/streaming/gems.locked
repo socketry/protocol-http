@@ -1,4 +1,17 @@
 PATH
+  remote: ../../../async-http
+  specs:
+    async-http (0.75.0)
+      async (>= 2.10.2)
+      async-pool (~> 0.7)
+      io-endpoint (~> 0.11)
+      io-stream (~> 0.4)
+      protocol-http (~> 0.33)
+      protocol-http1 (~> 0.20)
+      protocol-http2 (~> 0.18)
+      traces (>= 0.10)
+
+PATH
   remote: ../..
   specs:
     protocol-http (0.33.0)
@@ -10,15 +23,6 @@ GEM
       console (~> 1.26)
       fiber-annotation
       io-event (~> 1.6, >= 1.6.5)
-    async-http (0.75.0)
-      async (>= 2.10.2)
-      async-pool (~> 0.7)
-      io-endpoint (~> 0.11)
-      io-stream (~> 0.4)
-      protocol-http (~> 0.30)
-      protocol-http1 (~> 0.20)
-      protocol-http2 (~> 0.18)
-      traces (>= 0.10)
     async-pool (0.8.1)
       async (>= 1.25)
       metrics
@@ -64,7 +68,7 @@ PLATFORMS
 
 DEPENDENCIES
   async
-  async-http
+  async-http!
   debug
   protocol-http!
 
