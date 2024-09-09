@@ -56,6 +56,17 @@ module Protocol
 					self
 				end
 				
+				# Ensure that future reads return nil, but allow for rewinding.
+				def close(error = nil)
+					@index = @chunks.length
+				end
+				
+				def clear
+					@chunks.clear
+					@length = 0
+					@index = 0
+				end
+				
 				def length
 					@length ||= @chunks.inject(0) {|sum, chunk| sum + chunk.bytesize}
 				end
@@ -70,6 +81,8 @@ module Protocol
 				end
 				
 				def read
+					return nil unless @chunks
+					
 					if chunk = @chunks[@index]
 						@index += 1
 						
@@ -81,18 +94,26 @@ module Protocol
 					@chunks << chunk
 				end
 				
+				def close_write(error)
+					# Nothing to do.
+				end
+				
 				def rewindable?
-					true
+					@chunks != nil
 				end
 				
 				def rewind
+					return false unless @chunks
+					
 					@index = 0
 					
 					return true
 				end
 				
 				def inspect
-					"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
+					if @chunks
+						"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
+					end
 				end
 			end
 		end

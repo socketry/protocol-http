@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2024, by Samuel Williams.
 
 require_relative 'readable'
 
@@ -68,13 +68,15 @@ module Protocol
 					end
 				end
 				
-				def stream?
-					true
-				end
+				# def stream?
+				# 	true
+				# end
 				
-				def call(stream)
-					IO.copy_stream(@file, stream, @remaining)
-				end
+				# def call(stream)
+				# 	IO.copy_stream(@file, stream, @remaining)
+				# ensure
+				# 	stream.close
+				# end
 				
 				def join
 					return "" if @remaining == 0

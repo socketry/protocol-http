@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2018-2023, by Samuel Williams.
+# Copyright, 2024, by Samuel Williams.
 
 require 'protocol/http/body/writable'
 require 'protocol/http/body/deflate'
+require 'protocol/http/body/a_writable_body'
 
 describe Protocol::HTTP::Body::Writable do
 	let(:body) {subject.new}
+	
+	it_behaves_like Protocol::HTTP::Body::AWritableBody
 	
 	with "#length" do
 		it "should be unspecified by default" do
@@ -41,14 +44,15 @@ describe Protocol::HTTP::Body::Writable do
 		it "should be empty if closed with no pending chunks" do
 			expect(body).not.to be(:empty?)
 			
-			body.close
+			body.close_write
 			
 			expect(body).to be(:empty?)
 		end
 		
 		it "should become empty when pending chunks are read" do
 			body.write("Hello")
-			body.close
+			
+			body.close_write
 			
 			expect(body).not.to be(:empty?)
 			body.read
@@ -102,7 +106,7 @@ describe Protocol::HTTP::Body::Writable do
 				body.write("#{i}")
 			end
 			
-			body.close
+			body.close_write
 			
 			expect(body.join).to be == "012"
 		end
@@ -114,7 +118,7 @@ describe Protocol::HTTP::Body::Writable do
 				body.write("Hello World #{i}")
 			end
 			
-			body.close
+			body.close_write
 			
 			3.times do |i|
 				chunk = body.read
@@ -154,7 +158,7 @@ describe Protocol::HTTP::Body::Writable do
 		
 		it "will stop after finishing" do
 			body.write("Hello World!")
-			body.close
+			body.close_write
 			
 			expect(body).not.to be(:empty?)
 			
@@ -163,6 +167,33 @@ describe Protocol::HTTP::Body::Writable do
 			end
 			
 			expect(body).to be(:empty?)
+		end
+	end
+	
+	with "#output" do
+		it "can be used to write data" do
+			body.output do |output|
+				output.write("Hello World!")
+			end
+			
+			expect(body.output).to be(:closed?)
+			
+			expect(body.read).to be == "Hello World!"
+			expect(body.read).to be_nil
+		end
+		
+		it "can propagate errors" do
+			expect do
+				body.output do |output|
+					raise "Oops!"
+				end
+			end.to raise_exception(RuntimeError, message: be =~ /Oops/)
+			
+			expect(body).to be(:closed?)
+			
+			expect do
+				body.read
+			end.to raise_exception(RuntimeError, message: be =~ /Oops/)
 		end
 	end
 end

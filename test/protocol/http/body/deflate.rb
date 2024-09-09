@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2024, by Samuel Williams.
 
 require 'protocol/http/body/buffered'
 require 'protocol/http/body/deflate'
@@ -17,7 +17,6 @@ describe Protocol::HTTP::Body::Deflate do
 	
 	it "should round-trip data" do
 		body.write("Hello World!")
-		body.close
 		
 		expect(decompressed_body.join).to be == "Hello World!"
 	end
@@ -26,7 +25,6 @@ describe Protocol::HTTP::Body::Deflate do
 	
 	it "should round-trip data" do
 		body.write(data)
-		body.close
 		
 		expect(decompressed_body.read).to be == data
 		expect(decompressed_body.read).to be == nil
@@ -39,7 +37,6 @@ describe Protocol::HTTP::Body::Deflate do
 		10.times do
 			body.write("Hello World!")
 		end
-		body.close
 		
 		10.times do
 			expect(decompressed_body.read).to be == "Hello World!"

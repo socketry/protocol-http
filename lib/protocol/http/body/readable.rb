@@ -17,7 +17,11 @@ module Protocol
 			#
 			# If you don't want to read from a stream, and instead want to close it immediately, you can call `close` on the body. If the body is already completely consumed, `close` will do nothing, but if there is still data to be read, it will cause the underlying stream to be reset (and possibly closed).
 			class Readable
-				# Close the stream immediately.
+				# Close the stream immediately. After invoking this method, the stream should be considered closed, and all internal resources should be released.
+				#
+				# If an error occured while handling the output, it can be passed as an argument. This may be propagated to the client, for example the client may be informed that the stream was not fully read correctly.
+				#
+				# Invoking `#read` after `#close` will return `nil`.
 				def close(error = nil)
 				end
 				
@@ -68,13 +72,15 @@ module Protocol
 				def each
 					return to_enum unless block_given?
 					
-					while chunk = self.read
-						yield chunk
+					begin
+						while chunk = self.read
+							yield chunk
+						end
+					rescue => error
+						raise
+					ensure
+						self.close(error)
 					end
-				rescue => error
-					raise
-				ensure
-					self.close(error)
 				end
 				
 				# Read all remaining chunks into a single binary string using `#each`.
@@ -98,12 +104,14 @@ module Protocol
 					false
 				end
 				
+				# Invoke the body with the given stream.
+				#
+				# The default implementation simply writes each chunk to the stream. If the body is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
+				#
 				# Write the body to the given stream.
 				#
-				# In some cases, the stream may also be readable, such as when hijacking an HTTP/1 connection. In that case, it may be acceptable to read and write to the stream directly.
-				#
-				# If the stream is not ready, it will be flushed after each chunk. Closes the stream when finished or if an error occurs.
-				#
+				# @parameter stream [IO | Object] An `IO`-like object that responds to `#read`, `#write` and `#flush`.
+				# @returns [Boolean] Whether the ownership of the stream was transferred.
 				def call(stream)
 					self.each do |chunk|
 						stream.write(chunk)
@@ -113,6 +121,8 @@ module Protocol
 							stream.flush
 						end
 					end
+				ensure
+					stream.close
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.

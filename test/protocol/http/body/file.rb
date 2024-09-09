@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2024, by Samuel Williams.
 
 require 'protocol/http/body/file'
 
@@ -9,11 +9,11 @@ describe Protocol::HTTP::Body::File do
 	let(:path) {File.expand_path('file_spec.txt', __dir__)}
 	let(:body) {subject.open(path)}
 	
-	with '#stream?' do
-		it "should be streamable" do
-			expect(body).to be(:stream?)
-		end
-	end
+	# with '#stream?' do
+	# 	it "should be streamable" do
+	# 		expect(body).to be(:stream?)
+	# 	end
+	# end
 	
 	with '#join' do
 		it "should read entire file" do
