@@ -27,13 +27,20 @@ GEM
       fiber-annotation
       fiber-local (~> 1.1)
       json
+    debug (1.9.2)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     fiber-annotation (0.2.0)
     fiber-local (1.1.0)
       fiber-storage
     fiber-storage (1.0.0)
+    io-console (0.7.2)
     io-endpoint (0.13.1)
     io-event (1.6.5)
     io-stream (0.4.0)
+    irb (1.14.0)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
     json (2.7.2)
     metrics (0.10.2)
     protocol-hpack (1.5.0)
@@ -42,6 +49,13 @@ GEM
     protocol-http2 (0.18.0)
       protocol-hpack (~> 1.4)
       protocol-http (~> 0.18)
+    psych (5.1.2)
+      stringio
+    rdoc (6.7.0)
+      psych (>= 4.0.0)
+    reline (0.5.10)
+      io-console (~> 0.5)
+    stringio (3.1.1)
     traces (0.13.1)
 
 PLATFORMS
@@ -51,6 +65,7 @@ PLATFORMS
 DEPENDENCIES
   async
   async-http
+  debug
   protocol-http!
 
 BUNDLED WITH

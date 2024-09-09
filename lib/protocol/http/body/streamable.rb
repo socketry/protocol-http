@@ -33,6 +33,14 @@ module Protocol
 					end
 				end
 				
+				def self.request(&block)
+					DeferredBody.new(block)
+				end
+				
+				def self.response(request, &block)
+					Body.new(block, request.body)
+				end
+				
 				# Represents an output wrapper around a stream, that can invoke a fiber when `#read`` is called.
 				#
 				# This behaves a little bit like a generator or lazy enumerator, in that it can be used to generate chunks of data on demand.
@@ -43,14 +51,12 @@ module Protocol
 						stream = Stream.new(input, self)
 						
 						@from = nil
-						
-						@fiber = Fiber.new do |from|
-							@from = from
+						@to = Fiber.new do
 							block.call(stream)
 						rescue => error
 							# Ignore.
 						ensure
-							@fiber = nil
+							@to = nil
 							self.close(error)
 						end
 					end
@@ -59,7 +65,9 @@ module Protocol
 					def write(chunk)
 						if from = @from
 							@from = nil
-							@from = from.transfer(chunk)
+							@to = Fiber.current
+							
+							from.transfer(chunk)
 						else
 							raise ClosedError, "Stream is not being read!"
 						end
@@ -67,31 +75,35 @@ module Protocol
 					
 					# Indicates that no further output will be generated.
 					def close_write(error = nil)
-						# We might want to specialize the implementation later...
 						close(error)
 					end
 					
 					# Can be invoked by the block to close the stream. Closing the output means that no more chunks will be generated.
 					def close(error = nil)
+						$stderr.puts "Closing from: #{@from}, to: #{@to}, error: #{error}"
 						if from = @from
 							# We are closing from within the output fiber, so we need to transfer back to `@from`:
 							@from = nil
+							@to = Fiber.current
+							
 							if error
 								from.raise(error)
 							else
+								$stderr.puts "Transferring to #{from}...", from.backtrace
 								from.transfer(nil)
 							end
-						elsif @fiber
+						elsif to = @to
 							# We are closing from outside the output fiber, so we need to resume the fiber appropriately:
 							@from = Fiber.current
+							@to = nil
 							
 							if error
 								# The fiber will be resumed from where it last called write, and we will raise the error there:
-								@fiber.raise(error)
+								to.raise(error)
 							else
 								begin
 									# If we get here, it means we are closing the fiber from the outside, so we need to transfer control back to the fiber:
-									@fiber.transfer(nil)
+									to.transfer(nil)
 								rescue Protocol::HTTP::Body::Streamable::ClosedError
 									# If the fiber then tries to write to the stream, it will raise a ClosedError, and we will end up here. We can ignore it, as we are already closing the stream and don't care about further writes.
 								end
@@ -102,7 +114,14 @@ module Protocol
 					def read
 						raise RuntimeError, "Stream is already being read!" if @from
 						
-						@fiber&.transfer(Fiber.current)
+						if to = @to
+							@from = Fiber.current
+							@to = nil
+							
+							to.transfer
+						else
+							return nil
+						end
 					end
 				end
 				
@@ -155,14 +174,69 @@ module Protocol
 					
 					# Closing a stream indicates we are no longer interested in reading from it.
 					def close(error = nil)
+						$stderr.puts "Closing output #{@output}..."
+						if output = @output
+							@output = nil
+							# Closing the output here may take some time, as it may need to finish handling the stream:
+							output.close(error)
+						end
+						
+						$stderr.puts "Closing input #{@input}..."
 						if input = @input
 							@input = nil
 							input.close(error)
 						end
-						
-						if output = @output
-							@output = nil
-							output.close(error)
+					end
+				end
+				
+				class Input
+					def initialize(from = Fiber.current)
+						@from = from
+						@to = nil
+					end
+					
+					def read
+						if from = @from
+							@from = nil
+							@to = Fiber.current
+							
+							return from.transfer
+						else
+							raise ClosedError, "Stream is not being written!"
+						end
+					end
+					
+					def write(chunk)
+						if to = @to
+							@from = Fiber.current
+							@to = nil
+							
+							to.transfer(chunk)
+						else
+							raise ClosedError, "Stream is not being read!"
+						end
+					end
+					
+					def close_write(error = nil)
+						if to = @to
+							@from = Fiber.current
+							@to = nil
+							
+							if error
+								to.raise(error)
+							else
+								to.transfer(nil)
+							end
+						end
+					end
+					
+					def close(error = nil)
+						close_write(error)
+					end
+					
+					def stream(body)
+						body&.each do |chunk|
+							self.write(chunk)
 						end
 					end
 				end
@@ -170,15 +244,12 @@ module Protocol
 				# A deferred body has an extra `stream` method which can be used to stream data into the body, as the response body won't be available until the request has been sent.
 				class DeferredBody < Body
 					def initialize(block)
-						super(block, Writable.new)
+						super(block, Input.new)
 					end
 					
 					# Stream the response body into the block's input.
-					def stream(input)
-						input&.each do |chunk|
-							@input&.write(chunk)
-						end
-						@input&.close_write
+					def stream(body)
+						@input.stream(body)
 					end
 				end
 			end

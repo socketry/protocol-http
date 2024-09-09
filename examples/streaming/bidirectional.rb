@@ -20,11 +20,14 @@ Async do
 		output = Protocol::HTTP::Body::Streamable.response(request) do |stream|
 			# Simple echo server:
 			while chunk = stream.readpartial(1024)
+				$stderr.puts "Server chunk: #{chunk.inspect}"
 				stream.write(chunk)
 			end
 		rescue EOFError
+			$stderr.puts "Server EOF."
 			# Ignore EOF errors.
 		ensure
+			$stderr.puts "Server closing stream."
 			stream.close
 		end
 		
@@ -38,18 +41,28 @@ Async do
 	streamable = Protocol::HTTP::Body::Streamable.request do |stream|
 		stream.write("Hello, ")
 		stream.write("World!")
+		
+		$stderr.puts "Client closing write..."
 		stream.close_write
 		
+		$stderr.puts "Client reading response..."
+		
 		while chunk = stream.readpartial(1024)
+			$stderr.puts "Client chunk: #{chunk.inspect}"
 			puts chunk
 		end
+		$stderr.puts "Client done reading response."
 	rescue EOFError
+		$stderr.puts "Client EOF."
 		# Ignore EOF errors.
 	ensure
+		$stderr.puts "Client closing stream."
 		stream.close
 	end
 	
+	$stderr.puts "Client sending request..."
 	response = client.get("/", body: streamable)
+	$stderr.puts "Client received response and streaming it..."
 	streamable.stream(response.body)
 ensure
 	server_task.stop

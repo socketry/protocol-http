@@ -25,3 +25,5 @@ group :test do
 	gem "bake-test"
 	gem "bake-test-external"
 end
+
+gem "debug", ">= 1.0.0"
