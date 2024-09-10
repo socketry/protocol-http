@@ -28,4 +28,4 @@ group :test do
 	gem "bake-test-external"
 end
 
-gem "async-http", path: "../async-http"
+# gem "async-http", path: "../async-http"
