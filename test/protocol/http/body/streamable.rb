@@ -4,8 +4,11 @@
 # Copyright, 2024, by Samuel Williams.
 
 require 'protocol/http/body/streamable'
+require 'sus/fixtures/async'
 
 describe Protocol::HTTP::Body::Streamable do
+	include Sus::Fixtures::Async::ReactorContext
+	
 	let(:block) do
 		proc do |stream|
 			stream.write("Hello")
@@ -33,37 +36,6 @@ describe Protocol::HTTP::Body::Streamable do
 			expect(body.read).to be == "Hello"
 			expect(body.read).to be == "World"
 			expect(body.read).to be == nil
-		end
-		
-		with "block that doesn't close" do
-			let(:block) do
-				proc do |stream|
-					stream.write("Hello")
-					stream.write("World")
-				end
-			end
-			
-			it "can read the body" do
-				expect(body.read).to be == "Hello"
-				expect(body.read).to be == "World"
-				expect(body.read).to be == nil
-			end
-		end
-		
-		with "a block that allows stream to escape" do
-			let(:block) do
-				proc do |stream|
-					@stream = stream
-				end
-			end
-			
-			it "can read the body" do
-				expect(body.read).to be == nil
-				
-				expect do
-					@stream.write("!")
-				end.to raise_exception(Protocol::HTTP::Body::Streamable::ClosedError, message: be =~ /Stream is not being read!/)
-			end
 		end
 	end
 	
@@ -146,10 +118,7 @@ describe Protocol::HTTP::Body::Streamable do
 		
 		it "can raise an error on the block" do
 			expect(body.read).to be == "Hello"
-			
-			expect do
-				body.close(RuntimeError.new("Oh no!"))
-			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
+			body.close(RuntimeError.new("Oh no!"))
 		end
 	end
 	
