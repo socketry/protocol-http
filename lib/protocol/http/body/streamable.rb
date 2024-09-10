@@ -47,7 +47,6 @@ module Protocol
 					def schedule
 						@fiber ||= Fiber.schedule do
 							@block.call(@stream)
-							
 						end
 					end
 					
@@ -70,12 +69,6 @@ module Protocol
 						@input = input
 						@output = nil
 					end
-					
-					attr :block
-					
-					attr :input
-					
-					attr :output
 					
 					def stream?
 						true

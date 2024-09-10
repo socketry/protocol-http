@@ -25,12 +25,6 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#block' do
-		it "should wrap block" do
-			expect(body.block).to be == block
-		end
-	end
-	
 	with '#read' do
 		it "can read the body" do
 			expect(body.read).to be == "Hello"
