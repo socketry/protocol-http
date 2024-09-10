@@ -18,13 +18,8 @@ endpoint = Async::HTTP::Endpoint.parse('http://localhost:3000')
 Async do
 	server = Async::HTTP::Server.for(endpoint) do |request|
 		output = Protocol::HTTP::Body::Streamable.response(request) do |stream|
-			# Simple echo server:
-			while chunk = stream.readpartial(1024)
-				$stderr.puts "Server chunk: #{chunk.inspect}"
-				stream.write(chunk)
-				$stderr.puts "Server waiting for next chunk..."
-			end
-			$stderr.puts "Server done reading request."
+			$stderr.puts "Server sending text..."
+			stream.write("Hello from server!")
 		rescue EOFError
 			$stderr.puts "Server EOF."
 			# Ignore EOF errors.
@@ -41,24 +36,14 @@ Async do
 	client = Async::HTTP::Client.new(endpoint)
 	
 	streamable = Protocol::HTTP::Body::Streamable.request do |stream|
-		stream.write("Hello, ")
-		stream.write("World!")
-		
-		$stderr.puts "Client closing write..."
-		stream.close_write
-		
-		$stderr.puts "Client reading response..."
-		
 		while chunk = stream.readpartial(1024)
 			$stderr.puts "Client chunk: #{chunk.inspect}"
-			puts chunk
 		end
-		$stderr.puts "Client done reading response."
 	rescue EOFError
 		$stderr.puts "Client EOF."
 		# Ignore EOF errors.
 	ensure
-		$stderr.puts "Client closing stream: #{$!}"
+		$stderr.puts "Client closing stream."
 		stream.close
 	end
 	
