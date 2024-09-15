@@ -133,6 +133,12 @@ module Protocol
 					Buffered.read(self)
 				end
 				
+				def discard
+					while chunk = self.read
+						chunk.clear
+					end
+				end
+				
 				def as_json(...)
 					{
 						class: self.class.name,

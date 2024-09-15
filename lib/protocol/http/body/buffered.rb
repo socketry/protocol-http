@@ -90,6 +90,10 @@ module Protocol
 					end
 				end
 				
+				def discard
+					clear
+				end
+				
 				def write(chunk)
 					@chunks << chunk
 				end
