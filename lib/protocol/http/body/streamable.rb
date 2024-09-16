@@ -17,20 +17,12 @@ module Protocol
 			#
 			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
 			module Streamable
-				def self.new(*arguments)
-					if arguments.size == 1
-						DeferredBody.new(*arguments)
-					else
-						Body.new(*arguments)
-					end
-				end
-				
 				def self.request(&block)
-					DeferredBody.new(block)
+					RequestBody.new(block)
 				end
 				
 				def self.response(request, &block)
-					Body.new(block, request.body)
+					ResponseBody.new(block, request.body)
 				end
 				
 				class Output
@@ -109,32 +101,37 @@ module Protocol
 						raise
 					end
 					
-					# Closing a stream indicates we are no longer interested in reading from it.
-					def close(error = nil)
-						if output = @output
-							@output = nil
-							# Closing the output here may take some time, as it may need to finish handling the stream:
-							output.close(error)
-						end
-						
+					def close_input(error = nil)
 						if input = @input
 							@input = nil
 							input.close(error)
 						end
 					end
+					
+					def close_output(error = nil)
+						@output&.close(error)
+					end
 				end
 				
-				# A deferred body has an extra `stream` method which can be used to stream data into the body, as the response body won't be available until the request has been sent.
-				class DeferredBody < Body
+				# A response body is used on the server side to generate the response body using a block.
+				class ResponseBody < Body
+					def close(error = nil)
+						# Close will be invoked when all the output is written.
+						self.close_output(error)
+					end
+				end
+				
+				# A request body is used on the client side to generate the request body using a block.
+				#
+				# As the response body isn't available until the request is sent, the response body must be {stream}ed into the request body.
+				class RequestBody < Body
 					def initialize(block)
 						super(block, Writable.new)
 					end
 					
-					# Closing a stream indicates we are no longer interested in reading from it, but in this case that does not mean that the output block is finished generating data.
 					def close(error = nil)
-						if error
-							super
-						end
+						# Close will be invoked when all the input is read.
+						self.close_input(error)
 					end
 					
 					# Stream the response body into the block's input.

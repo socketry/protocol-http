@@ -273,8 +273,8 @@ module Protocol
 				
 				# Close the input and output bodies.
 				def close(error = nil)
-					self.close_read
-					self.close_write
+					self.close_read(error)
+					self.close_write(error)
 					
 					return nil
 				ensure

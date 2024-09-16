@@ -17,7 +17,23 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	let(:body) {subject.new(block)}
+	let(:body) {subject.request(&block)}
+	
+	with ".request" do
+		it "can create a new body" do
+			body = subject.request(&block)
+			expect(body).to be_a(Protocol::HTTP::Body::Streamable::RequestBody)
+		end
+	end
+	
+	with ".response" do
+		let(:request) {Protocol::HTTP::Request.new("GET", "/")}
+		
+		it "can create a new body" do
+			body = subject.response(request, &block)
+			expect(body).to be_a(Protocol::HTTP::Body::Streamable::Body)
+		end
+	end
 	
 	with "#stream?" do
 		it "should be streamable" do
@@ -39,8 +55,6 @@ describe Protocol::HTTP::Body::Streamable do
 				stream.close_write
 			end
 		end
-		
-		let(:body) {subject.new(block)}
 		
 		it "can close the output body" do
 			expect(body.read).to be == nil
@@ -141,7 +155,8 @@ describe Protocol::HTTP::Body::Streamable do
 			end
 		end
 		
-		let(:body) {subject.new(block, input)}
+		let(:response) {Protocol::HTTP::Response[200, body: input]}
+		let(:body) {subject.response(response, &block)}
 		
 		it "can read from input" do
 			expect(body.read).to be == "Hello"
@@ -160,6 +175,8 @@ describe Protocol::HTTP::Body::Streamable do
 		
 		with '#close' do
 			it "can close the body" do
+				expect(input).not.to receive(:close)
+				
 				expect(body.read).to be == "Hello"
 				body.close
 			end
@@ -172,6 +189,8 @@ describe Protocol::HTTP::Body::Streamable do
 				while chunk = stream.read_partial
 					stream.write(chunk)
 				end
+			rescue => error
+				stream.close(error)
 			end
 		end
 		
@@ -185,6 +204,24 @@ describe Protocol::HTTP::Body::Streamable do
 			expect(body.read).to be == "World"
 			
 			body.close
+		end
+		
+		it "can stream to output with an error" do
+			input = Protocol::HTTP::Body::Buffered.new(["Hello", " ", "World"])
+			
+			mock(input) do |mock|
+				mock.replace(:read) do
+					raise "Oh no!"
+				end
+			end
+			
+			expect do
+				body.stream(input)
+			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
+			
+			expect do
+				body.read
+			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
 		end
 	end
 end

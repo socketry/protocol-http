@@ -55,7 +55,14 @@ module Protocol
 						raise @error
 					end
 					
-					@queue.pop
+					# This operation may result in @error being set.
+					chunk = @queue.pop
+					
+					if @error
+						raise @error
+					end
+					
+					return chunk
 				end
 				
 				# Write a single chunk to the body. Signal completion by calling `#finish`.
@@ -118,7 +125,11 @@ module Protocol
 				end
 				
 				def inspect
-					"\#<#{self.class} #{@count} chunks written, #{status}>"
+					if @error
+						"\#<#{self.class} #{@count} chunks written, #{status}, error=#{@error}>"
+					else
+						"\#<#{self.class} #{@count} chunks written, #{status}>"
+					end
 				end
 				
 				private
