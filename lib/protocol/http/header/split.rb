@@ -11,8 +11,10 @@ module Protocol
 				COMMA = /\s*,\s*/
 				
 				def initialize(value)
-					if value
+					if value && value.respond_to?(:split)
 						super(value.split(COMMA))
+					elsif value
+						super([value])
 					else
 						super([])
 					end
