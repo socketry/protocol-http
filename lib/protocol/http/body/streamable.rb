@@ -140,7 +140,6 @@ module Protocol
 							@input.write(chunk)
 						end
 					rescue => error
-						raise
 					ensure
 						@input.close_write(error)
 					end

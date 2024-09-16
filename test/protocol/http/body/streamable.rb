@@ -190,6 +190,7 @@ describe Protocol::HTTP::Body::Streamable do
 					stream.write(chunk)
 				end
 			rescue => error
+			ensure
 				stream.close(error)
 			end
 		end
@@ -215,12 +216,74 @@ describe Protocol::HTTP::Body::Streamable do
 				end
 			end
 			
-			expect do
-				body.stream(input)
-			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
+			body.stream(input)
 			
 			expect do
 				body.read
+			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
+		end
+	end
+	
+	with "streaming in a different task" do
+		let(:block) do
+			proc do |stream|
+				while chunk = stream.read_partial
+					stream.write(chunk)
+				end
+			rescue => error
+			ensure
+				stream.close(error)
+			end
+		end
+		
+		let(:input) {Protocol::HTTP::Body::Writable.new}
+		let(:output) {Protocol::HTTP::Body::Writable.new}
+		
+		before do
+			parent = Async::Task.current
+			
+			@input_task = parent.async do
+				body.stream(input)
+			end
+			
+			@output_task = parent.async do
+				while chunk = body.read
+					output.write(chunk)
+				end
+			rescue => error
+			ensure
+				output.close_write(error)
+			end
+		end
+		
+		after do
+			@input_task&.wait
+			@output_task&.wait
+		end
+		
+		it "can stream a chunk" do
+			input.write("Hello")
+			input.close_write
+			expect(output.read).to be == "Hello"
+		end
+		
+		it "can stream multiple chunks" do
+			input.write("Hello")
+			input.write(" ")
+			input.write("World")
+			input.close_write
+			
+			expect(output.read).to be == "Hello"
+			expect(output.read).to be == " "
+			expect(output.read).to be == "World"
+		end
+		
+		it "can stream an error" do
+			input.write("Hello")
+			input.close_write(RuntimeError.new("Oh no!"))
+			
+			expect do
+				output.read
 			end.to raise_exception(RuntimeError, message: be =~ /Oh no!/)
 		end
 	end
