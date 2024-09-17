@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2018-2023, by Samuel Williams.
 
-require_relative 'url'
+require_relative "url"
 
 module Protocol
 	module HTTP
@@ -12,14 +12,14 @@ module Protocol
 			include Comparable
 			
 			# Generate a reference from a path and user parameters. The path may contain a `#fragment` or `?query=parameters`.
-			def self.parse(path = '/', parameters = nil)
-				base, fragment = path.split('#', 2)
-				path, query = base.split('?', 2)
+			def self.parse(path = "/", parameters = nil)
+				base, fragment = path.split("#", 2)
+				path, query = base.split("?", 2)
 				
 				self.new(path, query, fragment, parameters)
 			end
 			
-			def initialize(path = '/', query = nil, fragment = nil, parameters = nil)
+			def initialize(path = "/", query = nil, fragment = nil, parameters = nil)
 				@path = path
 				@query = query
 				@fragment = fragment
@@ -79,15 +79,15 @@ module Protocol
 			
 			def append(buffer)
 				if query?
-					buffer << URL.escape_path(@path) << '?' << @query
-					buffer << '&' << URL.encode(@parameters) if parameters?
+					buffer << URL.escape_path(@path) << "?" << @query
+					buffer << "&" << URL.encode(@parameters) if parameters?
 				else
 					buffer << URL.escape_path(@path)
-					buffer << '?' << URL.encode(@parameters) if parameters?
+					buffer << "?" << URL.encode(@parameters) if parameters?
 				end
 				
 				if fragment?
-					buffer << '#' << URL.escape(@fragment)
+					buffer << "#" << URL.escape(@fragment)
 				end
 				
 				return buffer
@@ -150,31 +150,31 @@ module Protocol
 				if path.empty?
 					[path]
 				else
-					path.split('/', -1)
+					path.split("/", -1)
 				end
 			end
 			
 			def expand_absolute_path(path, parts)
 				parts.each do |part|
-					if part == '..'
+					if part == ".."
 						path.pop
-					elsif part == '.'
+					elsif part == "."
 						# Do nothing.
 					else
 						path << part
 					end
 				end
 				
-				if path.first != ''
-					path.unshift('')
+				if path.first != ""
+					path.unshift("")
 				end
 			end
 			
 			def expand_relative_path(path, parts)
 				parts.each do |part|
-					if part == '..' and path.any?
+					if part == ".." and path.any?
 						path.pop
-					elsif part == '.'
+					elsif part == "."
 						# Do nothing.
 					else
 						path << part
@@ -184,7 +184,7 @@ module Protocol
 			
 			# @param pop [Boolean] whether to remove the last path component of the base path, to conform to URI merging behaviour, as defined by RFC2396.
 			def expand_path(base, relative, pop = true)
-				if relative.start_with? '/'
+				if relative.start_with? "/"
 					return relative
 				end
 				
@@ -194,18 +194,18 @@ module Protocol
 				# 6) a) All but the last segment of the base URI's path component is
 				# copied to the buffer.  In other words, any characters after the
 				# last (right-most) slash character, if any, are excluded.
-				path.pop if pop or path.last == ''
+				path.pop if pop or path.last == ""
 				
 				parts = split(relative)
 				
 				# Absolute path:
-				if path.first == ''
+				if path.first == ""
 					expand_absolute_path(path, parts)
 				else
 					expand_relative_path(path, parts)
 				end	
 				
-				return path.join('/')
+				return path.join("/")
 			end
 		end
 	end

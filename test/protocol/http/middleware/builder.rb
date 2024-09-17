@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'protocol/http/middleware'
-require 'protocol/http/middleware/builder'
+require "protocol/http/middleware"
+require "protocol/http/middleware/builder"
 
 describe Protocol::HTTP::Middleware::Builder do
 	it "can make an app" do

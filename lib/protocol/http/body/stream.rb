@@ -4,7 +4,7 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 
-require_relative 'buffered'
+require_relative "buffered"
 
 module Protocol
 	module HTTP
@@ -43,7 +43,7 @@ module Protocol
 					# @param buffer [String] the buffer which will receive the data
 					# @return a buffer containing the data
 					def read(length = nil, buffer = nil)
-						return '' if length == 0
+						return "" if length == 0
 						
 						buffer ||= String.new.force_encoding(Encoding::BINARY)
 						

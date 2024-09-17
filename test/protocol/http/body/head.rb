@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2023, by Samuel Williams.
 
-require 'protocol/http/body/head'
-require 'protocol/http/body/buffered'
+require "protocol/http/body/head"
+require "protocol/http/body/buffered"
 
 describe Protocol::HTTP::Body::Head do
 	with "zero length" do
@@ -18,7 +18,7 @@ describe Protocol::HTTP::Body::Head do
 			expect(body).to be(:empty?)
 		end
 		
-		with '#join' do
+		with "#join" do
 			it "should be nil" do
 				expect(body.join).to be_nil
 			end
@@ -32,20 +32,20 @@ describe Protocol::HTTP::Body::Head do
 			expect(body).to be(:empty?)
 		end
 		
-		with '#read' do
+		with "#read" do
 			it "should be nil" do
 				expect(body.join).to be_nil
 			end
 		end
 		
-		with '#join' do
+		with "#join" do
 			it "should be nil" do
 				expect(body.join).to be_nil
 			end
 		end
 	end
 	
-	with '.for' do
+	with ".for" do
 		let(:source) {Protocol::HTTP::Body::Buffered.wrap("!")}
 		let(:body) {subject.for(source)}
 		

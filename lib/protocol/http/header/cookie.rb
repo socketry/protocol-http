@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require_relative 'multiple'
-require_relative '../cookie'
+require_relative "multiple"
+require_relative "../cookie"
 
 module Protocol
 	module HTTP

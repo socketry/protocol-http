@@ -4,15 +4,15 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2024, by Thomas Morgan.
 
-require_relative 'split'
+require_relative "split"
 
 module Protocol
 	module HTTP
 		module Header
 			class Connection < Split
-				KEEP_ALIVE = 'keep-alive'
-				CLOSE = 'close'
-				UPGRADE = 'upgrade'
+				KEEP_ALIVE = "keep-alive"
+				CLOSE = "close"
+				UPGRADE = "upgrade"
 				
 				def initialize(value = nil)
 					super(value&.downcase)

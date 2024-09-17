@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'wrapper'
+require_relative "wrapper"
 
 module Protocol
 	module HTTP

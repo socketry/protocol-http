@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2024, by Samuel Williams.
 
-require 'protocol/http/body/streamable'
-require 'sus/fixtures/async'
+require "protocol/http/body/streamable"
+require "sus/fixtures/async"
 
 describe Protocol::HTTP::Body::Streamable do
 	include Sus::Fixtures::Async::ReactorContext
@@ -41,7 +41,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#read' do
+	with "#read" do
 		it "can read the body" do
 			expect(body.read).to be == "Hello"
 			expect(body.read).to be == "World"
@@ -49,7 +49,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#close_write' do
+	with "#close_write" do
 		let(:block) do
 			proc do |stream|
 				stream.close_write
@@ -61,7 +61,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#each' do
+	with "#each" do
 		it "can read the body" do
 			chunks = []
 			body.each{|chunk| chunks << chunk}
@@ -69,7 +69,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#call' do
+	with "#call" do
 		it "can read the body" do
 			stream = StringIO.new
 			body.call(stream)
@@ -117,7 +117,7 @@ describe Protocol::HTTP::Body::Streamable do
 		end
 	end
 	
-	with '#close' do
+	with "#close" do
 		it "can close the body" do
 			expect(body.read).to be == "Hello"
 			
@@ -173,7 +173,7 @@ describe Protocol::HTTP::Body::Streamable do
 			expect(output.string).to be == "Hello World"
 		end
 		
-		with '#close' do
+		with "#close" do
 			it "can close the body" do
 				expect(input).not.to receive(:close)
 				

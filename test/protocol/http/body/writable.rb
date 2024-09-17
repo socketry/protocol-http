@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2024, by Samuel Williams.
 
-require 'protocol/http/body/writable'
-require 'protocol/http/body/deflate'
-require 'protocol/http/body/a_writable_body'
+require "protocol/http/body/writable"
+require "protocol/http/body/deflate"
+require "protocol/http/body/a_writable_body"
 
 describe Protocol::HTTP::Body::Writable do
 	let(:body) {subject.new}
@@ -100,7 +100,7 @@ describe Protocol::HTTP::Body::Writable do
 		end
 	end
 	
-	with '#join' do
+	with "#join" do
 		it "can join chunks" do
 			3.times do |i|
 				body.write("#{i}")
@@ -112,7 +112,7 @@ describe Protocol::HTTP::Body::Writable do
 		end
 	end
 	
-	with '#each' do
+	with "#each" do
 		it "can read all data in order" do
 			3.times do |i|
 				body.write("Hello World #{i}")

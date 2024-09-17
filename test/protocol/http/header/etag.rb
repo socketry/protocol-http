@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023, by Samuel Williams.
 
-require 'protocol/http/header/etag'
+require "protocol/http/header/etag"
 
 describe Protocol::HTTP::Header::ETag do
 	let(:header) {subject.new(description)}

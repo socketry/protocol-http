@@ -4,7 +4,7 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2020, by Bryan Powell.
 
-require_relative 'readable'
+require_relative "readable"
 
 module Protocol
 	module HTTP

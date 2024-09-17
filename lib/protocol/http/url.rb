@@ -10,7 +10,7 @@ module Protocol
 			# Escapes a string using percent encoding.
 			def self.escape(string, encoding = string.encoding)
 				string.b.gsub(/([^a-zA-Z0-9_.\-]+)/) do |m|
-					'%' + m.unpack('H2' * m.bytesize).join('%').upcase
+					"%" + m.unpack("H2" * m.bytesize).join("%").upcase
 				end.force_encoding(encoding)
 			end
 			
@@ -28,7 +28,7 @@ module Protocol
 			def self.escape_path(path)
 				encoding = path.encoding
 				path.b.gsub(NON_PCHAR) do |m|
-					'%' + m.unpack('H2' * m.bytesize).join('%').upcase
+					"%" + m.unpack("H2" * m.bytesize).join("%").upcase
 				end.force_encoding(encoding)
 			end
 			
@@ -42,7 +42,7 @@ module Protocol
 				when Hash
 					return value.map {|k, v|
 						self.encode(v, prefix ? "#{prefix}[#{escape(k.to_s)}]" : escape(k.to_s))
-					}.reject(&:empty?).join('&')
+					}.reject(&:empty?).join("&")
 				when nil
 					return prefix
 				else
@@ -57,10 +57,10 @@ module Protocol
 			# 	@parameter key [String] The unescaped key.
 			# 	@parameter value [String] The unescaped key.
 			def self.scan(string)
-				string.split('&') do |assignment|
+				string.split("&") do |assignment|
 					next if assignment.empty?
 					
-					key, value = assignment.split('=', 2)
+					key, value = assignment.split("=", 2)
 					
 					yield unescape(key), value.nil? ? value : unescape(value)
 				end

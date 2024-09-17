@@ -4,7 +4,7 @@
 # Copyright, 2020-2023, by Samuel Williams.
 # Copyright, 2023, by Thomas Morgan.
 
-require 'protocol/http/header/etags'
+require "protocol/http/header/etags"
 
 describe Protocol::HTTP::Header::ETags do
 	let(:header) {subject.new(description)}

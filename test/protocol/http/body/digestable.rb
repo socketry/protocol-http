@@ -3,16 +3,16 @@
 # Released under the MIT License.
 # Copyright, 2020-2024, by Samuel Williams.
 
-require 'protocol/http/body/digestable'
-require 'protocol/http/body/buffered'
+require "protocol/http/body/digestable"
+require "protocol/http/body/buffered"
 
 describe Protocol::HTTP::Body::Digestable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
-	with '.wrap' do
+	with ".wrap" do
 		let(:source) {Protocol::HTTP::Body::Buffered.wrap("HelloWorld")}
-		let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+		let(:message) {Protocol::HTTP::Request.new(nil, nil, "GET", "/", nil, Protocol::HTTP::Headers.new, body)}
 		
 		it "can wrap a message" do
 			Protocol::HTTP::Body::Digestable.wrap(message) do |digestable|
@@ -25,7 +25,7 @@ describe Protocol::HTTP::Body::Digestable do
 		end
 	end
 	
-	with '#digest' do
+	with "#digest" do
 		def before
 			source.write "Hello"
 			source.write "World"

@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2024, by Samuel Williams.
 
-require_relative 'readable'
+require_relative "readable"
 
 module Protocol
 	module HTTP
@@ -137,15 +137,15 @@ module Protocol
 				def status
 					if @queue.empty?
 						if @queue.closed?
-							'closed'
+							"closed"
 						else
-							'waiting'
+							"waiting"
 						end
 					else
 						if @queue.closed?
-							'closing'
+							"closing"
 						else
-							'ready'
+							"ready"
 						end
 					end
 				end

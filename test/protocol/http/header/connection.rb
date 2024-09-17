@@ -4,8 +4,8 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2024, by Thomas Morgan.
 
-require 'protocol/http/headers'
-require 'protocol/http/cookie'
+require "protocol/http/headers"
+require "protocol/http/cookie"
 
 describe Protocol::HTTP::Header::Connection do
 	let(:header) {subject.new(description)}

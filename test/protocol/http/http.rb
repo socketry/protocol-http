@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2018-2023, by Samuel Williams.
 
-require 'protocol/http'
+require "protocol/http"
 
 describe Protocol::HTTP do
 	it "has a version number" do

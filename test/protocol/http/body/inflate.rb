@@ -4,11 +4,11 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/body/buffered'
-require 'protocol/http/body/deflate'
-require 'protocol/http/body/inflate'
+require "protocol/http/body/buffered"
+require "protocol/http/body/deflate"
+require "protocol/http/body/inflate"
 
-require 'securerandom'
+require "securerandom"
 
 describe Protocol::HTTP::Body::Inflate do
 	let(:sample) {"The quick brown fox jumps over the lazy dog."}

@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2020-2024, by Samuel Williams.
 
-require_relative 'wrapper'
+require_relative "wrapper"
 
-require 'digest/sha2'
+require "digest/sha2"
 
 module Protocol
 	module HTTP

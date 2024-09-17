@@ -5,10 +5,10 @@
 
 require_relative "http/version"
 
-require_relative 'http/headers'
-require_relative 'http/request'
-require_relative 'http/response'
-require_relative 'http/middleware'
+require_relative "http/headers"
+require_relative "http/request"
+require_relative "http/response"
+require_relative "http/middleware"
 
 # @namespace
 module Protocol

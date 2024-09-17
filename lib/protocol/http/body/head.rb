@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2020-2023, by Samuel Williams.
 
-require_relative 'readable'
+require_relative "readable"
 
 module Protocol
 	module HTTP

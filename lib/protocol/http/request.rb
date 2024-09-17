@@ -3,11 +3,11 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'body/buffered'
-require_relative 'body/reader'
+require_relative "body/buffered"
+require_relative "body/reader"
 
-require_relative 'headers'
-require_relative 'methods'
+require_relative "headers"
+require_relative "methods"
 
 module Protocol
 	module HTTP

@@ -4,7 +4,7 @@
 # Copyright, 2023, by Samuel Williams.
 # Copyright, 2023, by Thomas Morgan.
 
-require 'protocol/http/header/cache_control'
+require "protocol/http/header/cache_control"
 
 describe Protocol::HTTP::Header::CacheControl do
 	let(:header) {subject.new(description)}

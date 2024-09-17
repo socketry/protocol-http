@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/request'
+require "protocol/http/request"
 
-require 'json'
+require "json"
 
 describe Protocol::HTTP::Request do
 	let(:headers) {Protocol::HTTP::Headers.new}

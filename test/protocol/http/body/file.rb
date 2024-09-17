@@ -3,10 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'protocol/http/body/file'
+require "protocol/http/body/file"
 
 describe Protocol::HTTP::Body::File do
-	let(:path) {File.expand_path('file_spec.txt', __dir__)}
+	let(:path) {File.expand_path("file_spec.txt", __dir__)}
 	let(:body) {subject.open(path)}
 	
 	# with '#stream?' do
@@ -15,13 +15,13 @@ describe Protocol::HTTP::Body::File do
 	# 	end
 	# end
 	
-	with '#join' do
+	with "#join" do
 		it "should read entire file" do
 			expect(body.join).to be == "Hello World"
 		end
 	end
 	
-	with '#close' do
+	with "#close" do
 		it "should close file" do
 			expect(body.file).to receive(:close)
 			
@@ -31,7 +31,7 @@ describe Protocol::HTTP::Body::File do
 		end
 	end
 	
-	with '#rewind' do
+	with "#rewind" do
 		it "should rewind file" do
 			expect(body.read).to be == "Hello World"
 			expect(body).to be(:empty?)
@@ -43,13 +43,13 @@ describe Protocol::HTTP::Body::File do
 		end
 	end
 	
-	with '#inspect' do
+	with "#inspect" do
 		it "generates a string representation" do
 			expect(body.inspect).to be =~ /Protocol::HTTP::Body::File file=(.*?) offset=\d+ remaining=\d+/
 		end
 	end
 	
-	with 'entire file' do
+	with "entire file" do
 		it "should read entire file" do
 			expect(body.read).to be == "Hello World"
 		end
@@ -62,14 +62,14 @@ describe Protocol::HTTP::Body::File do
 			expect(chunk.encoding).to be == Encoding::BINARY
 		end
 		
-		with '#ready?' do
+		with "#ready?" do
 			it "should be ready" do
 				expect(body).to be(:ready?)
 			end
 		end
 	end
 	
-	with 'partial file' do
+	with "partial file" do
 		let(:body) {subject.open(path, 2...4)}
 		
 		it "should read specified range" do
@@ -88,9 +88,9 @@ describe Protocol::HTTP::Body::File do
 		
 		with "/dev/zero" do
 			it "can stream partial output" do
-				skip unless File.exist?('/dev/zero')
+				skip unless File.exist?("/dev/zero")
 				
-				body = subject.open('/dev/zero', 0...10)
+				body = subject.open("/dev/zero", 0...10)
 				
 				body.call(output)
 				

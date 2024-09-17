@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2020-2023, by Samuel Williams.
 
-require 'protocol/http/header/multiple'
+require "protocol/http/header/multiple"
 
 describe Protocol::HTTP::Header::Multiple do
 	let(:header) {subject.new(description)}

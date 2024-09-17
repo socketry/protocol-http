@@ -4,7 +4,7 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2022, by Herrick Fang.
 
-require 'protocol/http/url'
+require "protocol/http/url"
 
 ValidParameters = Sus::Shared("valid parameters") do |parameters, query_string = nil|
 	let(:encoded) {Protocol::HTTP::URL.encode(parameters)}
@@ -23,13 +23,13 @@ ValidParameters = Sus::Shared("valid parameters") do |parameters, query_string =
 end
 
 describe Protocol::HTTP::URL do
-	it_behaves_like ValidParameters, {'foo' => 'bar'}, "foo=bar"
-	it_behaves_like ValidParameters, {'foo' => ["1", "2", "3"]}, "foo[]=1&foo[]=2&foo[]=3"
+	it_behaves_like ValidParameters, {"foo" => "bar"}, "foo=bar"
+	it_behaves_like ValidParameters, {"foo" => ["1", "2", "3"]}, "foo[]=1&foo[]=2&foo[]=3"
 	
-	it_behaves_like ValidParameters, {'foo' => {'bar' => 'baz'}}, "foo[bar]=baz"
-	it_behaves_like ValidParameters, {'foo' => [{'bar' => 'baz'}]}, "foo[][bar]=baz"
+	it_behaves_like ValidParameters, {"foo" => {"bar" => "baz"}}, "foo[bar]=baz"
+	it_behaves_like ValidParameters, {"foo" => [{"bar" => "baz"}]}, "foo[][bar]=baz"
 	
-	it_behaves_like ValidParameters, {'foo' => [{'bar' => 'baz'}, {'bar' => 'bob'}]}
+	it_behaves_like ValidParameters, {"foo" => [{"bar" => "baz"}, {"bar" => "bob"}]}
 	
 	RoundTrippedParameters = Sus::Shared("round-tripped parameters") do
 		let(:encoded) {Protocol::HTTP::URL.encode(parameters)}
@@ -64,7 +64,7 @@ describe Protocol::HTTP::URL do
 		it_behaves_like RoundTrippedParameters
 	end
 	
-	with '.decode' do
+	with ".decode" do
 		it "fails on deeply nested parameters" do
 			expect do
 				Protocol::HTTP::URL.decode("a[b][c][d][e][f][g][h][i]=10")
@@ -83,7 +83,7 @@ describe Protocol::HTTP::URL do
 		end
 	end
 
-	with '.unescape' do
+	with ".unescape" do
 		it "succeds with hex characters" do
 			expect(Protocol::HTTP::URL.unescape("%3A")).to be == ":"
 		end

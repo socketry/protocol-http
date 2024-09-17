@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require 'protocol/http/middleware'
+require "protocol/http/middleware"
 
 describe Protocol::HTTP::Middleware do
 	it "can wrap a block" do
@@ -11,7 +11,7 @@ describe Protocol::HTTP::Middleware do
 			Protocol::HTTP::Response[200]
 		end
 		
-		request = Protocol::HTTP::Request['GET', '/']
+		request = Protocol::HTTP::Request["GET", "/"]
 		
 		response = middleware.call(request)
 		
@@ -45,7 +45,7 @@ describe Protocol::HTTP::Middleware::Okay do
 	let(:middleware) {subject}
 	
 	it "responds with 200" do
-		request = Protocol::HTTP::Request['GET', '/']
+		request = Protocol::HTTP::Request["GET", "/"]
 		
 		response = middleware.call(request)
 		
@@ -59,7 +59,7 @@ describe Protocol::HTTP::Middleware::NotFound do
 	let(:middleware) {subject}
 	
 	it "responds with 404" do
-		request = Protocol::HTTP::Request['GET', '/']
+		request = Protocol::HTTP::Request["GET", "/"]
 		
 		response = middleware.call(request)
 		

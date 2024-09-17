@@ -3,10 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'readable'
-require_relative 'writable'
+require_relative "readable"
+require_relative "writable"
 
-require_relative 'stream'
+require_relative "stream"
 
 module Protocol
 	module HTTP

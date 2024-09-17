@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/response'
-require 'protocol/http/request'
+require "protocol/http/response"
+require "protocol/http/request"
 
 describe Protocol::HTTP::Response do
 	let(:headers) {Protocol::HTTP::Headers.new}

@@ -4,7 +4,7 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2020-2023, by Bruno Sutic.
 
-require 'protocol/http/body/buffered'
+require "protocol/http/body/buffered"
 require "protocol/http/body/a_readable_body"
 
 describe Protocol::HTTP::Body::Buffered do
@@ -77,7 +77,7 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
-	with '#ready?' do
+	with "#ready?" do
 		it "is ready when chunks are available" do
 			expect(body).to be(:ready?)
 		end
@@ -89,7 +89,7 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
-	with '#call' do
+	with "#call" do
 		let(:output) {Protocol::HTTP::Body::Buffered.new}
 		let(:stream) {Protocol::HTTP::Body::Stream.new(nil, output)}
 		
@@ -170,7 +170,7 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
-	with '#inspect' do
+	with "#inspect" do
 		it "can be inspected" do
 			expect(body.inspect).to be =~ /\d+ chunks, \d+ bytes/
 		end

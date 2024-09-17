@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'time'
+require "time"
 
 module Protocol
 	module HTTP

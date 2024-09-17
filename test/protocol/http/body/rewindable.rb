@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'protocol/http/body/rewindable'
-require 'protocol/http/request'
+require "protocol/http/body/rewindable"
+require "protocol/http/request"
 
 describe Protocol::HTTP::Body::Rewindable do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
@@ -47,7 +47,7 @@ describe Protocol::HTTP::Body::Rewindable do
 	with ".wrap" do
 		with "a buffered body" do
 			let(:body) {Protocol::HTTP::Body::Buffered.new}
-			let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+			let(:message) {Protocol::HTTP::Request.new(nil, nil, "GET", "/", nil, Protocol::HTTP::Headers.new, body)}
 			
 			it "returns the body" do
 				expect(subject.wrap(message)).to be == body
@@ -56,7 +56,7 @@ describe Protocol::HTTP::Body::Rewindable do
 		
 		with "a non-rewindable body" do
 			let(:body) {Protocol::HTTP::Body::Readable.new}
-			let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+			let(:message) {Protocol::HTTP::Request.new(nil, nil, "GET", "/", nil, Protocol::HTTP::Headers.new, body)}
 			
 			it "returns a new rewindable body" do
 				expect(subject.wrap(message)).to be_a(Protocol::HTTP::Body::Rewindable)
@@ -64,7 +64,7 @@ describe Protocol::HTTP::Body::Rewindable do
 		end
 	end
 	
-	with '#buffered' do
+	with "#buffered" do
 		it "can generate buffered representation" do
 			3.times do |i|
 				source.write("Hello World #{i}")
@@ -79,7 +79,7 @@ describe Protocol::HTTP::Body::Rewindable do
 		end
 	end
 	
-	with '#empty?' do
+	with "#empty?" do
 		it "can read and re-read the body" do
 			source.write("Hello World")
 			expect(body).not.to be(:empty?)
@@ -99,7 +99,7 @@ describe Protocol::HTTP::Body::Rewindable do
 		end
 	end
 	
-	with '#inspect' do
+	with "#inspect" do
 		it "can generate string representation" do
 			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Rewindable 0/0 chunks read>"
 		end

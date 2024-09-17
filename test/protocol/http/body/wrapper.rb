@@ -3,18 +3,18 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/body/wrapper'
-require 'protocol/http/body/buffered'
-require 'protocol/http/request'
+require "protocol/http/body/wrapper"
+require "protocol/http/body/buffered"
+require "protocol/http/request"
 
-require 'json'
-require 'stringio'
+require "json"
+require "stringio"
 
 describe Protocol::HTTP::Body::Wrapper do
 	let(:source) {Protocol::HTTP::Body::Buffered.new}
 	let(:body) {subject.new(source)}
 	
-	with '#stream?' do
+	with "#stream?" do
 		it "should not be streamable" do
 			expect(body).not.to be(:stream?)
 		end
@@ -50,8 +50,8 @@ describe Protocol::HTTP::Body::Wrapper do
 		expect(body.inspect).to be(:include?, "!")
 	end
 	
-	with '.wrap' do
-		let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+	with ".wrap" do
+		let(:message) {Protocol::HTTP::Request.new(nil, nil, "GET", "/", nil, Protocol::HTTP::Headers.new, body)}
 		
 		it "should wrap body" do
 			subject.wrap(message)

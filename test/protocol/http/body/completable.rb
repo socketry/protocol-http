@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/body/completable'
-require 'protocol/http/body/buffered'
-require 'protocol/http/request'
+require "protocol/http/body/completable"
+require "protocol/http/body/buffered"
+require "protocol/http/request"
 
 describe Protocol::HTTP::Body::Completable do
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
@@ -49,27 +49,27 @@ describe Protocol::HTTP::Body::Completable do
 		end
 	end
 	
-	with '.wrap' do
-		let(:message) {Protocol::HTTP::Request.new(nil, nil, 'GET', '/', nil, Protocol::HTTP::Headers.new, body)}
+	with ".wrap" do
+		let(:message) {Protocol::HTTP::Request.new(nil, nil, "GET", "/", nil, Protocol::HTTP::Headers.new, body)}
 		
-		with 'empty body' do
+		with "empty body" do
 			it_behaves_like AnImmediateCallback
 		end
 		
-		with 'nil body' do
+		with "nil body" do
 			let(:body) {nil}
 			
 			it_behaves_like AnImmediateCallback
 		end
 		
-		with 'non-empty body' do
-			let(:body) {Protocol::HTTP::Body::Buffered.wrap('Hello World')}
+		with "non-empty body" do
+			let(:body) {Protocol::HTTP::Body::Buffered.wrap("Hello World")}
 			
 			it_behaves_like ADeferredCallback
 		end
 	end
 	
-	with '#finish' do
+	with "#finish" do
 		it "invokes callback once" do
 			expect(callback).to receive(:call)
 			

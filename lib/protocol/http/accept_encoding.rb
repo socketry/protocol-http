@@ -3,20 +3,20 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require_relative 'middleware'
+require_relative "middleware"
 
-require_relative 'body/buffered'
-require_relative 'body/inflate'
+require_relative "body/buffered"
+require_relative "body/inflate"
 
 module Protocol
 	module HTTP
 		# Set a valid accept-encoding header and decode the response.
 		class AcceptEncoding < Middleware
-			ACCEPT_ENCODING = 'accept-encoding'.freeze
-			CONTENT_ENCODING = 'content-encoding'.freeze
+			ACCEPT_ENCODING = "accept-encoding".freeze
+			CONTENT_ENCODING = "content-encoding".freeze
 			
 			DEFAULT_WRAPPERS = {
-				'gzip' => Body::Inflate.method(:for),
+				"gzip" => Body::Inflate.method(:for),
 				
 				# There is no point including this:
 				# 'identity' => ->(body){body},
@@ -25,7 +25,7 @@ module Protocol
 			def initialize(app, wrappers = DEFAULT_WRAPPERS)
 				super(app)
 				
-				@accept_encoding = wrappers.keys.join(', ')
+				@accept_encoding = wrappers.keys.join(", ")
 				@wrappers = wrappers
 			end
 			

@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'body/buffered'
-require_relative 'body/reader'
+require_relative "body/buffered"
+require_relative "body/reader"
 
 module Protocol
 	module HTTP
@@ -141,7 +141,7 @@ module Protocol
 			#
 			# @parameter exception [Exception] The exception to generate the response for.
 			def self.for_exception(exception)
-				Response[500, Headers['content-type' => 'text/plain'], ["#{exception.class}: #{exception.message}"]]
+				Response[500, Headers["content-type" => "text/plain"], ["#{exception.class}: #{exception.message}"]]
 			end
 			
 			def as_json(...)

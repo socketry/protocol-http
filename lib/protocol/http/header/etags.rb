@@ -4,14 +4,14 @@
 # Copyright, 2020-2023, by Samuel Williams.
 # Copyright, 2023, by Thomas Morgan.
 
-require_relative 'split'
+require_relative "split"
 
 module Protocol
 	module HTTP
 		module Header
 			class ETags < Split
 				def wildcard?
-					self.include?('*')
+					self.include?("*")
 				end
 				
 				# This implementation is not strictly correct according to the RFC-specified format.
@@ -36,7 +36,7 @@ module Protocol
 				end
 				
 				def weak_tag?(tag)
-					tag&.start_with? 'W/'
+					tag&.start_with? "W/"
 				end
 			end
 		end

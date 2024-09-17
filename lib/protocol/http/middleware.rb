@@ -3,10 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require_relative 'methods'
-require_relative 'headers'
-require_relative 'request'
-require_relative 'response'
+require_relative "methods"
+require_relative "headers"
+require_relative "request"
+require_relative "response"
 
 module Protocol
 	module HTTP
@@ -66,7 +66,7 @@ module Protocol
 				end
 				
 				def self.call(request)
-					Response[200, Headers['content-type' => 'text/plain'], ["Hello World!"]]
+					Response[200, Headers["content-type" => "text/plain"], ["Hello World!"]]
 				end
 			end
 		end

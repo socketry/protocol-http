@@ -4,7 +4,7 @@
 # Copyright, 2019-2023, by Samuel Williams.
 # Copyright, 2022, by Herrick Fang.
 
-require_relative 'url'
+require_relative "url"
 
 module Protocol
 	module HTTP
@@ -31,15 +31,15 @@ module Protocol
 			def to_s
 				buffer = String.new.b
 				
-				buffer << encoded_name << '=' << encoded_value
+				buffer << encoded_name << "=" << encoded_value
 				
 				if @directives
 					@directives.collect do |key, value|
-						buffer << ';'
+						buffer << ";"
 						
 						case value
 						when String
-							buffer << key << '=' << value
+							buffer << key << "=" << value
 						when TrueClass
 							buffer << key
 						end
@@ -52,7 +52,7 @@ module Protocol
 			def self.parse(string)
 				head, *directives = string.split(/\s*;\s*/)
 				
-				key, value = head.split('=', 2)
+				key, value = head.split("=", 2)
 				directives = self.parse_directives(directives)
 				
 				self.new(
@@ -64,7 +64,7 @@ module Protocol
 			
 			def self.parse_directives(strings)
 				strings.collect do |string|
-					key, value = string.split('=', 2)
+					key, value = string.split("=", 2)
 					[key, value || true]
 				end.to_h
 			end

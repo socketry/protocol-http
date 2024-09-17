@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/http/body/stream'
-require 'protocol/http/body/readable'
+require "protocol/http/body/stream"
+require "protocol/http/body/readable"
 
 describe Protocol::HTTP::Body::Readable do
 	let(:body) {subject.new}
@@ -17,13 +17,13 @@ describe Protocol::HTTP::Body::Readable do
 		expect(body).not.to be(:ready?)
 	end
 	
-	with '#finish' do
+	with "#finish" do
 		it "should return empty buffered representation" do
 			expect(body.finish).to be(:empty?)
 		end
 	end
 	
-	with '#call' do
+	with "#call" do
 		let(:output) {Protocol::HTTP::Body::Buffered.new}
 		let(:stream) {Protocol::HTTP::Body::Stream.new(nil, output)}
 		
@@ -52,7 +52,7 @@ describe Protocol::HTTP::Body::Readable do
 		end
 	end
 	
-	with '#join' do
+	with "#join" do
 		it "should be nil" do
 			expect(body.join).to be_nil
 		end

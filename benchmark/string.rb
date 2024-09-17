@@ -26,7 +26,7 @@ def consumer_with_clear
 	return nil
 end
 
-require 'benchmark'
+require "benchmark"
 
 Benchmark.bm do |x|
 	x.report("consumer_with_clear") do

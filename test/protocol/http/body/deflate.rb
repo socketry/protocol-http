@@ -4,11 +4,11 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'protocol/http/body/buffered'
-require 'protocol/http/body/deflate'
-require 'protocol/http/body/inflate'
+require "protocol/http/body/buffered"
+require "protocol/http/body/deflate"
+require "protocol/http/body/inflate"
 
-require 'securerandom'
+require "securerandom"
 
 describe Protocol::HTTP::Body::Deflate do
 	let(:body) {Protocol::HTTP::Body::Buffered.new}
@@ -44,7 +44,7 @@ describe Protocol::HTTP::Body::Deflate do
 		expect(decompressed_body.read).to be == nil
 	end
 	
-	with '#inspect' do
+	with "#inspect" do
 		it "can generate string representation" do
 			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered 0 chunks, 0 bytes> | #<Protocol::HTTP::Body::Deflate 100.0%>"
 		end

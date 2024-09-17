@@ -20,7 +20,7 @@ module Protocol
 				end
 				
 				def self.basic(username, password)
-					strict_base64_encoded = ["#{username}:#{password}"].pack('m0')
+					strict_base64_encoded = ["#{username}:#{password}"].pack("m0")
 					
 					self.new(
 						"Basic #{strict_base64_encoded}"

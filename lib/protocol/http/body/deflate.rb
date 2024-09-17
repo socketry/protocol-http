@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'wrapper'
+require_relative "wrapper"
 
-require 'zlib'
+require "zlib"
 
 module Protocol
 	module HTTP
@@ -17,8 +17,8 @@ module Protocol
 				GZIP =  Zlib::MAX_WBITS | 16
 				
 				ENCODINGS = {
-					'deflate' => DEFLATE,
-					'gzip' => GZIP,
+					"deflate" => DEFLATE,
+					"gzip" => GZIP,
 				}
 				
 				def initialize(body, stream)

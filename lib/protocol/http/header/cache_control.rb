@@ -4,25 +4,25 @@
 # Copyright, 2020-2023, by Samuel Williams.
 # Copyright, 2023, by Thomas Morgan.
 
-require_relative 'split'
+require_relative "split"
 
 module Protocol
 	module HTTP
 		module Header
 			class CacheControl < Split
-				PRIVATE = 'private'
-				PUBLIC = 'public'
-				NO_CACHE = 'no-cache'
-				NO_STORE = 'no-store'
-				MAX_AGE = 'max-age'
-				S_MAXAGE = 's-maxage'
+				PRIVATE = "private"
+				PUBLIC = "public"
+				NO_CACHE = "no-cache"
+				NO_STORE = "no-store"
+				MAX_AGE = "max-age"
+				S_MAXAGE = "s-maxage"
 				
-				STATIC = 'static'
-				DYNAMIC = 'dynamic'
-				STREAMING = 'streaming'
+				STATIC = "static"
+				DYNAMIC = "dynamic"
+				STREAMING = "streaming"
 				
-				MUST_REVALIDATE = 'must-revalidate'
-				PROXY_REVALIDATE = 'proxy-revalidate'
+				MUST_REVALIDATE = "must-revalidate"
+				PROXY_REVALIDATE = "proxy-revalidate"
 				
 				def initialize(value = nil)
 					super(value&.downcase)
@@ -89,7 +89,7 @@ module Protocol
 				
 				def find_integer_value(value_name)
 					if value = self.find{|value| value.start_with?(value_name)}
-						_, age = value.split('=', 2)
+						_, age = value.split("=", 2)
 						
 						if age =~ /\A[0-9]+\z/
 							return Integer(age)

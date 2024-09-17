@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'zlib'
+require "zlib"
 
-require_relative 'deflate'
+require_relative "deflate"
 
 module Protocol
 	module HTTP

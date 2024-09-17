@@ -3,16 +3,16 @@
 # Released under the MIT License.
 # Copyright, 2018-2024, by Samuel Williams.
 
-require_relative 'header/split'
-require_relative 'header/multiple'
-require_relative 'header/cookie'
-require_relative 'header/connection'
-require_relative 'header/cache_control'
-require_relative 'header/etag'
-require_relative 'header/etags'
-require_relative 'header/vary'
-require_relative 'header/authorization'
-require_relative 'header/date'
+require_relative "header/split"
+require_relative "header/multiple"
+require_relative "header/cookie"
+require_relative "header/connection"
+require_relative "header/cache_control"
+require_relative "header/etag"
+require_relative "header/etags"
+require_relative "header/vary"
+require_relative "header/authorization"
+require_relative "header/date"
 
 module Protocol
 	module HTTP
@@ -21,7 +21,7 @@ module Protocol
 			Split = Header::Split
 			Multiple = Header::Multiple
 			
-			TRAILER = 'trailer'
+			TRAILER = "trailer"
 			
 			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`. If the underlying array is frozen, it will be duped.
 			# @return [Headers] an instance of headers.
@@ -203,49 +203,49 @@ module Protocol
 			
 			POLICY = {
 				# Headers which may only be specified once.
-				'content-type' => false,
-				'content-disposition' => false,
-				'content-length' => false,
-				'user-agent' => false,
-				'referer' => false,
-				'host' => false,
-				'from' => false,
-				'location' => false,
-				'max-forwards' => false,
+				"content-type" => false,
+				"content-disposition" => false,
+				"content-length" => false,
+				"user-agent" => false,
+				"referer" => false,
+				"host" => false,
+				"from" => false,
+				"location" => false,
+				"max-forwards" => false,
 				
 				# Custom headers:
-				'connection' => Header::Connection,
-				'cache-control' => Header::CacheControl,
-				'vary' => Header::Vary,
+				"connection" => Header::Connection,
+				"cache-control" => Header::CacheControl,
+				"vary" => Header::Vary,
 				
 				# Headers specifically for proxies:
-				'via' => Split,
-				'x-forwarded-for' => Split,
+				"via" => Split,
+				"x-forwarded-for" => Split,
 				
 				# Authorization headers:
-				'authorization' => Header::Authorization,
-				'proxy-authorization' => Header::Authorization,
+				"authorization" => Header::Authorization,
+				"proxy-authorization" => Header::Authorization,
 				
 				# Cache validations:
-				'etag' => Header::ETag,
-				'if-match' => Header::ETags,
-				'if-none-match' => Header::ETags,
+				"etag" => Header::ETag,
+				"if-match" => Header::ETags,
+				"if-none-match" => Header::ETags,
 				
 				# Headers which may be specified multiple times, but which can't be concatenated:
-				'www-authenticate' => Multiple,
-				'proxy-authenticate' => Multiple,
+				"www-authenticate" => Multiple,
+				"proxy-authenticate" => Multiple,
 				
 				# Custom headers:
-				'set-cookie' => Header::SetCookie,
-				'cookie' => Header::Cookie,
+				"set-cookie" => Header::SetCookie,
+				"cookie" => Header::Cookie,
 				
 				# Date headers:
 				# These headers include a comma as part of the formatting so they can't be concatenated.
-				'date' => Header::Date,
-				'expires' => Header::Date,
-				'last-modified' => Header::Date,
-				'if-modified-since' => Header::Date,
-				'if-unmodified-since' => Header::Date,
+				"date" => Header::Date,
+				"expires" => Header::Date,
+				"last-modified" => Header::Date,
+				"if-modified-since" => Header::Date,
+				"if-unmodified-since" => Header::Date,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all headers with the given key, and return the merged value.

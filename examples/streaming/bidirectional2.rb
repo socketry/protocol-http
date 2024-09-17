@@ -4,16 +4,16 @@
 # Released under the MIT License.
 # Copyright, 2024, by Samuel Williams.
 
-require 'async'
-require 'async/http/client'
-require 'async/http/server'
-require 'async/http/endpoint'
+require "async"
+require "async/http/client"
+require "async/http/server"
+require "async/http/endpoint"
 
-require 'protocol/http/body/streamable'
-require 'protocol/http/body/writable'
-require 'protocol/http/body/stream'
+require "protocol/http/body/streamable"
+require "protocol/http/body/writable"
+require "protocol/http/body/stream"
 
-endpoint = Async::HTTP::Endpoint.parse('http://localhost:3000')
+endpoint = Async::HTTP::Endpoint.parse("http://localhost:3000")
 
 Async do
 	server = Async::HTTP::Server.for(endpoint) do |request|

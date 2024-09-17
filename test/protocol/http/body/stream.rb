@@ -3,15 +3,15 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/http/body/stream'
-require 'protocol/http/body/buffered'
+require "protocol/http/body/stream"
+require "protocol/http/body/buffered"
 
 describe Protocol::HTTP::Body::Stream do
 	let(:input) {Protocol::HTTP::Body::Buffered.new(["Hello", "World"])}
 	let(:output) {Protocol::HTTP::Body::Buffered.new}
 	let(:stream) {subject.new(input, output)}
 	
-	with 'no input' do
+	with "no input" do
 		let(:input) {nil}
 		
 		it "should be empty" do
@@ -23,7 +23,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#empty?' do
+	with "#empty?" do
 		it "should be empty" do
 			expect(stream).to be(:empty?)
 		end
@@ -111,7 +111,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#read_partial' do
+	with "#read_partial" do
 		it "can read partial input" do
 			expect(stream.read_partial(2)).to be == "He"
 			expect(stream.read_partial(2)).to be == "ll"
@@ -141,7 +141,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#readpartial' do
+	with "#readpartial" do
 		it "can read partial input" do
 			expect(stream.readpartial(20)).to be == "Hello"
 			expect(stream.readpartial(20)).to be == "World"
@@ -159,14 +159,14 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#read_until' do
+	with "#read_until" do
 		it "can read until a pattern is encountered" do
 			expect(stream.read_until("o")).to be == "Hello"
 			expect(stream.read_until("d")).to be == "World"
 		end
 	end
 	
-	with '#gets' do
+	with "#gets" do
 		let(:input) {Protocol::HTTP::Body::Buffered.new(["Hello\nWorld\n"])}
 		
 		it "can read lines" do
@@ -182,7 +182,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#close_read' do
+	with "#close_read" do
 		it "should close the input" do
 			stream.read(1)
 			stream.close_read
@@ -199,7 +199,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#<<' do
+	with "#<<" do
 		it "should write to the output" do
 			stream << "Hello"
 			stream << "World"
@@ -217,7 +217,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#puts' do
+	with "#puts" do
 		it "should write lines to the output" do
 			stream.puts("Hello", "World")
 			stream.puts("Goodbye")
@@ -226,21 +226,21 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with '#close_write' do
+	with "#close_write" do
 		it "should close the input" do
 			stream.close_write
 			expect{stream.write("X")}.to raise_exception(IOError)
 		end
 	end
 	
-	with '#flush' do
+	with "#flush" do
 		it "can be flushed" do	
 			# For streams, this is a no-op since buffering is handled by the output body.
 			stream.flush
 		end
 	end
 	
-	with '#close' do
+	with "#close" do
 		it "can can be closed" do
 			stream.close
 			expect(stream).to be(:closed?)
@@ -253,7 +253,7 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
-	with 'IO.copy_stream' do
+	with "IO.copy_stream" do
 		let(:output) {StringIO.new}
 		
 		it "can copy input to output" do
