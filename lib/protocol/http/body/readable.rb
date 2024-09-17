@@ -133,9 +133,13 @@ module Protocol
 					Buffered.read(self)
 				end
 				
+				# Discard the body as efficiently as possible.
+				#
+				# The default implementation simply reads all chunks until the body is empty.
+				#
+				# Useful for discarding the body when it is not needed, but preserving the underlying connection.
 				def discard
 					while chunk = self.read
-						chunk.clear
 					end
 				end
 				

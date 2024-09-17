@@ -58,6 +58,13 @@ describe Protocol::HTTP::Body::Readable do
 		end
 	end
 	
+	with "#discard" do
+		it "should read all chunks" do
+			expect(body).to receive(:read).and_return(nil)
+			expect(body.discard).to be_nil
+		end
+	end
+	
 	with "#as_json" do
 		it "generates a JSON representation" do
 			expect(body.as_json).to have_keys(
