@@ -59,6 +59,8 @@ module Protocol
 				# Ensure that future reads return nil, but allow for rewinding.
 				def close(error = nil)
 					@index = @chunks.length
+					
+					return nil
 				end
 				
 				def clear
@@ -88,6 +90,10 @@ module Protocol
 						
 						return chunk.dup
 					end
+				end
+				
+				def discard
+					self.close
 				end
 				
 				def write(chunk)

@@ -104,4 +104,11 @@ describe Protocol::HTTP::Body::Wrapper do
 			body.call(stream)
 		end
 	end
+	
+	with "#discard" do
+		it "should proxy discard" do
+			expect(source).to receive(:discard).and_return(nil)
+			expect(body.discard).to be_nil
+		end
+	end
 end

@@ -29,6 +29,13 @@ describe Protocol::HTTP::Body::Reader do
 		end
 	end
 	
+	with "#discard" do
+		it 'discards the body' do
+			expect(body).to receive(:discard)
+			expect(reader.discard).to be_nil
+		end
+	end
+	
 	with '#buffered!' do
 		it 'buffers the body' do
 			expect(reader.buffered!).to be_equal(reader)

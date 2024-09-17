@@ -59,6 +59,10 @@ module Protocol
 					@body.read
 				end
 				
+				def discard
+					@body.discard
+				end
+				
 				def as_json(...)
 					{
 						class: self.class.name,

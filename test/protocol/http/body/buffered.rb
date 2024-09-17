@@ -175,4 +175,12 @@ describe Protocol::HTTP::Body::Buffered do
 			expect(body.inspect).to be =~ /\d+ chunks, \d+ bytes/
 		end
 	end
+	
+	with "#discard" do
+		it "closes the body" do
+			expect(body).to receive(:close)
+			
+			expect(body.discard).to be == nil
+		end
+	end
 end

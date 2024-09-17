@@ -40,6 +40,14 @@ module Protocol
 					end
 				end
 				
+				# Discard the body as efficiently as possible.
+				def discard
+					if body = @body
+						@body = nil
+						body.discard
+					end
+				end
+				
 				# Buffer the entire request/response body.
 				# @returns [Reader] itself.
 				def buffered!
