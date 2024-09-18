@@ -93,6 +93,7 @@ module Protocol
 				end
 				
 				def discard
+					# It's safe to call close here because there is no underlying stream to close:
 					self.close
 				end
 				

@@ -16,30 +16,40 @@ module Protocol
 				end
 				
 				def read
-					return if @stream.finished?
+					if stream = @stream
+						# Read from the underlying stream and inflate it:
+						while chunk = super
+							@input_length += chunk.bytesize
+							
+							# It's possible this triggers the stream to finish.
+							chunk = stream.inflate(chunk)
+							
+							break unless chunk&.empty?
+						end
 					
-					# The stream might have been closed while waiting for the chunk to come in.
-					while chunk = super
-						@input_length += chunk.bytesize
+						if chunk
+							@output_length += chunk.bytesize
+						elsif !stream.closed?
+							chunk = stream.finish
+							@output_length += chunk.bytesize
+						end
 						
-						# It's possible this triggers the stream to finish.
-						chunk = @stream.inflate(chunk)
+						# If the stream is finished, we need to close it and potentially return nil:
+						if stream.finished?
+							@stream = nil
+							stream.close
+							
+							while super
+								# There is data left in the stream, so we need to keep reading until it's all consumed.
+							end
+							
+							if chunk.empty?
+								return nil
+							end
+						end
 						
-						break unless chunk&.empty?
+						return chunk
 					end
-					
-					if chunk
-						@output_length += chunk.bytesize
-					elsif !@stream.closed?
-						chunk = @stream.finish
-						@output_length += chunk.bytesize
-					end
-					
-					if chunk.empty? and @stream.finished?
-						return nil
-					end
-					
-					return chunk
 				end
 			end
 		end

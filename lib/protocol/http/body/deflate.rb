@@ -31,7 +31,10 @@ module Protocol
 				end
 				
 				def close(error = nil)
-					@stream.close unless @stream.closed?
+					if stream = @stream
+						@stream = nil
+						stream.close unless stream.closed?
+					end
 					
 					super
 				end
