@@ -4,6 +4,9 @@ protocol-http1:
 protocol-http2:
   url: https://github.com/socketry/protocol-http2.git
   command: bundle exec sus
+protocol-rack:
+  url: https://github.com/socketry/protocol-rack.git
+  command: bundle exec sus
 async-http:
   url: https://github.com/socketry/async-http.git
   command: bundle exec sus
