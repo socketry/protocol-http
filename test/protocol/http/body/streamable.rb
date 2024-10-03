@@ -175,9 +175,10 @@ describe Protocol::HTTP::Body::Streamable do
 		
 		with "#close" do
 			it "can close the body" do
-				expect(input).not.to receive(:close)
+				expect(input).to receive(:close)
 				
 				expect(body.read).to be == "Hello"
+				
 				body.close
 			end
 		end
