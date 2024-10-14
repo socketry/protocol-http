@@ -11,9 +11,9 @@ module Protocol
 			#
 			# Typically, you'd override `#read` to return chunks of data.
 			#
-			# I n general, you read chunks of data from a body until it is empty and returns `nil`. Upon reading `nil`, the body is considered consumed and should not be read from again.
+			# In general, you read chunks of data from a body until it is empty and returns `nil`. Upon reading `nil`, the body is considered consumed and should not be read from again.
 			#
-			# Reading can also fail, for example if the body represents a streaming upload, and the connection is lost. In this case, the body will raise some kind of error.
+			# Reading can also fail, for example if the body represents a streaming upload, and the connection is lost. In this case, `#read` will raise some kind of error.
 			#
 			# If you don't want to read from a stream, and instead want to close it immediately, you can call `close` on the body. If the body is already completely consumed, `close` will do nothing, but if there is still data to be read, it will cause the underlying stream to be reset (and possibly closed).
 			class Readable
@@ -48,6 +48,15 @@ module Protocol
 				# @returns [Boolean] Whether the stream was successfully rewound.
 				def rewind
 					false
+				end
+				
+				# Return a buffered representation of this body.
+				#
+				# This method must return a buffered body if `#rewindable?`.
+				#
+				# @returns [Buffered | Nil] The buffered body.
+				def buffered
+					nil
 				end
 				
 				# The total length of the body, if known.

@@ -42,6 +42,10 @@ module Protocol
 					@body.ready?
 				end
 				
+				def buffered
+					@body.buffered
+				end
+				
 				def rewind
 					@body.rewind
 				end

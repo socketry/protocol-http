@@ -52,6 +52,13 @@ module Protocol
 				
 				attr :chunks
 				
+				# A rewindable body wraps some other body. Convert it to a buffered body. The buffered body will share the same chunks as the rewindable body.
+				#
+				# @returns [Buffered] the buffered body.
+				def buffered
+					self.class.new(@chunks)
+				end
+				
 				def finish
 					self
 				end
@@ -64,7 +71,7 @@ module Protocol
 				end
 				
 				def clear
-					@chunks.clear
+					@chunks = []
 					@length = 0
 					@index = 0
 				end

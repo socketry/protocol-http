@@ -131,6 +131,23 @@ describe Protocol::HTTP::Body::Buffered do
 		end
 	end
 	
+	with "#buffered" do
+		let(:buffered_body) {body.buffered}
+		
+		it "returns a buffered body" do
+			expect(buffered_body).to be_a(subject)
+			expect(buffered_body.read).to be == "Hello"
+			expect(buffered_body.read).to be == "World"
+		end
+		
+		it "doesn't affect the original body" do
+			expect(buffered_body.join).to be == "HelloWorld"
+			
+			expect(buffered_body).to be(:empty?)
+			expect(body).not.to be(:empty?)
+		end
+	end
+	
 	with "#each" do
 		with "a block" do
 			it "iterates over chunks" do
