@@ -10,6 +10,9 @@ protocol-rack:
 async-http:
   url: https://github.com/socketry/async-http.git
   command: bundle exec sus
+async-http-cache:
+  url: https://github.com/socketry/async-http-cache.git
+  command: bundle exec sus
 protocol-websocket:
   url: https://github.com/socketry/protocol-websocket.git
   command: bundle exec sus
