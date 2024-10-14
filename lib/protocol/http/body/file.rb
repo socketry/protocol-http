@@ -18,6 +18,7 @@ module Protocol
 				
 				def initialize(file, range = nil, size: file.size, block_size: BLOCK_SIZE)
 					@file = file
+					@range = range
 					
 					@block_size = block_size
 					
@@ -26,6 +27,7 @@ module Protocol
 						@offset = range.min
 						@length = @remaining = range.size
 					else
+						@file.seek(0)
 						@offset = 0
 						@length = @remaining = size
 					end
@@ -51,9 +53,17 @@ module Protocol
 					true
 				end
 				
+				def buffered
+					self.class.new(@file.dup, @range, block_size: @block_size)
+				end
+				
 				def rewind
 					@file.seek(@offset)
 					@remaining = @length
+				end
+				
+				def rewindable?
+					true
 				end
 				
 				def read

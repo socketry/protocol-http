@@ -9,6 +9,10 @@ describe Protocol::HTTP::Body::File do
 	let(:path) {File.expand_path("file_spec.txt", __dir__)}
 	let(:body) {subject.open(path)}
 	
+	after do
+		@body&.close
+	end
+	
 	# with '#stream?' do
 	# 	it "should be streamable" do
 	# 		expect(body).to be(:stream?)
@@ -23,11 +27,16 @@ describe Protocol::HTTP::Body::File do
 	
 	with "#close" do
 		it "should close file" do
-			expect(body.file).to receive(:close)
-			
 			body.close
 			
 			expect(body).to be(:empty?)
+			expect(body.file).to be(:closed?)
+		end
+	end
+	
+	with "#rewindable?" do
+		it "should be rewindable" do
+			expect(body).to be(:rewindable?)
 		end
 	end
 	
@@ -40,6 +49,17 @@ describe Protocol::HTTP::Body::File do
 			
 			expect(body).not.to be(:empty?)
 			expect(body.read).to be == "Hello World"
+		end
+	end
+	
+	with "#buffered" do
+		it "should return a new instance" do
+			buffered = body.buffered
+			
+			expect(buffered).to be_a(Protocol::HTTP::Body::File)
+			expect(buffered).not.to be_equal(body)
+		ensure
+			buffered&.close
 		end
 	end
 	
