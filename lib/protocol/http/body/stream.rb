@@ -191,9 +191,63 @@ module Protocol
 					# Read a single line from the stream.
 					#
 					# @parameter separator [String] The line separator, defaults to `\n`.
+					# @parameter limit [Integer] The maximum number of bytes to read.
 					# @parameter *options [Hash] Additional options, passed to {read_until}.
-					def gets(separator = NEWLINE, **options)
-						read_until(separator, **options)
+					def gets(separator = NEWLINE, limit = nil, chomp: false)
+						# If the separator is an integer, it is actually the limit:
+						if separator.is_a?(Integer)
+							limit = separator
+							separator = NEWLINE
+						end
+						
+						# If no separator is given, this is the same as a read operation:
+						if separator.nil?
+							return read(limit)
+						end
+						
+						# We don't want to split on the separator, so we subtract the size of the separator:
+						split_offset = separator.bytesize - 1
+						
+						@buffer ||= read_next
+						return nil if @buffer.nil?
+						
+						offset = 0
+						until index = @buffer.index(separator, offset)
+							offset = @buffer.bytesize - split_offset
+							offset = 0 if offset < 0
+							
+							# If we have gone past the limit, we are done:
+							if limit and offset >= limit
+								@buffer.freeze
+								matched = @buffer.byteslice(0, limit)
+								@buffer = @buffer.byteslice(limit, @buffer.bytesize)
+								return matched
+							end
+							
+							# Read more data:
+							if chunk = read_next
+								@buffer << chunk
+							else
+								# No more data could be read, return the remaining data:
+								buffer = @buffer
+								@buffer = nil
+								
+								return @buffer
+							end
+						end
+						
+						# Freeze the buffer, as this enables us to use byteslice without generating a hidden copy:
+						@buffer.freeze
+						
+						if limit and index > limit
+							line = @buffer.byteslice(0, limit)
+							@buffer = @buffer.byteslice(limit, @buffer.bytesize)
+						else
+							line = @buffer.byteslice(0, index+(chomp ? 0 : separator.bytesize))
+							@buffer = @buffer.byteslice(index+separator.bytesize, @buffer.bytesize)
+						end
+						
+						return line
 					end
 				end
 				

@@ -175,10 +175,25 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.gets).to be == nil
 		end
 		
+		it "can read lines with limit" do
+			expect(stream.gets(2)).to be == "He"
+			expect(stream.gets(6)).to be == "llo\n"
+			expect(stream.gets(2)).to be == "Wo"
+			expect(stream.gets(6)).to be == "rld\n"
+			expect(stream.gets(2)).to be == nil
+		end
+		
 		it "can read lines and chomp separators" do
 			expect(stream.gets(chomp: true)).to be == "Hello"
 			expect(stream.gets(chomp: true)).to be == "World"
 			expect(stream.gets(chomp: true)).to be == nil
+		end
+		
+		it "can read without separator" do
+			expect(stream.gets(nil, 4)).to be == "Hell"
+			expect(stream.gets(nil, 4)).to be == "o\nWo"
+			expect(stream.gets(nil, 4)).to be == "rld\n"
+			expect(stream.gets(nil, 4)).to be == nil
 		end
 	end
 	
