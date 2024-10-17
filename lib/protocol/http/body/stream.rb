@@ -202,7 +202,8 @@ module Protocol
 						
 						# If no separator is given, this is the same as a read operation:
 						if separator.nil?
-							return read(limit)
+							# I tried using `read(limit)` here but it will block until the limit is reached, which is not usually desirable behaviour.
+							return read_partial(limit)
 						end
 						
 						# We don't want to split on the separator, so we subtract the size of the separator:
