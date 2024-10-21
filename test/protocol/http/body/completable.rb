@@ -92,4 +92,18 @@ describe Protocol::HTTP::Body::Completable do
 			expect(completable.rewind).to be == false
 		end
 	end
+	
+	with "#close" do
+		let(:events) {Array.new}
+		let(:callback) {Proc.new{events << :close}}
+		
+		it "invokes callback once" do
+			completable1 = subject.new(body, proc{events << :close1})
+			completable2 = subject.new(completable1, proc{events << :close2})
+			
+			completable2.close
+			
+			expect(events).to be == [:close2, :close1]
+		end
+	end
 end

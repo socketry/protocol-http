@@ -33,12 +33,12 @@ module Protocol
 				end
 				
 				def close(error = nil)
-					super.tap do
-						if @callback
-							@callback.call(error)
-							@callback = nil
-						end
+					if @callback
+						@callback.call(error)
+						@callback = nil
 					end
+					
+					super
 				end
 			end
 		end
