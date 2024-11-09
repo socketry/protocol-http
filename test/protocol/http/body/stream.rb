@@ -164,6 +164,10 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.read_until("o")).to be == "Hello"
 			expect(stream.read_until("d")).to be == "World"
 		end
+		
+		it "can read until a pattern which isn't encountered" do
+			expect(stream.read_until("X")).to be_nil
+		end
 	end
 	
 	with "#gets" do
@@ -173,6 +177,10 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.gets).to be == "Hello\n"
 			expect(stream.gets).to be == "World\n"
 			expect(stream.gets).to be == nil
+		end
+		
+		it "can read up until the limit" do
+			expect(stream.gets("X", 2)).to be == "He"
 		end
 		
 		it "can read lines with limit" do
@@ -194,6 +202,15 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.gets(nil, 4)).to be == "o\nWo"
 			expect(stream.gets(nil, 4)).to be == "rld\n"
 			expect(stream.gets(nil, 4)).to be == nil
+		end
+		
+		with "several chunks" do
+			let(:input) {Protocol::HTTP::Body::Buffered.new(["Hello ", "World\n"])}
+			
+			it "can read lines" do
+				expect(stream.gets).to be == "Hello World\n"
+				expect(stream.gets).to be == nil
+			end
 		end
 	end
 	

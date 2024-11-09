@@ -60,6 +60,13 @@ describe Protocol::HTTP::Body::Wrapper do
 		end
 	end
 	
+	with "#buffered" do
+		it "should proxy buffered" do
+			expect(source).to receive(:buffered).and_return(true)
+			expect(body.buffered).to be == true
+		end
+	end
+	
 	with "#rewindable?" do
 		it "should proxy rewindable?" do
 			expect(source).to receive(:rewindable?).and_return(true)
