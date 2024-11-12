@@ -159,6 +159,34 @@ describe Protocol::HTTP::Body::Stream do
 		end
 	end
 	
+	with "#each" do
+		it "can iterate over input" do
+			chunks = []
+			
+			stream.each do |chunk|
+				chunks << chunk
+			end
+			
+			expect(chunks).to be == ["Hello", "World"]
+		end
+		
+		it "can iterate over input with buffer" do
+			expect(stream.read(2)).to be == "He"
+			
+			chunks = []
+			
+			stream.each do |chunk|
+				chunks << chunk
+			end
+			
+			expect(chunks).to be == ["llo", "World"]
+		end
+		
+		it "can return an enumerator" do
+			expect(stream.each.to_a).to be == ["Hello", "World"]
+		end
+	end
+	
 	with "#read_until" do
 		it "can read until a pattern is encountered" do
 			expect(stream.read_until("o")).to be == "Hello"

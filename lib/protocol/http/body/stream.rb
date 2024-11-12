@@ -129,6 +129,22 @@ module Protocol
 						read_partial(length, buffer) or raise EOFError, "End of file reached!"
 					end
 					
+					# Iterate over each chunk of data in the stream.
+					#
+					# @yields {|chunk| ...} Each chunk of data.
+					def each(&block)
+						return to_enum unless block_given?
+						
+						if @buffer
+							yield @buffer
+							@buffer = nil
+						end
+						
+						while chunk = read_next
+							yield chunk
+						end
+					end
+					
 					# Read data from the stream without blocking if possible.
 					def read_nonblock(length, buffer = nil, exception: nil)
 						@buffer ||= read_next
