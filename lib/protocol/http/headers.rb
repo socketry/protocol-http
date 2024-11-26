@@ -212,6 +212,7 @@ module Protocol
 				"from" => false,
 				"location" => false,
 				"max-forwards" => false,
+				"retry-after" => false,
 				
 				# Custom headers:
 				"connection" => Header::Connection,
