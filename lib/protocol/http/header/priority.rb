@@ -8,6 +8,9 @@ require_relative "split"
 module Protocol
 	module HTTP
 		module Header
+			# Represents the `priority` header, used to indicate the relative importance of an HTTP request.
+			#
+			# The `priority` header allows clients to express their preference for how resources should be prioritized by the server. It can include directives like `urgency` to specify the importance of a request, and `progressive` to indicate whether a response can be delivered incrementally.
 			class Priority < Split
 				# Urgency levels as defined in RFC 9218:
 				#

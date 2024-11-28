@@ -12,13 +12,21 @@ module Protocol
 			# ~~~ ruby
 			# headers.add('authorization', Authorization.basic("my_username", "my_password"))
 			# ~~~
+			#
+			# TODO Support other authorization mechanisms, e.g. bearer token.
 			class Authorization < String
-				# Splits the header and 
-				# @return [Tuple(String, String)]
+				# Splits the header into the credentials.
+				#
+				# @returns [Tuple(String, String)] The username and password.
 				def credentials
 					self.split(/\s+/, 2)
 				end
 				
+				# Generate a new basic authorization header, encoding the given username and password.
+				#
+				# @parameter username [String] The username.
+				# @parameter password [String] The password.
+				# @returns [Authorization] The basic authorization header.
 				def self.basic(username, password)
 					strict_base64_encoded = ["#{username}:#{password}"].pack("m0")
 					
