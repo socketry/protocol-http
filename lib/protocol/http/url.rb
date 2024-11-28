@@ -6,33 +6,46 @@
 
 module Protocol
 	module HTTP
+		# Helpers for working with URLs.
 		module URL
-			# Escapes a string using percent encoding.
+			# Escapes a string using percent encoding, e.g. `a b` -> `a%20b`.
+			#
+			# @parameter string [String] The string to escape.
+			# @returns [String] The escaped string.
 			def self.escape(string, encoding = string.encoding)
 				string.b.gsub(/([^a-zA-Z0-9_.\-]+)/) do |m|
 					"%" + m.unpack("H2" * m.bytesize).join("%").upcase
 				end.force_encoding(encoding)
 			end
 			
-			# Unescapes a percent encoded string.
+			# Unescapes a percent encoded string, e.g. `a%20b` -> `a b`.
+			#
+			# @parameter string [String] The string to unescape.
+			# @returns [String] The unescaped string.
 			def self.unescape(string, encoding = string.encoding)
 				string.b.gsub(/%(\h\h)/) do |hex|
 					Integer($1, 16).chr
 				end.force_encoding(encoding)
 			end
 			
-			# According to https://tools.ietf.org/html/rfc3986#section-3.3, we escape non-pchar.
-			NON_PCHAR = /([^a-zA-Z0-9_\-\.~!$&'()*+,;=:@\/]+)/.freeze
+			# Matches characters that are not allowed in a URI path segment. According to RFC 3986 Section 3.3 (https://tools.ietf.org/html/rfc3986#section-3.3), a valid path segment consists of "pchar" characters. This pattern identifies characters that must be percent-encoded when included in a URI path segment.
+			NON_PATH_CHARACTER_PATTERN = /([^a-zA-Z0-9_\-\.~!$&'()*+,;=:@\/]+)/.freeze
 			
-			# Escapes non-path characters using percent encoding.
+			# Escapes non-path characters using percent encoding. In other words, this method escapes characters that are not allowed in a URI path segment. According to RFC 3986 Section 3.3 (https://tools.ietf.org/html/rfc3986#section-3.3), a valid path segment consists of "pchar" characters. This method percent-encodes characters that are not "pchar" characters.
+			#
+			# @parameter path [String] The path to escape.
+			# @returns [String] The escaped path.
 			def self.escape_path(path)
 				encoding = path.encoding
-				path.b.gsub(NON_PCHAR) do |m|
+				path.b.gsub(NON_PATH_CHARACTER_PATTERN) do |m|
 					"%" + m.unpack("H2" * m.bytesize).join("%").upcase
 				end.force_encoding(encoding)
 			end
 			
-			# Encodes a hash or array into a query string.
+			# Encodes a hash or array into a query string. This method is used to encode query parameters in a URL. For example, `{"a" => 1, "b" => 2}` is encoded as `a=1&b=2`.
+			#
+			# @parameter value [Hash, Array] The value to encode.
+			# @parameter prefix [String] The prefix to use for keys.
 			def self.encode(value, prefix = nil)
 				case value
 				when Array
@@ -66,6 +79,10 @@ module Protocol
 				end
 			end
 			
+			# Split a key into parts, e.g. `a[b][c]` -> `["a", "b", "c"]`.
+			#
+			# @parameter name [String] The key to split.
+			# @returns [Array(String)] The parts of the key.
 			def self.split(name)
 				name.scan(/([^\[]+)|(?:\[(.*?)\])/)&.tap do |parts|
 					parts.flatten!
@@ -74,6 +91,10 @@ module Protocol
 			end
 			
 			# Assign a value to a nested hash.
+			#
+			# @parameter keys [Array(String)] The parts of the key.
+			# @parameter value [Object] The value to assign.
+			# @parameter parent [Hash] The parent hash.
 			def self.assign(keys, value, parent)
 				top, *middle = keys
 				
@@ -94,7 +115,12 @@ module Protocol
 				parent[top] = value
 			end
 			
-			# TODO use native C extension from `Trenni::Reference`.
+			# Decode a URL-encoded query string into a hash.
+			#
+			# @parameter string [String] The query string to decode.
+			# @parameter maximum [Integer] The maximum number of keys in a path.
+			# @parameter symbolize_keys [Boolean] Whether to symbolize keys.
+			# @returns [Hash] The decoded query string.
 			def self.decode(string, maximum = 8, symbolize_keys: false)
 				parameters = {}
 				
