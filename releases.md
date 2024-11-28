@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.46.0
 
   - Add support for `priority:` header.
 
