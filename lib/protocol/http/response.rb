@@ -151,6 +151,9 @@ module Protocol
 				Response[500, Headers["content-type" => "text/plain"], ["#{exception.class}: #{exception.message}"]]
 			end
 			
+			# Convert the response to a hash suitable for serialization.
+			#
+			# @returns [Hash] The response as a hash.
 			def as_json(...)
 				{
 					version: @version,
@@ -161,14 +164,23 @@ module Protocol
 				}
 			end
 			
+			# Convert the response to JSON.
+			#
+			# @returns [String] The response as JSON.
 			def to_json(...)
 				as_json.to_json(...)
 			end
 			
+			# Summarise the response as a string.
+			#
+			# @returns [String] The response as a string.
 			def to_s
 				"#{@status} #{@version}"
 			end
 			
+			# Implicit conversion to an array.
+			#
+			# @returns [Array] The response as an array, e.g. `[status, headers, body]`.
 			def to_ary
 				return @status, @headers, @body
 			end
