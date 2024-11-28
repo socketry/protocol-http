@@ -25,6 +25,7 @@ module Protocol
 			TRAILER = "trailer"
 			
 			# Construct an instance from a headers Array or Hash. No-op if already an instance of `Headers`. If the underlying array is frozen, it will be duped.
+			#
 			# @return [Headers] an instance of headers.
 			def self.[] headers
 				if headers.nil?
@@ -48,6 +49,10 @@ module Protocol
 				return self.new(fields)
 			end
 			
+			# Initialize the headers with the specified fields.
+			#
+			# @parameter fields [Array] An array of `[key, value]` pairs.
+			# @parameter indexed [Hash] A hash table of normalized headers, if available.
 			def initialize(fields = [], indexed = nil)
 				@fields = fields
 				@indexed = indexed
@@ -56,6 +61,9 @@ module Protocol
 				@tail = nil
 			end
 			
+			# Initialize a copy of the headers.
+			#
+			# @parameter other [Headers] The headers to copy.
 			def initialize_dup(other)
 				super
 				
@@ -63,13 +71,14 @@ module Protocol
 				@indexed = @indexed.dup
 			end
 			
+			# Clear all headers.
 			def clear
 				@fields.clear
 				@indexed = nil
 				@tail = nil
 			end
 			
-			# Flatten trailer into the headers.
+			# Flatten trailer into the headers, in-place.
 			def flatten!
 				if @tail
 					self.delete(TRAILER)
@@ -79,29 +88,27 @@ module Protocol
 				return self
 			end
 			
+			# Flatten trailer into the headers, returning a new instance of {Headers}.
 			def flatten
 				self.dup.flatten!
 			end
 			
-			# An array of `[key, value]` pairs.
+			# @attribute [Array] An array of `[key, value]` pairs.
 			attr :fields
 			
-			# @returns Whether there are any trailers.
+			# @returns [Boolean] Whether there are any trailers.
 			def trailer?
 				@tail != nil
 			end
 			
 			# Record the current headers, and prepare to add trailers.
 			#
-			# This method is typically used after headers are sent to capture any
-			# additional headers which should then be sent as trailers.
+			# This method is typically used after headers are sent to capture any additional headers which should then be sent as trailers.
 			#
-			# A sender that intends to generate one or more trailer fields in a
-			# message should generate a trailer header field in the header section of
-			# that message to indicate which fields might be present in the trailers.
+			# A sender that intends to generate one or more trailer fields in a message should generate a trailer header field in the header section of that message to indicate which fields might be present in the trailers.
 			#
 			# @parameter names [Array] The trailer header names which will be added later.
-			# @yields block {|name, value| ...} The trailer headers if any.
+			# @yields {|name, value| ...} the trailing headers if a block is given.
 			# @returns An enumerator which is suitable for iterating over trailers.
 			def trailer!(&block)
 				@tail ||= @fields.size
@@ -118,6 +125,7 @@ module Protocol
 				end
 			end
 			
+			# Freeze the headers, and ensure the indexed hash is generated.
 			def freeze
 				return if frozen?
 				
@@ -130,24 +138,35 @@ module Protocol
 				super
 			end
 			
+			# @returns [Boolean] Whether the headers are empty.
 			def empty?
 				@fields.empty?
 			end
 			
+			# Enumerate all header keys and values.
+			#
+			# @yields {|key, value| ...}
+			# 	@parameter key [String] The header key.
+			# 	@parameter value [String] The header value.
 			def each(&block)
 				@fields.each(&block)
 			end
 			
+			# @returns [Boolean] Whether the headers include the specified key.
 			def include? key
 				self[key] != nil
 			end
 			
 			alias key? include?
 			
+			# @returns [Array] All the keys of the headers.
 			def keys
 				self.to_h.keys
 			end
 			
+			# Extract the specified keys from the headers.
+			#
+			# @parameter keys [Array] The keys to extract.
 			def extract(keys)
 				deleted, @fields = @fields.partition do |field|
 					keys.include?(field.first.downcase)
@@ -164,21 +183,23 @@ module Protocol
 			
 			# Add the specified header key value pair.
 			#
-			# @param key [String] the header key.
-			# @param value [String] the header value to assign.
+			# @parameter key [String] the header key.
+			# @parameter value [String] the header value to assign.
 			def add(key, value)
 				self[key] = value
 			end
 			
 			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
-			# @param key [String] the header key to replace.
-			# @param value [String] the header value to assign.
+			#
+			# @parameter key [String] the header key to replace.
+			# @parameter value [String] the header value to assign.
 			def set(key, value)
 				# TODO This could be a bit more efficient:
 				self.delete(key)
 				self.add(key, value)
 			end
 			
+			# Merge the headers into this instance.
 			def merge!(headers)
 				headers.each do |key, value|
 					self[key] = value
@@ -187,13 +208,15 @@ module Protocol
 				return self
 			end
 			
+			# Merge the headers into a new instance of {Headers}.
 			def merge(headers)
 				self.dup.merge!(headers)
 			end
 			
 			# Append the value to the given key. Some values can be appended multiple times, others can only be set once.
-			# @param key [String] The header key.
-			# @param value The header value.
+			#
+			# @parameter key [String] The header key.
+			# @parameter value [String] The header value.
 			def []= key, value
 				if @indexed
 					merge_into(@indexed, key.downcase, value)
@@ -202,8 +225,9 @@ module Protocol
 				@fields << [key, value]
 			end
 			
+			# The policy for various headers, including how they are merged and normalized.
 			POLICY = {
-				# Headers which may only be specified once.
+				# Headers which may only be specified once:
 				"content-type" => false,
 				"content-disposition" => false,
 				"content-length" => false,
@@ -251,7 +275,10 @@ module Protocol
 				"if-unmodified-since" => Header::Date,
 			}.tap{|hash| hash.default = Split}
 			
-			# Delete all headers with the given key, and return the merged value.
+			# Delete all header values for the given key, and return the merged value.
+			#
+			# @parameter key [String] The header key.
+			# @returns [String | Array | Object] The merged header value.
 			def delete(key)
 				deleted, @fields = @fields.partition do |field|
 					field.first.downcase == key
@@ -276,6 +303,11 @@ module Protocol
 				end
 			end
 			
+			# Merge the value into the hash according to the policy for the given key.
+			# 
+			# @parameter hash [Hash] The hash to merge into.
+			# @parameter key [String] The header key.
+			# @parameter value [String] The raw header value.
 			protected def merge_into(hash, key, value)
 				if policy = POLICY[key]
 					if current_value = hash[key]
@@ -289,11 +321,17 @@ module Protocol
 				end
 			end
 			
+			# Get the value of the specified header key.
+			#
+			# @parameter key [String] The header key.
+			# @returns [String | Array | Object] The header value.
 			def [] key
 				to_h[key]
 			end
 			
-			# A hash table of `{key, policy[key].map(values)}`
+			# Compute a hash table of headers, where the keys are normalized to lower case and the values are normalized according to the policy for that header.
+			#
+			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
 				@indexed ||= @fields.inject({}) do |hash, (key, value)|
 					merge_into(hash, key.downcase, value)
@@ -304,10 +342,16 @@ module Protocol
 			
 			alias as_json to_h
 			
+			# Inspect the headers.
+			#
+			# @returns [String] A string representation of the headers.
 			def inspect
 				"#<#{self.class} #{@fields.inspect}>"
 			end
 			
+			# Compare this object to another object. May depend on the order of the fields.
+			#
+			# @returns [Boolean] Whether the other object is equal to this one.
 			def == other
 				case other
 				when Hash
@@ -323,29 +367,42 @@ module Protocol
 			class Merged
 				include Enumerable
 				
+				# Construct a merged list of headers.
+				#
+				# @parameter *all [Array] An array of all headers to merge.
 				def initialize(*all)
 					@all = all
 				end
 				
+				# @returns [Array] A list of all headers, in the order they were added, as `[key, value]` pairs.
 				def fields
 					each.to_a
 				end
 				
+				# @returns [Headers] A new instance of {Headers} containing all the merged headers.
 				def flatten
 					Headers.new(fields)
 				end
 				
+				# Clear the references to all headers.
 				def clear
 					@all.clear
 				end
 				
+				# Add a new set of headers to the merged list.
+				#
+				# @parameter headers [Headers | Array | Hash] A list of headers to add.
 				def << headers
 					@all << headers
 					
 					return self
 				end
 				
-				# @yields [String, String] header key (lower case string) and value (as string).
+				# Enumerate all headers in the merged list.
+				#
+				# @yields {|key, value| ...} The header key and value.
+				# 	@parameter key [String] The header key (lower case).
+				# 	@parameter value [String] The header value.
 				def each(&block)
 					return to_enum unless block_given?
 					
