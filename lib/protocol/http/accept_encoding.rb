@@ -10,11 +10,15 @@ require_relative "body/inflate"
 
 module Protocol
 	module HTTP
-		# Set a valid accept-encoding header and decode the response.
+		# A middleware that sets the accept-encoding header and decodes the response according to the content-encoding header.
 		class AcceptEncoding < Middleware
+			# The header used to request encodings.
 			ACCEPT_ENCODING = "accept-encoding".freeze
+			
+			# The header used to specify encodings.
 			CONTENT_ENCODING = "content-encoding".freeze
 			
+			# The default wrappers to use for decoding content.
 			DEFAULT_WRAPPERS = {
 				"gzip" => Body::Inflate.method(:for),
 				
@@ -22,13 +26,21 @@ module Protocol
 				# 'identity' => ->(body){body},
 			}
 			
-			def initialize(app, wrappers = DEFAULT_WRAPPERS)
-				super(app)
+			# Initialize the middleware with the given delegate and wrappers.
+			#
+			# @parameter delegate [Protocol::HTTP::Middleware] The delegate middleware.
+			# @parameter wrappers [Hash] A hash of encoding names to wrapper functions.
+			def initialize(delegate, wrappers = DEFAULT_WRAPPERS)
+				super(delegate)
 				
 				@accept_encoding = wrappers.keys.join(", ")
 				@wrappers = wrappers
 			end
 			
+			# Set the accept-encoding header and decode the response body.
+			#
+			# @parameter request [Protocol::HTTP::Request] The request to modify.
+			# @returns [Protocol::HTTP::Response] The response.
 			def call(request)
 				request.headers[ACCEPT_ENCODING] = @accept_encoding
 				
