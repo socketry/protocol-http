@@ -75,7 +75,7 @@ module Protocol
 			
 			# Type-cast a reference.
 			#
-			# @parameter reference [Reference, String] The reference to type-cast.
+			# @parameter reference [Reference | String] The reference to type-cast.
 			# @returns [Reference] The type-casted reference.
 			def self.[] reference
 				if reference.is_a? self
