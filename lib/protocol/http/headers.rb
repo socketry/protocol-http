@@ -13,7 +13,6 @@ require_relative "header/etags"
 require_relative "header/vary"
 require_relative "header/authorization"
 require_relative "header/date"
-require_relative "header/priority"
 
 module Protocol
 	module HTTP
@@ -247,7 +246,6 @@ module Protocol
 				"connection" => Header::Connection,
 				"cache-control" => Header::CacheControl,
 				"vary" => Header::Vary,
-				"priority" => Header::Priority,
 				
 				# Headers specifically for proxies:
 				"via" => Split,
