@@ -50,6 +50,11 @@ module Protocol
 			# The PATCH method applies partial modifications to a resource.
 			PATCH = "PATCH"
 			
+			# Check if the given name is a valid HTTP method, according to this module.
+			#
+			# Note that this method only knows about the methods defined in this module, however there are many other methods defined in different specifications.
+			#
+			# @returns [Boolean] True if the name is a valid HTTP method.
 			def self.valid?(name)
 				const_defined?(name)
 			rescue NameError
