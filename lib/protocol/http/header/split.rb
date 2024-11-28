@@ -10,11 +10,11 @@ module Protocol
 			class Split < Array
 				COMMA = /\s*,\s*/
 				
-				def initialize(value)
+				def initialize(value = nil)
 					if value
 						super(value.split(COMMA))
 					else
-						super([])
+						super()
 					end
 				end
 				
