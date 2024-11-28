@@ -11,8 +11,13 @@ module Protocol
 		module Body
 			# The input stream is an IO-like object which contains the raw HTTP POST data. When applicable, its external encoding must be “ASCII-8BIT” and it must be opened in binary mode, for Ruby 1.9 compatibility. The input stream must respond to gets, each, read and rewind.
 			class Stream
+				# The default line separator, used by {gets}.
 				NEWLINE = "\n"
 				
+				# Initialize the stream with the given input and output.
+				#
+				# @parameter input [Readable] The input stream.
+				# @parameter output [Writable] The output stream.
 				def initialize(input = nil, output = Buffered.new)
 					@input = input
 					@output = output
@@ -26,7 +31,10 @@ module Protocol
 					@closed_read = false
 				end
 				
+				# @attribute [Readable] The input stream.
 				attr :input
+				
+				# @attribute [Writable] The output stream.
 				attr :output
 				
 				# This provides a read-only interface for data, which is surprisingly tricky to implement correctly.
@@ -39,9 +47,9 @@ module Protocol
 					#
 					# If buffer is given, then the read data will be placed into buffer instead of a newly created String object.
 					#
-					# @param length [Integer] the amount of data to read
-					# @param buffer [String] the buffer which will receive the data
-					# @return a buffer containing the data
+					# @parameterlength [Integer] the amount of data to read
+					# @parameter buffer [String] the buffer which will receive the data
+					# @returns [String] a buffer containing the data
 					def read(length = nil, buffer = nil)
 						return "" if length == 0
 						
@@ -125,11 +133,14 @@ module Protocol
 					end
 					
 					# Similar to {read_partial} but raises an `EOFError` if the stream is at EOF.
+					#
+					# @parameter length [Integer] The maximum number of bytes to read.
+					# @parameter buffer [String] The buffer to read into.
 					def readpartial(length, buffer = nil)
 						read_partial(length, buffer) or raise EOFError, "End of file reached!"
 					end
 					
-					# Iterate over each chunk of data in the stream.
+					# Iterate over each chunk of data from the input stream.
 					#
 					# @yields {|chunk| ...} Each chunk of data.
 					def each(&block)
@@ -146,6 +157,9 @@ module Protocol
 					end
 					
 					# Read data from the stream without blocking if possible.
+					#
+					# @parameter length [Integer] The maximum number of bytes to read.
+					# @parameter buffer [String | Nil] The buffer to read into.
 					def read_nonblock(length, buffer = nil, exception: nil)
 						@buffer ||= read_next
 						chunk = nil
@@ -323,6 +337,10 @@ module Protocol
 				end
 				
 				# Close the input body.
+				#
+				# If, while processing the data that was read from this stream, an error is encountered, it should be passed to this method.
+				#
+				# @parameter error [Exception | Nil] The error that was encountered, if any.
 				def close_read(error = nil)
 					if input = @input
 						@input = nil
@@ -334,6 +352,10 @@ module Protocol
 				end
 				
 				# Close the output body.
+				#
+				# If, while generating the data that is written to this stream, an error is encountered, it should be passed to this method.
+				#
+				# @parameter error [Exception | Nil] The error that was encountered, if any.
 				def close_write(error = nil)
 					if output = @output
 						@output = nil
@@ -343,6 +365,8 @@ module Protocol
 				end
 				
 				# Close the input and output bodies.
+				#
+				# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 				def close(error = nil)
 					self.close_read(error)
 					self.close_write(error)
@@ -352,18 +376,22 @@ module Protocol
 					@closed = true
 				end
 				
-				# Whether the stream has been closed.
+				# @returns [Boolean] Whether the stream has been closed.
 				def closed?
 					@closed
 				end
 				
-				# Whether there are any output chunks remaining?
+				# @returns [Boolean] Whether there are any output chunks remaining.
 				def empty?
 					@output.empty?
 				end
 				
 				private
 				
+				# Read the next chunk of data from the input stream.
+				#
+				# @returns [String] The next chunk of data.
+				# @raises [IOError] If the input stream was explicitly closed.
 				def read_next
 					if @input
 						return @input.read

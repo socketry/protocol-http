@@ -10,11 +10,19 @@ require_relative "deflate"
 module Protocol
 	module HTTP
 		module Body
+			# A body which decompresses the contents using the DEFLATE or GZIP algorithm.
 			class Inflate < ZStream
-				def self.for(body, encoding = GZIP)
-					self.new(body, Zlib::Inflate.new(encoding))
+				# Create a new body which decompresses the given body using the GZIP algorithm by default.
+				#
+				# @parameter body [Readable] the body to wrap.
+				# @parameter window_size [Integer] the window size to use for decompression.
+				def self.for(body, window_size = GZIP)
+					self.new(body, Zlib::Inflate.new(window_size))
 				end
 				
+				# Read from the underlying stream and inflate it.
+				#
+				# @returns [String | Nil] the inflated data, or nil if the stream is finished.
 				def read
 					if stream = @stream
 						# Read from the underlying stream and inflate it:

@@ -8,8 +8,11 @@ module Protocol
 	module HTTP
 		module Body
 			# General operations for interacting with a request or response body.
+			#
+			# This module is included in both {Request} and {Response}.
 			module Reader
 				# Read chunks from the body.
+				#
 				# @yields {|chunk| ...} chunks from the body.
 				def each(&block)
 					if @body
@@ -19,6 +22,7 @@ module Protocol
 				end
 				
 				# Reads the entire request/response body.
+				#
 				# @returns [String] the entire body as a string.
 				def read
 					if @body
@@ -30,6 +34,7 @@ module Protocol
 				end
 				
 				# Gracefully finish reading the body. This will buffer the remainder of the body.
+				#
 				# @returns [Buffered] buffers the entire body.
 				def finish
 					if @body
@@ -46,19 +51,27 @@ module Protocol
 						@body = nil
 						body.discard
 					end
+					
+					return nil
 				end
 				
 				# Buffer the entire request/response body.
+				#
 				# @returns [Reader] itself.
 				def buffered!
 					if @body
 						@body = @body.finish
 					end
 					
+					# TODO Should this return @body instead? It seems more useful.
 					return self
 				end
 				
 				# Write the body of the response to the given file path.
+				#
+				# @parameter path [String] the path to write the body to.
+				# @parameter mode [Integer] the mode to open the file with.
+				# @parameter options [Hash] additional options to pass to `File.open`.
 				def save(path, mode = ::File::WRONLY|::File::CREAT|::File::TRUNC, **options)
 					if @body
 						::File.open(path, mode, **options) do |file|
@@ -70,6 +83,8 @@ module Protocol
 				end
 				
 				# Close the connection as quickly as possible. Discards body. May close the underlying connection if necessary to terminate the stream.
+				#
+				# @parameter error [Exception | Nil] the error that caused the stream to be closed, if any.
 				def close(error = nil)
 					if @body
 						@body.close(error)
@@ -78,6 +93,8 @@ module Protocol
 				end
 				
 				# Whether there is a body?
+				#
+				# @returns [Boolean] whether there is a body.
 				def body?
 					@body and !@body.empty?
 				end

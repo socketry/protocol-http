@@ -17,6 +17,10 @@ require_relative "header/priority"
 
 module Protocol
 	module HTTP
+		# @namespace
+		module Header
+		end
+		
 		# Headers are an array of key-value pairs. Some header keys represent multiple values.
 		class Headers
 			Split = Header::Split

@@ -9,8 +9,13 @@ require_relative "buffered"
 module Protocol
 	module HTTP
 		module Body
-			# A body which buffers all it's contents as it is `#read`.
+			# A body which buffers all it's contents as it is read.
+			#
+			# As the body is buffered in memory, you may want to ensure your server has sufficient (virtual) memory available to buffer the entire body.
 			class Rewindable < Wrapper
+				# Wrap the given message body in a rewindable body, if it is not already rewindable.
+				#
+				# @parameter message [Request | Response] the message to wrap.
 				def self.wrap(message)
 					if body = message.body
 						if body.rewindable?
@@ -21,6 +26,9 @@ module Protocol
 					end
 				end
 				
+				# Initialize the body with the given body.
+				#
+				# @parameter body [Readable] the body to wrap.
 				def initialize(body)
 					super(body)
 					
@@ -28,10 +36,12 @@ module Protocol
 					@index = 0
 				end
 				
+				# @returns [Boolean] Whether the body is empty.
 				def empty?
 					(@index >= @chunks.size) && super
 				end
 				
+				# @returns [Boolean] Whether the body is ready to be read.
 				def ready?
 					(@index < @chunks.size) || super
 				end
@@ -43,6 +53,9 @@ module Protocol
 					Buffered.new(@chunks)
 				end
 				
+				# Read the next available chunk. This may return a buffered chunk if the stream has been rewound, or a chunk from the underlying stream, if available.
+				#
+				# @returns [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				def read
 					if @index < @chunks.size
 						chunk = @chunks[@index]
@@ -58,14 +71,19 @@ module Protocol
 					return chunk
 				end
 				
+				# Rewind the stream to the beginning.
 				def rewind
 					@index = 0
 				end
 				
+				# @returns [Boolean] Whether the stream is rewindable, which it is.
 				def rewindable?
 					true
 				end
 				
+				# Inspect the rewindable body.
+				#
+				# @returns [String] a string representation of the body.
 				def inspect
 					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
 				end

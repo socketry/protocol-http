@@ -43,6 +43,10 @@ module Protocol
 					self.new(chunks)
 				end
 				
+				# Initialize the buffered body with some chunks.
+				#
+				# @parameter chunks [Array(String)] the chunks to buffer.
+				# @parameter length [Integer] the length of the body, if known.
 				def initialize(chunks = [], length = nil)
 					@chunks = chunks
 					@length = length
@@ -50,6 +54,7 @@ module Protocol
 					@index = 0
 				end
 				
+				# @attribute [Array(String)] chunks the buffered chunks.
 				attr :chunks
 				
 				# A rewindable body wraps some other body. Convert it to a buffered body. The buffered body will share the same chunks as the rewindable body.
@@ -59,36 +64,48 @@ module Protocol
 					self.class.new(@chunks)
 				end
 				
+				# Finish the body, this is a no-op.
+				#
+				# @returns [Buffered] self.
 				def finish
 					self
 				end
 				
-				# Ensure that future reads return nil, but allow for rewinding.
+				# Ensure that future reads return `nil`, but allow for rewinding.
+				#
+				# @parameter error [Exception | Nil] the error that caused the body to be closed, if any.
 				def close(error = nil)
 					@index = @chunks.length
 					
 					return nil
 				end
 				
+				# Clear the buffered chunks.
 				def clear
 					@chunks = []
 					@length = 0
 					@index = 0
 				end
 				
+				# The length of the body. Will compute and cache the length of the body, if it was not provided.
 				def length
 					@length ||= @chunks.inject(0) {|sum, chunk| sum + chunk.bytesize}
 				end
 				
+				# @returns [Boolean] if the body is empty.
 				def empty?
 					@index >= @chunks.length
 				end
 				
-				# A buffered response is always ready.
+				# Whether the body is ready to be read.
+				# @returns [Boolean] a buffered response is always ready.
 				def ready?
 					true
 				end
 				
+				# Read the next chunk from the buffered body.
+				#
+				# @returns [String | Nil] the next chunk or nil if there are no more chunks.
 				def read
 					return nil unless @chunks
 					
@@ -99,23 +116,30 @@ module Protocol
 					end
 				end
 				
+				# Discard the body. Invokes {#close}.
 				def discard
 					# It's safe to call close here because there is no underlying stream to close:
 					self.close
 				end
 				
+				# Write a chunk to the buffered body.
 				def write(chunk)
 					@chunks << chunk
 				end
 				
+				# Close the body for writing. This is a no-op.
 				def close_write(error)
 					# Nothing to do.
 				end
 				
+				# Whether the body can be rewound.
+				#
+				# @returns [Boolean] if the body has chunks.
 				def rewindable?
 					@chunks != nil
 				end
 				
+				# Rewind the body to the beginning, causing a subsequent read to return the first chunk.
 				def rewind
 					return false unless @chunks
 					
@@ -124,6 +148,9 @@ module Protocol
 					return true
 				end
 				
+				# Inspect the buffered body.
+				#
+				# @returns [String] a string representation of the buffered body.
 				def inspect
 					if @chunks
 						"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"

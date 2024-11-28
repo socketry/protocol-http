@@ -9,42 +9,51 @@ module Protocol
 		module Body
 			# Represents a readable input streams.
 			#
-			# Typically, you'd override `#read` to return chunks of data.
+			# There are two major modes of operation:
 			#
-			# In general, you read chunks of data from a body until it is empty and returns `nil`. Upon reading `nil`, the body is considered consumed and should not be read from again.
+			# 1. Reading chunks using {read} (or {each}/{join}), until the body is empty, or
+			# 2. Streaming chunks using {call}, which writes chunks to a provided output stream.
 			#
-			# Reading can also fail, for example if the body represents a streaming upload, and the connection is lost. In this case, `#read` will raise some kind of error.
+			# In both cases, reading can fail, for example if the body represents a streaming upload, and the connection is lost. In this case, {read} will raise some kind of error, or the stream will be closed with an error.
 			#
-			# If you don't want to read from a stream, and instead want to close it immediately, you can call `close` on the body. If the body is already completely consumed, `close` will do nothing, but if there is still data to be read, it will cause the underlying stream to be reset (and possibly closed).
+			# At any point, you can use {close} to close the stream and release any resources, or {discard} to read all remaining data without processing it which may allow the underlying connection to be reused (but can be slower).
 			class Readable
 				# Close the stream immediately. After invoking this method, the stream should be considered closed, and all internal resources should be released.
 				#
 				# If an error occured while handling the output, it can be passed as an argument. This may be propagated to the client, for example the client may be informed that the stream was not fully read correctly.
 				#
-				# Invoking `#read` after `#close` will return `nil`.
+				# Invoking {read} after {close} will return `nil`.
+				#
+				# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 				def close(error = nil)
 				end
 				
 				# Optimistically determine whether read (may) return any data.
-				# If this returns true, then calling read will definitely return nil.
-				# If this returns false, then calling read may return nil.
+				#
+				# - If this returns true, then calling read will definitely return nil.
+				# - If this returns false, then calling read may return nil.
+				#
+				# @return [Boolean] Whether the stream is empty.
 				def empty?
 					false
 				end
 				
-				# Whether calling read will return a chunk of data without blocking.
-				# We prefer pessimistic implementation, and thus default to `false`.
-				# @return [Boolean]
+				# Whether calling read will return a chunk of data without blocking. We prefer pessimistic implementation, and thus default to `false`.
+				#
+				# @return [Boolean] Whether the stream is ready (read will not block).
 				def ready?
 					false
 				end
 				
 				# Whether the stream can be rewound using {rewind}.
+				#
+				# @return [Boolean] Whether the stream is rewindable.
 				def rewindable?
 					false
 				end
 				
 				# Rewind the stream to the beginning.
+				#
 				# @returns [Boolean] Whether the stream was successfully rewound.
 				def rewind
 					false
@@ -60,19 +69,21 @@ module Protocol
 				end
 				
 				# The total length of the body, if known.
+				#
 				# @returns [Integer | Nil] The total length of the body, or `nil` if the length is unknown.
 				def length
 					nil
 				end
 				
 				# Read the next available chunk.
+				#
 				# @returns [String | Nil] The chunk of data, or `nil` if the stream has finished.
 				# @raises [StandardError] If an error occurs while reading.
 				def read
 					nil
 				end
 				
-				# Enumerate all chunks until finished, then invoke `#close`.
+				# Enumerate all chunks until finished, then invoke {close}.
 				#
 				# Closes the stream when finished or if an error occurs.
 				#
@@ -109,6 +120,9 @@ module Protocol
 					end
 				end
 				
+				# Whether to prefer streaming the body using {call} rather than reading it using {read} or {each}.
+				#
+				# @returns [Boolean] Whether the body should be streamed.
 				def stream?
 					false
 				end
@@ -131,6 +145,7 @@ module Protocol
 						end
 					end
 				ensure
+					# TODO Should this invoke close_write(error) instead?
 					stream.close
 				end
 				
@@ -152,6 +167,9 @@ module Protocol
 					end
 				end
 				
+				# Convert the body to a hash suitable for serialization. This won't include the contents of the body, but will include metadata such as the length, streamability, and readiness, etc.
+				#
+				# @returns [Hash] The body as a hash.
 				def as_json(...)
 					{
 						class: self.class.name,
@@ -162,6 +180,9 @@ module Protocol
 					}
 				end
 				
+				# Convert the body to JSON.
+				#
+				# @returns [String] The body as JSON.
 				def to_json(...)
 					as_json.to_json(...)
 				end
