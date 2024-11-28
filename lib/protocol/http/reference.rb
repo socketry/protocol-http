@@ -19,6 +19,12 @@ module Protocol
 				self.new(path, query, fragment, parameters)
 			end
 			
+			# Initialize the reference.
+			#
+			# @parameter path [String] The path component, e.g. `/foo/bar/index.html`.
+			# @parameter query [String | Nil] The un-parsed query string, e.g. 'x=10&y=20'.
+			# @parameter fragment [String | Nil] The fragment, the part after the '#'.
+			# @parameter parameters [Hash | Nil] User supplied parameters that will be appended to the query part.
 			def initialize(path = "/", query = nil, fragment = nil, parameters = nil)
 				@path = path
 				@query = query
@@ -26,18 +32,21 @@ module Protocol
 				@parameters = parameters
 			end
 			
-			# The path component, e.g. /foo/bar/index.html
+			# @attribute [String] The path component, e.g. `/foo/bar/index.html`.
 			attr_accessor :path
 			
-			# The un-parsed query string, e.g. 'x=10&y=20'
+			# @attribute [String] The un-parsed query string, e.g. 'x=10&y=20'.
 			attr_accessor :query
 			
-			# A fragment, the part after the '#'
+			# @attribute [String] The fragment, the part after the '#'.
 			attr_accessor :fragment
 			
-			# User supplied parameters that will be appended to the query part.
+			# @attribute [Hash] User supplied parameters that will be appended to the query part.
 			attr_accessor :parameters
 			
+			# Freeze the reference.
+			#
+			#	@returns [Reference] The frozen reference.
 			def freeze
 				return self if frozen?
 				
@@ -49,14 +58,25 @@ module Protocol
 				super
 			end
 			
+			# Implicit conversion to an array.
+			#
+			# @returns [Array] The reference as an array, `[path, query, fragment, parameters]`.
 			def to_ary
 				[@path, @query, @fragment, @parameters]
 			end
 			
+			# Compare two references.
+			#
+			# @parameter other [Reference] The other reference to compare.
+			# @returns [Integer] -1, 0, 1 if the reference is less than, equal to, or greater than the other reference.
 			def <=> other
 				to_ary <=> other.to_ary
 			end
 			
+			# Type-cast a reference.
+			#
+			# @parameter reference [Reference, String] The reference to type-cast.
+			# @returns [Reference] The type-casted reference.
 			def self.[] reference
 				if reference.is_a? self
 					return reference
@@ -65,19 +85,23 @@ module Protocol
 				end
 			end
 			
+			# @returns [Boolean] Whether the reference has parameters.
 			def parameters?
 				@parameters and !@parameters.empty?
 			end
 			
+			# @returns [Boolean] Whether the reference has a query string.
 			def query?
 				@query and !@query.empty?
 			end
 			
+			# @returns [Boolean] Whether the reference has a fragment.
 			def fragment?
 				@fragment and !@fragment.empty?
 			end
 			
-			def append(buffer)
+			# Append the reference to the given buffer.
+			def append(buffer = String.new)
 				if query?
 					buffer << URL.escape_path(@path) << "?" << @query
 					buffer << "&" << URL.encode(@parameters) if parameters?
@@ -93,8 +117,11 @@ module Protocol
 				return buffer
 			end
 			
+			# Convert the reference to a string, e.g. `/foo/bar/index.html?x=10&y=20#section`
+			#
+			# @returns [String] The reference as a string.
 			def to_s
-				append(String.new)
+				append
 			end
 			
 			# Merges two references as specified by RFC2396, similar to `URI.join`.
