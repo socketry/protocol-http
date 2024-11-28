@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add support for `priority:` header.
+
 ## v0.33.0
 
   - Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
