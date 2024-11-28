@@ -44,7 +44,7 @@ module Protocol
 			
 			# Encodes a hash or array into a query string. This method is used to encode query parameters in a URL. For example, `{"a" => 1, "b" => 2}` is encoded as `a=1&b=2`.
 			#
-			# @parameter value [Hash, Array] The value to encode.
+			# @parameter value [Hash | Array | Nil] The value to encode.
 			# @parameter prefix [String] The prefix to use for keys.
 			def self.encode(value, prefix = nil)
 				case value
