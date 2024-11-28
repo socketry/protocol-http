@@ -25,6 +25,17 @@ module Protocol
 		class Request
 			prepend Body::Reader
 			
+			# Initialize the request.
+			#
+			# @parameter scheme [String | Nil] The request scheme, usually `"http"` or `"https"`.
+			# @parameter authority [String | Nil] The request authority, usually a hostname and port number, e.g. `"example.com:80"`.
+			# @parameter method [String | Nil] The request method, usually one of `"GET"`, `"HEAD"`, `"POST"`, `"PUT"`, `"DELETE"`, `"CONNECT"` or `"OPTIONS"`, etc.
+			# @parameter path [String | Nil] The request path, usually a path and query string, e.g. `"/index.html"`, `"/search?q=hello"`, etc.
+			# @parameter version [String | Nil] The request version, usually `"http/1.0"`, `"http/1.1"`, `"h2"`, or `"h3"`.
+			# @parameter headers [Headers] The request headers, usually containing metadata associated with the request such as the `"user-agent"`, `"accept"` (content type), `"accept-language"`, etc.
+			# @parameter body [Body::Readable] The request body.
+			# @parameter protocol [String | Array(String) | Nil] The request protocol, usually empty, but occasionally `"websocket"` or `"webtransport"`.
+			# @parameter interim_response [Proc] A callback which is called when an interim response is received.
 			def initialize(scheme = nil, authority = nil, method = nil, path = nil, version = nil, headers = Headers.new, body = nil, protocol = nil, interim_response = nil)
 				@scheme = scheme
 				@authority = authority
@@ -81,6 +92,11 @@ module Protocol
 				@interim_response&.call(status, headers)
 			end
 			
+			# Register a callback to be called when an interim response is received.
+			#
+			# @yields {|status, headers| ...} The callback to be called when an interim response is received.
+			# 	@parameter status [Integer] The HTTP status code, e.g. `100`, `101`, etc.
+			# 	@parameter headers [Hash] The headers, e.g. `{"link" => "</style.css>; rel=stylesheet"}`, etc.
 			def on_interim_response(&block)
 				if interim_response = @interim_response
 					@interim_response = ->(status, headers) do
@@ -120,6 +136,9 @@ module Protocol
 				@method != Methods::POST && (@body.nil? || @body.empty?)
 			end
 			
+			# Convert the request to a hash, suitable for serialization.
+			#
+			# @returns [Hash] The request as a hash.
 			def as_json(...)
 				{
 					scheme: @scheme,
@@ -133,10 +152,16 @@ module Protocol
 				}
 			end
 			
+			# Convert the request to JSON.
+			#
+			# @returns [String] The request as JSON.
 			def to_json(...)
 				as_json.to_json(...)
 			end
 			
+			# Summarize the request as a string.
+			#
+			# @returns [String] The request as a string.
 			def to_s
 				"#{@scheme}://#{@authority}: #{@method} #{@path} #{@version}"
 			end
