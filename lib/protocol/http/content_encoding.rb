@@ -12,19 +12,30 @@ module Protocol
 	module HTTP
 		# Encode a response according the the request's acceptable encodings.
 		class ContentEncoding < Middleware
+			# The default wrappers to use for encoding content.
 			DEFAULT_WRAPPERS = {
 				"gzip" => Body::Deflate.method(:for)
 			}
 			
+			# The default content types to apply encoding to.
 			DEFAULT_CONTENT_TYPES = %r{^(text/.*?)|(.*?/json)|(.*?/javascript)$}
 			
-			def initialize(app, content_types = DEFAULT_CONTENT_TYPES, wrappers = DEFAULT_WRAPPERS)
-				super(app)
+			# Initialize the content encoding middleware.
+			#
+			# @parameter delegate [Middleware] The next middleware in the chain.
+			# @parameter content_types [Regexp] The content types to apply encoding to.
+			# @parameter wrappers [Hash] The encoding wrappers to use.
+			def initialize(delegate, content_types = DEFAULT_CONTENT_TYPES, wrappers = DEFAULT_WRAPPERS)
+				super(delegate)
 				
 				@content_types = content_types
 				@wrappers = wrappers
 			end
 			
+			# Encode the response body according to the request's acceptable encodings.
+			#
+			# @parameter request [Request] The request.
+			# @returns [Response] The response.
 			def call(request)
 				response = super
 				
@@ -40,7 +51,6 @@ module Protocol
 				
 				# TODO use http-accept and sort by priority
 				if !response.body.empty? and accept_encoding = request.headers["accept-encoding"]
-					
 					if content_type = response.headers["content-type"] and @content_types =~ content_type
 						body = response.body
 						
