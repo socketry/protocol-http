@@ -29,13 +29,15 @@ module Protocol
 				# The default urgency level if not specified.
 				DEFAULT_URGENCY = 3
 				
-				# Returns the urgency level if specified. 0 is the highest priority, and 7 is the lowest.
+				# The urgency level, if specified using `u=`. 0 is the highest priority, and 7 is the lowest.
+				#
+				# Note that when duplicate Dictionary keys are encountered, all but the last instance are ignored.
 				#
 				# @returns [Integer | Nil] the urgency level if specified, or `nil` if not present.
 				def urgency(default = DEFAULT_URGENCY)
-					if value = self.find { |value| value.start_with?("u=") }
+					if value = self.reverse_find{|value| value.start_with?("u=")}
 						_, level = value.split("=", 2)
-						return level.to_i
+						return Integer(level)
 					end
 					
 					return default

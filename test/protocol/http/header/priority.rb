@@ -55,10 +55,9 @@ describe Protocol::HTTP::Header::Priority do
 	end
 	
 	with "u=2, u=5" do
-		it "prioritizes the first urgency directive" do
+		it "prioritizes the last urgency directive" do
 			expect(header).to have_attributes(
-				# First occurrence takes precedence
-				urgency: be == 2,
+				urgency: be == 5,
 			)
 		end
 	end

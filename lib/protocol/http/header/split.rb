@@ -39,6 +39,16 @@ module Protocol
 				def to_s
 					join(",")
 				end
+				
+				protected
+				
+				def reverse_find(&block)
+					reverse_each do |value|
+						return value if block.call(value)
+					end
+					
+					return nil
+				end
 			end
 		end
 	end
