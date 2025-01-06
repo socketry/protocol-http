@@ -8,8 +8,8 @@ require 'protocol/http/header/accept_encoding'
 	
 describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 	it "should have default quality_factor of 1.0" do
-		charset = subject.new('utf-8', nil)
-		expect(charset.quality_factor).to be == 1.0
+		encoding = subject.new('utf-8', nil)
+		expect(encoding.quality_factor).to be == 1.0
 	end
 end
 

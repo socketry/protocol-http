@@ -5,6 +5,7 @@
 
 require_relative "header/accept_charset"
 require_relative "header/accept_encoding"
+require_relative "header/accept_language"
 require_relative "header/split"
 require_relative "header/multiple"
 require_relative "header/cookie"
@@ -282,6 +283,7 @@ module Protocol
 				
 				"accept-charset" => Header::AcceptCharset,
 				"accept-encoding" => Header::AcceptEncoding,
+				"accept-language" => Header::AcceptLanguage,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all header values for the given key, and return the merged value.
