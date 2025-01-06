@@ -3,6 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2018-2024, by Samuel Williams.
 
+require_relative "header/accept_charset"
 require_relative "header/split"
 require_relative "header/multiple"
 require_relative "header/cookie"
@@ -277,6 +278,8 @@ module Protocol
 				"last-modified" => Header::Date,
 				"if-modified-since" => Header::Date,
 				"if-unmodified-since" => Header::Date,
+				
+				"accept-charset" => Header::AcceptCharset,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all header values for the given key, and return the merged value.
