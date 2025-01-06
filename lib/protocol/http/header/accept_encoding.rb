@@ -11,14 +11,17 @@ require_relative "../error"
 module Protocol
 	module HTTP
 		module Header
-			# The `accept-charset` header represents a list of character sets that the client can accept.
-			class AcceptCharset < Split
+			# The `accept-encoding` header represents a list of encodings that the client can accept.
+			class AcceptEncoding < Split
 				ParseError = Class.new(Error)
 				
-				# https://tools.ietf.org/html/rfc7231#section-5.3.3
-				CHARSET = /\A(?<name>#{TOKEN})(;q=(?<q>#{QVALUE}))?\z/
+				# https://tools.ietf.org/html/rfc7231#section-5.3.1
+				QVALUE = /0(\.[0-9]{0,3})?|1(\.[0]{0,3})?/
 				
-				Charset = Struct.new(:name, :q) do
+				# https://tools.ietf.org/html/rfc7231#section-5.3.4
+				ENCODING = /\A(?<name>#{TOKEN})(;q=(?<q>#{QVALUE}))?\z/
+				
+				Encoding = Struct.new(:name, :q) do
 					def quality_factor
 						(q || 1.0).to_f
 					end
@@ -28,15 +31,15 @@ module Protocol
 					end
 				end
 				
-				# Parse the `accept-charset` header value into a list of character sets.
+				# Parse the `accept-encoding` header value into a list of encodings.
 				#
 				# @returns [Array(Charset)] the list of character sets and their associated quality factors.
-				def charsets
+				def encodings
 					self.map do |value|
-						if match = value.match(CHARSET)
-							Charset.new(match[:name], match[:q])
+						if match = value.match(ENCODING)
+							Encoding.new(match[:name], match[:q])
 						else
-							raise ParseError.new("Could not parse character set: #{value.inspect}")
+							raise ParseError.new("Could not parse encoding: #{value.inspect}")
 						end
 					end
 				end

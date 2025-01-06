@@ -8,7 +8,11 @@ module Protocol
 		module Header
 			# According to https://tools.ietf.org/html/rfc7231#appendix-C
 			TOKEN = /[!#$%&'*+\-.^_`|~0-9A-Z]+/i
+			
 			QUOTED_STRING = /"(?:.(?!(?<!\\)"))*.?"/
+			
+			# https://tools.ietf.org/html/rfc7231#section-5.3.1
+			QVALUE = /0(\.[0-9]{0,3})?|1(\.[0]{0,3})?/
 			
 			module QuotedString
 				# Unquote a "quoted-string" value according to https://tools.ietf.org/html/rfc7230#section-3.2.6
