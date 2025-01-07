@@ -30,7 +30,7 @@ module Protocol
 				#
 				# @parameter value [String] the value or values to add, separated by commas.
 				def << value
-					self.push(*value.split(COMMA))
+					self.concat(value.split(COMMA))
 				end
 				
 				# Serializes the stored values into a comma-separated string.
