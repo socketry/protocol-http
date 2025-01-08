@@ -14,7 +14,7 @@ module Protocol
 			# The `accept-content-type` header represents a list of content-types that the client can accept.
 			class Accept < Array
 				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
-				SPLIT = /
+				SEPARATOR = /
 					(?:            # Start non-capturing group
 						"[^"\\]*"    # Match quoted strings (no escaping of quotes within)
 						|            # OR
@@ -76,7 +76,7 @@ module Protocol
 				
 				def initialize(value = nil)
 					if value
-						super(value.scan(SPLIT).map(&:strip))
+						super(value.scan(SEPARATOR).map(&:strip))
 					else
 					end
 				end
@@ -87,7 +87,7 @@ module Protocol
 				#
 				# @parameter value [String] the value or values to add, separated by commas.
 				def << (value)
-					self.concat(value.scan(SPLIT).map(&:strip))
+					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
 				# Serializes the stored values into a comma-separated string.
@@ -115,7 +115,11 @@ module Protocol
 						parameters = {}
 						
 						match[:parameters].scan(PARAMETER) do |key, value, quoted_value|
-							parameters[key] = quoted_value || value
+							if quoted_value
+								value = QuotedString.unquote(quoted_value)
+							end
+							
+							parameters[key] = value
 						end
 						
 						return MediaRange.new(type, subtype, parameters)

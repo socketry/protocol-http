@@ -51,5 +51,12 @@ describe Protocol::HTTP::Header::Accept do
 		end
 	end
 	
-	
+	with "text/html;schema=\"example.org\";q=0.5" do
+		it "should parse parameters" do
+			expect(media_ranges[0].parameters).to have_keys(
+				"schema" => be == "example.org",
+				"q" => be == "0.5",
+			)
+		end
+	end
 end
