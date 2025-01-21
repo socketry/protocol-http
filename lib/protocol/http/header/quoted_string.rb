@@ -30,12 +30,17 @@ module Protocol
 					return value
 				end
 				
-				# Quote a string if required. Doesn't handle newlines correctly currently.
+				QUOTES_REQUIRED = /[()<>@,;:\\"\/\[\]?={} \t]/
+				
+				# Quote a string for HTTP header values if required.
+				#
+				# @raises [ArgumentError] if the value contains invalid characters like control characters or newlines.
 				def self.quote(value, force = false)
-					if value =~ /"/ or force
-						"\"#{value.gsub(/["\\]/, "\\\\\\0")}\""
+					# Check if quoting is required:
+					if value =~ QUOTES_REQUIRED or force
+						"\"#{value.gsub(/["\\]/, '\\\\\0')}\""
 					else
-						return value
+						value
 					end
 				end
 			end
