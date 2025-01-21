@@ -30,7 +30,7 @@ module Protocol
 				
 				# A single entry in the Accept: header, which includes a mime type and associated parameters.
 				MediaRange = Struct.new(:type, :subtype, :parameters) do
-					def initialize(type, subtype = '*', parameters = {})
+					def initialize(type, subtype = "*", parameters = {})
 						super(type, subtype, parameters)
 					end
 					
@@ -39,7 +39,7 @@ module Protocol
 					end
 					
 					def parameters_string
-						return '' if parameters == nil or parameters.empty?
+						return "" if parameters == nil or parameters.empty?
 						
 						parameters.collect do |key, value|
 							"; #{key.to_s}=#{QuotedString.quote(value.to_s)}"
@@ -65,7 +65,7 @@ module Protocol
 					alias to_str to_s
 					
 					def quality_factor
-						parameters.fetch('q', 1.0).to_f
+						parameters.fetch("q", 1.0).to_f
 					end
 					
 					def split(*args)

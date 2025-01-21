@@ -3,11 +3,11 @@
 # Released under the MIT License.
 # Copyright, 2025, by Samuel Williams.
 
-require 'protocol/http/header/accept_language'
+require "protocol/http/header/accept_language"
 	
 describe Protocol::HTTP::Header::AcceptLanguage::Language do
 	it "should have default quality_factor of 1.0" do
-		language = subject.new('utf-8', nil)
+		language = subject.new("utf-8", nil)
 		expect(language.quality_factor).to be == 1.0
 	end
 end

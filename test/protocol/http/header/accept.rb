@@ -3,11 +3,11 @@
 # Released under the MIT License.
 # Copyright, 2025, by Samuel Williams.
 
-require 'protocol/http/header/accept'
+require "protocol/http/header/accept"
 	
 describe Protocol::HTTP::Header::Accept::MediaRange do
 	it "should have default quality_factor of 1.0" do
-		language = subject.new('text/plain', nil)
+		language = subject.new("text/plain", nil)
 		expect(language.quality_factor).to be == 1.0
 	end
 end
