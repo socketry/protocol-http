@@ -14,9 +14,9 @@ module Protocol
 			# https://tools.ietf.org/html/rfc7231#section-5.3.1
 			QVALUE = /0(\.[0-9]{0,3})?|1(\.[0]{0,3})?/
 			
+			# Handling of HTTP quoted strings.
 			module QuotedString
-				# Unquote a "quoted-string" value according to https://tools.ietf.org/html/rfc7230#section-3.2.6
-				# It should already match the QUOTED_STRING pattern above by the parser.
+				# Unquote a "quoted-string" value according to <https://tools.ietf.org/html/rfc7230#section-3.2.6>. It should already match the QUOTED_STRING pattern above by the parser.
 				def self.unquote(value, normalize_whitespace = true)
 					value = value[1...-1]
 					

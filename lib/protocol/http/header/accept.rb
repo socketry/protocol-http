@@ -73,10 +73,12 @@ module Protocol
 					end
 				end
 				
+				# Parse the `accept` header value into a list of content types.
+				#
+				# @parameter value [String] the value of the header.
 				def initialize(value = nil)
 					if value
 						super(value.scan(SEPARATOR).map(&:strip))
-					else
 					end
 				end
 				
