@@ -17,6 +17,12 @@ describe Protocol::HTTP::Body::Readable do
 		expect(body).not.to be(:ready?)
 	end
 	
+	with "#buffered" do
+		it "is unable to buffer by default" do
+			expect(body.buffered).to be_nil
+		end
+	end
+	
 	with "#finish" do
 		it "should return empty buffered representation" do
 			expect(body.finish).to be(:empty?)

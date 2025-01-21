@@ -172,7 +172,8 @@ describe Protocol::HTTP::Response do
 				status: be == 200,
 				headers: be == headers,
 				body: be == body,
-				protocol: be == nil
+				protocol: be_nil,
+				peer: be_nil,
 			)
 		end
 		

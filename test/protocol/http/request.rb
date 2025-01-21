@@ -74,7 +74,8 @@ describe Protocol::HTTP::Request do
 				version: be == "HTTP/1.0",
 				headers: be == headers,
 				body: be == body,
-				protocol: be_nil
+				protocol: be_nil,
+				peer: be_nil,
 			)
 		end
 		

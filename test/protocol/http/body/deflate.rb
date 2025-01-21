@@ -44,6 +44,18 @@ describe Protocol::HTTP::Body::Deflate do
 		expect(decompressed_body.read).to be == nil
 	end
 	
+	with "#length" do
+		it "should be unknown" do
+			expect(compressed_body).to have_attributes(
+				length: be_nil,
+			)
+			
+			expect(decompressed_body).to have_attributes(
+				length: be_nil,
+			)
+		end
+	end
+	
 	with "#inspect" do
 		it "can generate string representation" do
 			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered 0 chunks, 0 bytes> | #<Protocol::HTTP::Body::Deflate 100.0%>"
