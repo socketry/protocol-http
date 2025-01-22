@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2018-2024, by Samuel Williams.
+# Copyright, 2018-2025, by Samuel Williams.
 
 require_relative "header/split"
 require_relative "header/multiple"
+
 require_relative "header/cookie"
 require_relative "header/connection"
 require_relative "header/cache_control"
@@ -14,6 +15,11 @@ require_relative "header/vary"
 require_relative "header/authorization"
 require_relative "header/date"
 require_relative "header/priority"
+
+require_relative "header/accept"
+require_relative "header/accept_charset"
+require_relative "header/accept_encoding"
+require_relative "header/accept_language"
 
 module Protocol
 	module HTTP
@@ -277,6 +283,12 @@ module Protocol
 				"last-modified" => Header::Date,
 				"if-modified-since" => Header::Date,
 				"if-unmodified-since" => Header::Date,
+				
+				# Accept headers:
+				"accept" => Header::Accept,
+				"accept-charset" => Header::AcceptCharset,
+				"accept-encoding" => Header::AcceptEncoding,
+				"accept-language" => Header::AcceptLanguage,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all header values for the given key, and return the merged value.
