@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.
+
 ## v0.46.0
 
   - Add support for `priority:` header.
