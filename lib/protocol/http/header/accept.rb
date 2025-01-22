@@ -28,7 +28,7 @@ module Protocol
 				
 				PARAMETER = /\s*;\s*(?<key>#{TOKEN})=((?<value>#{TOKEN})|(?<quoted_value>#{QUOTED_STRING}))/
 				
-				# A single entry in the Accept: header, which includes a mime type and associated parameters.
+				# A single entry in the Accept: header, which includes a mime type and associated parameters. A media range can include wild cards, but a media type is a specific type and subtype.
 				MediaRange = Struct.new(:type, :subtype, :parameters) do
 					def initialize(type, subtype = "*", parameters = {})
 						super(type, subtype, parameters)
@@ -42,7 +42,7 @@ module Protocol
 						return "" if parameters == nil or parameters.empty?
 						
 						parameters.collect do |key, value|
-							"; #{key.to_s}=#{QuotedString.quote(value.to_s)}"
+							";#{key.to_s}=#{QuotedString.quote(value.to_s)}"
 						end.join
 					end
 					
@@ -50,11 +50,11 @@ module Protocol
 						if other.is_a? self.class
 							super
 						else
-							return self.mime_type === other
+							return self.range_string === other
 						end
 					end
 					
-					def mime_type
+					def range_string
 						"#{type}/#{subtype}"
 					end
 					
@@ -125,7 +125,7 @@ module Protocol
 						
 						return MediaRange.new(type, subtype, parameters)
 					else
-						raise ArgumentError, "Invalid media type: #{value.inspect}"
+						raise ParseError, "Invalid media type: #{value.inspect}"
 					end
 				end
 			end
