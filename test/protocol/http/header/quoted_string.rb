@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2016-2024, by Samuel Williams.
 
-require 'protocol/http/header/quoted_string'
+require "protocol/http/header/quoted_string"
 
 describe Protocol::HTTP::Header::QuotedString do
 	with ".unquote" do
