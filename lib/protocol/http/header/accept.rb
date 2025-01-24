@@ -30,10 +30,16 @@ module Protocol
 				
 				# A single entry in the Accept: header, which includes a mime type and associated parameters. A media range can include wild cards, but a media type is a specific type and subtype.
 				MediaRange = Struct.new(:type, :subtype, :parameters) do
+					# Create a new media range.
+					#
+					# @parameter type [String] the type of the media range.
+					# @parameter subtype [String] the subtype of the media range.
+					# @parameter parameters [Hash] the parameters associated with the media range.
 					def initialize(type, subtype = "*", parameters = {})
 						super(type, subtype, parameters)
 					end
 					
+					# Compare the media range with another media range or a string, based on the quality factor.
 					def <=> other
 						other.quality_factor <=> self.quality_factor
 					end
@@ -46,12 +52,16 @@ module Protocol
 						end.join
 					end
 					
+					# The string representation of the media range, including the type, subtype, and any parameters.
 					def to_s
 						"#{type}/#{subtype}#{parameters_string}"
 					end
 					
 					alias to_str to_s
 					
+					# The quality factor associated with the media range, which is used to determine the order of preference.
+					#
+					# @returns [Float] the quality factor, which defaults to 1.0 if not specified.
 					def quality_factor
 						parameters.fetch("q", 1.0).to_f
 					end
