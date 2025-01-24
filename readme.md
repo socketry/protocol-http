@@ -24,6 +24,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.48.0
+
+  - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.
+
 ### v0.46.0
 
   - Add support for `priority:` header.
