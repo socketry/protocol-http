@@ -38,24 +38,12 @@ module Protocol
 						other.quality_factor <=> self.quality_factor
 					end
 					
-					def parameters_string
+					private def parameters_string
 						return "" if parameters == nil or parameters.empty?
 						
 						parameters.collect do |key, value|
 							";#{key.to_s}=#{QuotedString.quote(value.to_s)}"
 						end.join
-					end
-					
-					def === other
-						if other.is_a? self.class
-							super
-						else
-							return self.range_string === other
-						end
-					end
-					
-					def range_string
-						"#{type}/#{subtype}"
 					end
 					
 					def to_s
@@ -66,10 +54,6 @@ module Protocol
 					
 					def quality_factor
 						parameters.fetch("q", 1.0).to_f
-					end
-					
-					def split(*args)
-						return [type, subtype]
 					end
 				end
 				
