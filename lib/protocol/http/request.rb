@@ -124,7 +124,8 @@ module Protocol
 			# @parameter path [String] The path, e.g. `"/index.html"`, `"/search?q=hello"`, etc.
 			# @parameter headers [Hash] The headers, e.g. `{"accept" => "text/html"}`, etc.
 			# @parameter body [String | Array(String) | Body::Readable] The body, e.g. `"Hello, World!"`, etc. See {Body::Buffered.wrap} for more information about .
-			def self.[](method, path, _headers = nil, _body = nil, scheme: nil, authority: nil, headers: _headers, body: _body, protocol: nil, interim_response: nil)
+			def self.[](method, path = nil, _headers = nil, _body = nil, scheme: nil, authority: nil, headers: _headers, body: _body, protocol: nil, interim_response: nil)
+				path = path&.to_s
 				body = Body::Buffered.wrap(body)
 				headers = Headers[headers]
 				

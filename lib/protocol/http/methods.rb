@@ -75,9 +75,9 @@ module Protocol
 			end
 			
 			self.each do |name, method|
-				define_method(name) do |location, *arguments, **options|
+				define_method(name) do |*arguments, **options|
 					self.call(
-						Request[method, location.to_s, *arguments, **options]
+						Request[method, *arguments, **options]
 					)
 				end
 			end

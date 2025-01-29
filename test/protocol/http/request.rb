@@ -60,6 +60,24 @@ describe Protocol::HTTP::Request do
 				body: be_a(Protocol::HTTP::Body::Buffered)
 			)
 		end
+		
+		it "can accept no arguments" do
+			request = subject["GET"]
+			
+			expect(request).to have_attributes(
+				method: be == "GET",
+				path: be_nil,
+			)
+		end
+		
+		it "converts path to string" do
+			request = subject["GET", :index]
+			
+			expect(request).to have_attributes(
+				method: be == "GET",
+				path: be == "index",
+			)
+		end
 	end
 	
 	with "simple GET request" do
