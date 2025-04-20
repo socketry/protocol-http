@@ -9,7 +9,7 @@ require_relative "readable"
 module Protocol
 	module HTTP
 		module Body
-			# A body which buffers all it's contents.
+			# A body which buffers all its contents.
 			class Buffered < Readable
 				# Tries to wrap an object in a {Buffered} instance.
 				#
