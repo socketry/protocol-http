@@ -10,7 +10,7 @@ module Protocol
 		module Body
 			# Represents a body suitable for HEAD requests, in other words, a body that is empty and has a known length.
 			class Head < Readable
-				# Create a head body for the given body, capturing it's length and then closing it.
+				# Create a head body for the given body, capturing its length and then closing it.
 				def self.for(body)
 					head = self.new(body.length)
 					

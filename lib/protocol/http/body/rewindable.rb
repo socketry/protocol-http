@@ -9,7 +9,7 @@ require_relative "buffered"
 module Protocol
 	module HTTP
 		module Body
-			# A body which buffers all it's contents as it is read.
+			# A body which buffers all its contents as it is read.
 			#
 			# As the body is buffered in memory, you may want to ensure your server has sufficient (virtual) memory available to buffer the entire body.
 			class Rewindable < Wrapper
