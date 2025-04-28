@@ -263,7 +263,7 @@ module Protocol
 								buffer = @buffer
 								@buffer = nil
 								
-								return @buffer
+								return buffer
 							end
 						end
 						
