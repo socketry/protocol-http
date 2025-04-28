@@ -263,7 +263,12 @@ module Protocol
 								buffer = @buffer
 								@buffer = nil
 								
-								return @buffer
+								# Return nil for empty buffers, otherwise return the content:
+								if buffer && !buffer.empty?
+									return buffer
+								else
+									return nil
+								end
 							end
 						end
 						
