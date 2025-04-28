@@ -240,6 +240,16 @@ describe Protocol::HTTP::Body::Stream do
 				expect(stream.gets).to be == nil
 			end
 		end
+		
+		with "incomplete line at the end" do
+			let(:input) {Protocol::HTTP::Body::Buffered.new(["Hello\nWorld"])}
+			
+			it "returns the remaining buffer when there is no more data to read" do
+				expect(stream.gets).to be == "Hello\n"
+				expect(stream.gets).to be == "World"
+				expect(stream.gets).to be == nil
+			end
+		end
 	end
 	
 	with "#close_read" do
