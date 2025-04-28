@@ -2,6 +2,7 @@
 
 # Released under the MIT License.
 # Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2025, by William T. Nelson.
 
 require_relative "readable"
 

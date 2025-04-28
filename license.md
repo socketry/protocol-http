@@ -11,6 +11,7 @@ Copyright, 2023, by Genki Takiuchi.
 Copyright, 2023-2024, by Thomas Morgan.  
 Copyright, 2023, by Marcelo Junior.  
 Copyright, 2024, by Earlopain.  
+Copyright, 2025, by William T. Nelson.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
