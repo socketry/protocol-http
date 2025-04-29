@@ -1,5 +1,9 @@
 # Releases
 
+## v0.50.0
+
+	- Drop support for Ruby v3.1.
+
 ## v0.48.0
 
   - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.
