@@ -79,4 +79,23 @@ describe Protocol::HTTP::ContentEncoding do
 			expect(response.read).to be == "Hello World!"
 		end
 	end
+	
+	with "nil body" do
+		let(:app) do
+			app = ->(request){
+				Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain"], nil]
+			}
+		end
+			
+		let(:client) {subject.new(app)}
+		
+		it "does not compress response" do
+			response = client.get("/index", {"accept-encoding" => "gzip"})
+			
+			expect(response).to be(:success?)
+			expect(response.headers).not.to have_keys("content-encoding")
+			
+			expect(response.read).to be == nil
+		end
+	end
 end

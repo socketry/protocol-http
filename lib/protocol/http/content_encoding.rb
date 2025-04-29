@@ -46,14 +46,16 @@ module Protocol
 				# https://lists.w3.org/Archives/Public/ietf-http-wg/2014JanMar/1179.html
 				return response if response.partial?
 				
+				body = response.body
+				
+				# If there is no response body, there is nothing to encode:
+				return response if body.nil? or body.empty?
+				
 				# Ensure that caches are aware we are varying the response based on the accept-encoding request header:
 				response.headers.add("vary", "accept-encoding")
 				
-				# TODO use http-accept and sort by priority
-				if !response.body.empty? and accept_encoding = request.headers["accept-encoding"]
+				if accept_encoding = request.headers["accept-encoding"]
 					if content_type = response.headers["content-type"] and @content_types =~ content_type
-						body = response.body
-						
 						accept_encoding.each do |name|
 							if wrapper = @wrappers[name]
 								response.headers["content-encoding"] = name
