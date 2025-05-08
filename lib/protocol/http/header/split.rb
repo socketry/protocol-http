@@ -17,10 +17,13 @@ module Protocol
 				#
 				# @parameter value [String | Nil] the raw header value containing multiple entries separated by commas, or `nil` for an empty header.
 				def initialize(value = nil)
-					if value
+					case value
+					when String
 						super(value.split(COMMA))
+					when nil
+						super()	
 					else
-						super()
+						super([value.to_s])	
 					end
 				end
 				
