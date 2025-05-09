@@ -70,4 +70,4 @@ parameters = Protocol::HTTP::URL.decode(reference.query)
 # => {"q"=>"kittens"}
 ```
 
-This implemenation may be merged with {ruby Protocol::HTTP::Reference} or removed in the future.
+This implementation may be merged with {ruby Protocol::HTTP::Reference} or removed in the future.
