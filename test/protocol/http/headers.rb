@@ -13,7 +13,8 @@ describe Protocol::HTTP::Headers do
 			["Set-Cookie", "hello=world"],
 			["Accept", "*/*"],
 			["set-cookie", "foo=bar"],
-			["connection", "Keep-Alive"]
+			["connection", "Keep-Alive"],
+			["X-Foo", 1]
 		]
 	end
 	
@@ -29,7 +30,7 @@ describe Protocol::HTTP::Headers do
 	
 	with "#keys" do
 		it "should return keys" do
-			expect(headers.keys).to be == ["content-type", "set-cookie", "accept", "connection"]
+			expect(headers.keys).to be == ["content-type", "set-cookie", "accept", "connection", "x-foo"]
 		end
 	end
 	
@@ -55,7 +56,8 @@ describe Protocol::HTTP::Headers do
 				"content-type" => "text/plain",
 				"set-cookie" => ["hello=world", "foo=bar", "goodbye=world"],
 				"accept" => ["*/*"],
-				"connection" => ["keep-alive"]
+				"connection" => ["keep-alive"],
+				"x-foo" => ["1"]
 			}
 		end
 	end
