@@ -12,12 +12,24 @@ module Protocol
 			# Represents a body suitable for HEAD requests, in other words, a body that is empty and has a known length.
 			class Head < Readable
 				# Create a head body for the given body, capturing its length and then closing it.
-				def self.for(body)
-					head = self.new(body.length)
+				#
+				# If a body is provided, the length is determined from the body, and the body is closed.
+				# If no body is provided, and the content length is provided, a head body is created with that length.
+				# This is useful for creating a head body when you only know the content length but not the actual body, which may happen in adapters for HTTP applications where the application may not provide a body for HEAD requests, but the content length is known.
+				#
+				# @parameter body [Readable | Nil] the body to create a head for.
+				# @parameter length [Integer | Nil] the content length of the body, if known.
+				# @returns [Head | Nil] the head body, or nil if the body is nil.
+				def self.for(body, length = nil)
+					if body
+						head = self.new(body.length)
+						body.close
+						return head
+					elsif length
+						return self.new(length)
+					end
 					
-					body.close
-					
-					return head
+					return nil
 				end
 				
 				# Initialize the head body with the given length.
