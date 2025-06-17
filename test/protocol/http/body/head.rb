@@ -56,4 +56,11 @@ describe Protocol::HTTP::Body::Head do
 			body.close
 		end
 	end
+	
+	with ".for with nil body" do
+		it "returns nil when body is nil" do
+			body = subject.for(nil)
+			expect(body).to be_nil
+		end
+	end
 end

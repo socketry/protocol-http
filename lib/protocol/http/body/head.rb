@@ -12,12 +12,17 @@ module Protocol
 			# Represents a body suitable for HEAD requests, in other words, a body that is empty and has a known length.
 			class Head < Readable
 				# Create a head body for the given body, capturing its length and then closing it.
+				#
+				# @parameter body [Readable | Nil] the body to create a head for.
+				# @returns [Head | Nil] the head body, or nil if the body is nil.
 				def self.for(body)
-					head = self.new(body.length)
+					if body
+						head = self.new(body.length)
+						body.close
+						return head
+					end
 					
-					body.close
-					
-					return head
+					return nil
 				end
 				
 				# Initialize the head body with the given length.
