@@ -46,14 +46,33 @@ describe Protocol::HTTP::Body::Head do
 	end
 	
 	with ".for" do
-		let(:source) {Protocol::HTTP::Body::Buffered.wrap("!")}
-		let(:body) {subject.for(source)}
-		
-		it "captures length and closes existing body" do
-			expect(source).to receive(:close)
+		with "body" do
+			let(:source) {Protocol::HTTP::Body::Buffered.wrap("!")}
+			let(:body) {subject.for(source)}
 			
-			expect(body).to have_attributes(length: be == 1)
-			body.close
+			it "captures length and closes existing body" do
+				expect(source).to receive(:close)
+				
+				expect(body).to have_attributes(length: be == 1)
+				body.close
+			end
+		end
+		
+		with "content length" do
+			let(:body) {subject.for(nil, 42)}
+			
+			it "uses the content length if no body is provided" do
+				expect(body).to have_attributes(length: be == 42)
+				expect(body).to be(:empty?)
+				expect(body).to be(:ready?)
+			end
+		end
+	end
+	
+	with ".for with nil body" do
+		it "returns nil when body is nil" do
+			body = subject.for(nil)
+			expect(body).to be_nil
 		end
 	end
 end
