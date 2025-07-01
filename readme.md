@@ -24,6 +24,16 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.51.0
+
+  - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
+  - `Protocol::HTTP::Headers#add` now coerces the value to a string when adding a header, ensuring consistent behaviour.
+  - `Protocol::HTTP::Body::Head.for` now accepts an optional `length` parameter, allowing it to create a head body even when the body is not provided, based on the known content length.
+
+### v0.50.0
+
+    - Drop support for Ruby v3.1.
+
 ### v0.48.0
 
   - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.

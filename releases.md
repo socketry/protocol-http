@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.51.0
 
   - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
   - `Protocol::HTTP::Headers#add` now coerces the value to a string when adding a header, ensuring consistent behaviour.
@@ -8,7 +8,7 @@
 
 ## v0.50.0
 
-	- Drop support for Ruby v3.1.
+    - Drop support for Ruby v3.1.
 
 ## v0.48.0
 
