@@ -42,9 +42,6 @@ describe Protocol::HTTP::Headers do
 	with "#merge" do
 		it "should merge headers" do
 			other = subject[[
-				# This will replace the original one:
-				["Content-Type", "text/plain"],
-				
 				# This will be appended:
 				["Set-Cookie", "goodbye=world"],
 			]]
@@ -52,11 +49,25 @@ describe Protocol::HTTP::Headers do
 			merged = headers.merge(other)
 			
 			expect(merged.to_h).to be == {
-				"content-type" => "text/plain",
+				"content-type" => "text/html",
 				"set-cookie" => ["hello=world", "foo=bar", "goodbye=world"],
 				"accept" => ["*/*"],
 				"connection" => ["keep-alive"]
 			}
+		end
+		
+		it "can't merge singleton headers" do
+			other = subject[[
+				["content-type", "text/plain"],
+			]]
+			
+			# This doesn't fail as we haven't built an internal index yet:
+			merged = headers.merge(other)
+			
+			expect do
+				# Once we build the index, it will fail:
+				merged.to_h
+			end.to raise_exception(Protocol::HTTP::DuplicateHeaderError)
 		end
 	end
 	

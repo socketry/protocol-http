@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2018-2025, by Samuel Williams.
 
+require_relative "error"
+
 require_relative "header/split"
 require_relative "header/multiple"
 
@@ -238,16 +240,16 @@ module Protocol
 			# The policy for various headers, including how they are merged and normalized.
 			POLICY = {
 				# Headers which may only be specified once:
-				"content-type" => false,
 				"content-disposition" => false,
 				"content-length" => false,
-				"user-agent" => false,
-				"referer" => false,
-				"host" => false,
+				"content-type" => false,
 				"from" => false,
+				"host" => false,
 				"location" => false,
 				"max-forwards" => false,
+				"referer" => false,
 				"retry-after" => false,
+				"user-agent" => false,
 				
 				# Custom headers:
 				"connection" => Header::Connection,
@@ -267,6 +269,7 @@ module Protocol
 				"etag" => Header::ETag,
 				"if-match" => Header::ETags,
 				"if-none-match" => Header::ETags,
+				"if-range" => false,
 				
 				# Headers which may be specified multiple times, but which can't be concatenated:
 				"www-authenticate" => Multiple,
@@ -332,7 +335,10 @@ module Protocol
 						hash[key] = policy.new(value)
 					end
 				else
-					# We can't merge these, we only expose the last one set.
+					if hash.key?(key)
+						raise DuplicateHeaderError, key
+					end
+					
 					hash[key] = value
 				end
 			end
