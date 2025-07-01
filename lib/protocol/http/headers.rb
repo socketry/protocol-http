@@ -198,8 +198,17 @@ module Protocol
 			# @parameter key [String] the header key.
 			# @parameter value [String] the header value to assign.
 			def add(key, value)
-				self[key] = value
+				# The value MUST be a string, so we convert it to a string to prevent errors later on.
+				value = value.to_s
+				
+				if @indexed
+					merge_into(@indexed, key.downcase, value)
+				end
+				
+				@fields << [key, value]
 			end
+			
+			alias []= add
 			
 			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
 			#
@@ -214,7 +223,7 @@ module Protocol
 			# Merge the headers into this instance.
 			def merge!(headers)
 				headers.each do |key, value|
-					self[key] = value
+					self.add(key, value)
 				end
 				
 				return self
@@ -223,18 +232,6 @@ module Protocol
 			# Merge the headers into a new instance of {Headers}.
 			def merge(headers)
 				self.dup.merge!(headers)
-			end
-			
-			# Append the value to the given key. Some values can be appended multiple times, others can only be set once.
-			#
-			# @parameter key [String] The header key.
-			# @parameter value [String] The header value.
-			def []= key, value
-				if @indexed
-					merge_into(@indexed, key.downcase, value)
-				end
-				
-				@fields << [key, value]
 			end
 			
 			# The policy for various headers, including how they are merged and normalized.

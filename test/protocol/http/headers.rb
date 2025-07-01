@@ -167,18 +167,25 @@ describe Protocol::HTTP::Headers do
 	end
 	
 	with "#[]=" do
-		it "can add field" do
+		it "can add field with a String value" do
+			headers["Content-Length"] = "1"
+			
+			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers["content-length"]).to be == "1"
+		end
+		
+		it "can add field with an Integer value" do
 			headers["Content-Length"] = 1
 			
-			expect(headers.fields.last).to be == ["Content-Length", 1]
-			expect(headers["content-length"]).to be == 1
+			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers["content-length"]).to be == "1"
 		end
 		
 		it "can add field with indexed hash" do
 			expect(headers.to_h).not.to be(:empty?)
 			
-			headers["Content-Length"] = 1
-			expect(headers["content-length"]).to be == 1
+			headers["Content-Length"] = "1"
+			expect(headers["content-length"]).to be == "1"
 		end
 	end
 	
@@ -186,8 +193,8 @@ describe Protocol::HTTP::Headers do
 		it "can add field" do
 			headers.add("Content-Length", 1)
 			
-			expect(headers.fields.last).to be == ["Content-Length", 1]
-			expect(headers["content-length"]).to be == 1
+			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers["content-length"]).to be == "1"
 		end
 	end
 	
@@ -241,7 +248,7 @@ describe Protocol::HTTP::Headers do
 		it "can merge content-length" do
 			headers.merge!("content-length" => 2)
 			
-			expect(headers["content-length"]).to be == 2
+			expect(headers["content-length"]).to be == "2"
 		end
 	end
 	
