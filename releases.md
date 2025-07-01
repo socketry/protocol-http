@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
+
 ## v0.50.0
 
 	- Drop support for Ruby v3.1.
