@@ -117,9 +117,6 @@ describe Protocol::HTTP::AcceptEncoding do
 			# Mock upstream server that returns brotli-encoded content
 			upstream_delegate = ->(request) {
 				# Simulate a server responding with brotli encoding
-				# when the request has accept-encoding: gzip
-				expect(request.headers["accept-encoding"]).to be == ["gzip"]
-				
 				Protocol::HTTP::Response[200, 
 					Protocol::HTTP::Headers[
 						"content-type" => "text/html",

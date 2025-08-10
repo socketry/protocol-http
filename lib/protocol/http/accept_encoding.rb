@@ -21,6 +21,7 @@ module Protocol
 			# The default wrappers to use for decoding content.
 			DEFAULT_WRAPPERS = {
 				"gzip" => Body::Inflate.method(:for),
+				"identity" => ->(body) { body }, # Identity means no encoding
 				
 				# There is no point including this:
 				# 'identity' => ->(body){body},
@@ -46,15 +47,32 @@ module Protocol
 				
 				response = super
 				
-				if body = response.body and !body.empty? and content_encoding = response.headers.delete(CONTENT_ENCODING)
-					# We want to unwrap all encodings
-					content_encoding.reverse_each do |name|
-						if wrapper = @wrappers[name]
-							body = wrapper.call(body)
+				if body = response.body and !body.empty?
+					if content_encoding = response.headers[CONTENT_ENCODING]
+						# Process encodings from the end (last applied first)
+						# Remove encodings as we successfully decode them
+						while name = content_encoding.last
+							# Look up wrapper with case-insensitive matching
+							wrapper = @wrappers[name] || @wrappers[name.downcase]
+							
+							if wrapper
+								body = wrapper.call(body)
+								# Remove the encoding we just processed:
+								content_encoding.pop
+							else
+								# Unknown encoding - stop processing here:
+								break
+							end
+						end
+						
+						# Update the response body:
+						response.body = body
+						
+						# Remove the content-encoding header if we decoded all encodings:
+						if content_encoding.empty?
+							response.headers.delete(CONTENT_ENCODING)
 						end
 					end
-					
-					response.body = body
 				end
 				
 				return response
