@@ -47,7 +47,7 @@ module Protocol
 					#
 					# If buffer is given, then the read data will be placed into buffer instead of a newly created String object.
 					#
-					# @parameterlength [Integer] the amount of data to read
+					# @parameter length [Integer] the amount of data to read
 					# @parameter buffer [String] the buffer which will receive the data
 					# @returns [String] a buffer containing the data
 					def read(length = nil, buffer = nil)
