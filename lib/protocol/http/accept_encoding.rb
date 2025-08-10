@@ -49,11 +49,10 @@ module Protocol
 				
 				if body = response.body and !body.empty?
 					if content_encoding = response.headers[CONTENT_ENCODING]
-						# Process encodings from the end (last applied first)
-						# Remove encodings as we successfully decode them
+						# Process encodings in reverse order and remove them when they are decoded:
 						while name = content_encoding.last
-							# Look up wrapper with case-insensitive matching
-							wrapper = @wrappers[name] || @wrappers[name.downcase]
+							# Look up wrapper with case-insensitive matching:
+							wrapper = @wrappers[name.downcase]
 							
 							if wrapper
 								body = wrapper.call(body)
