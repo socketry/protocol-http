@@ -64,13 +64,15 @@ module Protocol
 			# Initialize the headers with the specified fields.
 			#
 			# @parameter fields [Array] An array of `[key, value]` pairs.
-			# @parameter indexed [Hash] A hash table of normalized headers, if available.
-			def initialize(fields = [], indexed = nil)
+			# @parameter tail [Integer | Nil] The index of the trailer start in the @fields array.
+			def initialize(fields = [], tail = nil, indexed: nil)
 				@fields = fields
-				@indexed = indexed
 				
-				# Marks where trailer start in the @fields array.
-				@tail = nil
+				# Marks where trailer start in the @fields array:
+				@tail = tail
+				
+				# The cached index of headers:
+				@indexed = nil
 			end
 			
 			# Initialize a copy of the headers.
@@ -86,8 +88,8 @@ module Protocol
 			# Clear all headers.
 			def clear
 				@fields.clear
-				@indexed = nil
 				@tail = nil
+				@indexed = nil
 			end
 			
 			# Flatten trailer into the headers, in-place.
@@ -107,6 +109,9 @@ module Protocol
 			
 			# @attribute [Array] An array of `[key, value]` pairs.
 			attr :fields
+			
+			# @attribute [Integer | Nil] The index where trailers begin.
+			attr :tail
 			
 			# @returns [Array] The fields of the headers.
 			def to_a
