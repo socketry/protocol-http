@@ -1,5 +1,9 @@
 # Releases
 
+## v0.52.0
+
+  - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
+
 ## v0.51.0
 
   - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
