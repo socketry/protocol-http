@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
+  - Expose `tail` in `Headers.new` so that trailers can be accurately reproduced.
 
 ## v0.51.0
 

@@ -10,14 +10,24 @@ describe Protocol::HTTP::Headers do
 	let(:fields) do
 		[
 			["Content-Type", "text/html"],
+			["connection", "Keep-Alive"],
 			["Set-Cookie", "hello=world"],
 			["Accept", "*/*"],
 			["set-cookie", "foo=bar"],
-			["connection", "Keep-Alive"]
 		]
 	end
 	
 	let(:headers) {subject[fields]}
+	
+	with ".new" do
+		it "can construct headers with trailers" do
+			headers = subject.new(fields, 4)
+			expect(headers).to be(:trailer?)
+			expect(headers.trailer.to_a).to be == [
+				["set-cookie", "foo=bar"],
+			]
+		end
+	end
 	
 	with ".[]" do
 		it "can be constructed from frozen array" do
@@ -29,13 +39,14 @@ describe Protocol::HTTP::Headers do
 	
 	with "#keys" do
 		it "should return keys" do
-			expect(headers.keys).to be == ["content-type", "set-cookie", "accept", "connection"]
+			expect(headers.keys).to be == ["content-type", "connection", "set-cookie", "accept"]
 		end
 	end
 	
 	with "#trailer?" do
 		it "should not be a trailer" do
 			expect(headers).not.to be(:trailer?)
+			expect(headers.tail).to be_nil
 		end
 	end
 	
@@ -269,8 +280,10 @@ describe Protocol::HTTP::Headers do
 	with "#trailer!" do
 		it "can add trailer" do
 			headers.add("trailer", "etag")
+			count = headers.fields.size
 			
 			trailer = headers.trailer!
+			expect(headers.tail).to be == count
 			
 			headers.add("etag", "abcd")
 			
@@ -345,8 +358,8 @@ end
 describe Protocol::HTTP::Headers::Merged do
 	let(:merged) do
 		Protocol::HTTP::Headers::Merged.new(
-			Protocol::HTTP::Headers.new("content-type" => "text/html"),
-			Protocol::HTTP::Headers.new("content-encoding" => "gzip")
+			Protocol::HTTP::Headers["content-type" => "text/html"],
+			Protocol::HTTP::Headers["content-encoding" => "gzip"]
 		)
 	end
 	
@@ -382,8 +395,8 @@ describe Protocol::HTTP::Headers::Merged do
 	with "non-normalized case" do
 		let(:merged) do
 			Protocol::HTTP::Headers::Merged.new(
-				Protocol::HTTP::Headers.new("Content-Type" => "text/html"),
-				Protocol::HTTP::Headers.new("Content-Encoding" => "gzip")
+				Protocol::HTTP::Headers["Content-Type" => "text/html"],
+				Protocol::HTTP::Headers["Content-Encoding" => "gzip"]
 			)
 		end
 		
