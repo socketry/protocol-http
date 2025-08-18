@@ -108,6 +108,11 @@ module Protocol
 			# @attribute [Array] An array of `[key, value]` pairs.
 			attr :fields
 			
+			# @returns [Array] The fields of the headers.
+			def to_a
+				@fields
+			end
+			
 			# @returns [Boolean] Whether there are any trailers.
 			def trailer?
 				@tail != nil

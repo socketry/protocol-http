@@ -148,6 +148,20 @@ describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	with "#to_a" do
+		it "should return the fields array" do
+			expect(headers.to_a).to be == fields
+		end
+		
+		it "should return the same object as fields" do
+			expect(headers.to_a).to be_equal(headers.fields)
+		end
+		
+		it "should return an array" do
+			expect(headers.to_a).to be_a(Array)
+		end
+	end
+	
 	with "#to_h" do
 		it "should generate array values for duplicate keys" do
 			expect(headers.to_h["set-cookie"]).to be == ["hello=world", "foo=bar"]
