@@ -42,7 +42,7 @@ describe Protocol::HTTP::Header::Cookie do
 	with "session=123==; secure" do
 		it "can parse cookies" do
 			expect(cookies).to have_keys("session")
-
+			
 			session = cookies["session"]
 			expect(session).to have_attributes(
 				name: be == "session",

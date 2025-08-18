@@ -86,7 +86,7 @@ describe Protocol::HTTP::Body::Rewindable do
 			
 			expect(body.read).to be == "Hello World"
 			expect(body).to be(:empty?)
-
+			
 			body.rewind
 			expect(body.read).to be == "Hello World"
 			expect(body).to be(:empty?)

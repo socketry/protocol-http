@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2025, by Samuel Williams.
+# Copyright, 2025, by Samuel Williams.
 
 require "protocol/http/accept_encoding"
 
 describe Protocol::HTTP::AcceptEncoding do
 	let(:delegate) do
-		->(request) {
+		proc do |request|
 			Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain"], ["Hello World!"]]
-		}
+		end
 	end
 	
-	let(:middleware) { Protocol::HTTP::AcceptEncoding.new(delegate) }
+	let(:middleware) {Protocol::HTTP::AcceptEncoding.new(delegate)}
 	
 	with "known encodings" do
 		it "can decode gzip responses" do
 			# Mock a response with gzip encoding
-			gzip_delegate = ->(request) {
+			gzip_delegate = proc do |request|
 				Protocol::HTTP::Response[200, 
 					Protocol::HTTP::Headers[
 						"content-type" => "text/plain",
@@ -25,7 +25,7 @@ describe Protocol::HTTP::AcceptEncoding do
 					], 
 					["Hello World!"]
 				]
-			}
+			end
 			
 			gzip_middleware = Protocol::HTTP::AcceptEncoding.new(gzip_delegate)
 			request = Protocol::HTTP::Request["GET", "/"]
@@ -39,15 +39,15 @@ describe Protocol::HTTP::AcceptEncoding do
 	with "unknown encodings" do
 		it "preserves unknown content-encoding headers" do
 			# Mock a response with brotli encoding (not in DEFAULT_WRAPPERS)
-			br_delegate = ->(request) {
-				Protocol::HTTP::Response[200, 
+			br_delegate = proc do |request|
+				Protocol::HTTP::Response[200,
 					Protocol::HTTP::Headers[
 						"content-type" => "text/plain",
 						"content-encoding" => "br"
 					], 
 					["Hello World!"]  # This would actually be brotli-encoded in reality
 				]
-			}
+			end
 			
 			br_middleware = Protocol::HTTP::AcceptEncoding.new(br_delegate)
 			request = Protocol::HTTP::Request["GET", "/"]
@@ -63,7 +63,7 @@ describe Protocol::HTTP::AcceptEncoding do
 		
 		it "preserves mixed known and unknown encodings" do
 			# Mock a response with multiple encodings where some are unknown
-			mixed_delegate = ->(request) {
+			mixed_delegate = proc do |request|
 				Protocol::HTTP::Response[200, 
 					Protocol::HTTP::Headers[
 						"content-type" => "text/plain",
@@ -71,7 +71,7 @@ describe Protocol::HTTP::AcceptEncoding do
 					], 
 					["Hello World!"]
 				]
-			}
+			end
 			
 			mixed_middleware = Protocol::HTTP::AcceptEncoding.new(mixed_delegate)
 			request = Protocol::HTTP::Request["GET", "/"]
@@ -87,7 +87,7 @@ describe Protocol::HTTP::AcceptEncoding do
 		
 		it "handles case-insensitive encoding names" do
 			# Mock a response with uppercase encoding name
-			uppercase_delegate = ->(request) {
+			uppercase_delegate = proc do |request|
 				Protocol::HTTP::Response[200, 
 					Protocol::HTTP::Headers[
 						"content-type" => "text/plain",
@@ -95,7 +95,7 @@ describe Protocol::HTTP::AcceptEncoding do
 					], 
 					["Hello World!"]
 				]
-			}
+			end
 			
 			uppercase_middleware = Protocol::HTTP::AcceptEncoding.new(uppercase_delegate)
 			request = Protocol::HTTP::Request["GET", "/"]
@@ -115,7 +115,7 @@ describe Protocol::HTTP::AcceptEncoding do
 			# but the AcceptEncoding middleware doesn't know about brotli
 			
 			# Mock upstream server that returns brotli-encoded content
-			upstream_delegate = ->(request) {
+			upstream_delegate = proc do |request|
 				# Simulate a server responding with brotli encoding
 				Protocol::HTTP::Response[200, 
 					Protocol::HTTP::Headers[
@@ -124,7 +124,7 @@ describe Protocol::HTTP::AcceptEncoding do
 					], 
 					["<compressed brotli content>"]  # This would be actual brotli data
 				]
-			}
+			end
 			
 			# Proxy middleware that only knows about gzip
 			proxy_middleware = Protocol::HTTP::AcceptEncoding.new(upstream_delegate)
@@ -146,15 +146,15 @@ describe Protocol::HTTP::AcceptEncoding do
 	
 	with "empty or identity encodings" do
 		it "handles identity encoding correctly" do
-			identity_delegate = ->(request) {
-				Protocol::HTTP::Response[200, 
+			identity_delegate = proc do |request|
+				Protocol::HTTP::Response[200,
 					Protocol::HTTP::Headers[
 						"content-type" => "text/plain",
 						"content-encoding" => "identity"
 					], 
 					["Hello World!"]
 				]
-			}
+			end
 			
 			identity_middleware = Protocol::HTTP::AcceptEncoding.new(identity_delegate)
 			request = Protocol::HTTP::Request["GET", "/"]

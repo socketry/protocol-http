@@ -39,10 +39,10 @@ describe Protocol::HTTP::Body::Buffered do
 				expect(body.read).to be == "World"
 			end
 		end
-
+		
 		with "an instance of a String as a source" do
 			let(:source) {"Hello World"}
-
+			
 			it "returns instance initialized with the String" do
 				expect(body).to be_a(subject)
 				expect(body.read).to be == "Hello World"
@@ -110,7 +110,7 @@ describe Protocol::HTTP::Body::Buffered do
 		
 		# with "large content" do
 		# 	let(:content) {Array.new(5) {|i| "#{i}" * (1*1024*1024)}}
-			
+		
 		# 	it "allocates expected amount of memory" do
 		# 		expect do
 		# 			subject.read until subject.empty?

@@ -6,7 +6,7 @@
 require "protocol/http/header/priority"
 
 describe Protocol::HTTP::Header::Priority do
-	let(:header) { subject.new(description) }
+	let(:header) {subject.new(description)}
 	
 	with "u=1, i" do
 		it "correctly parses priority header" do
@@ -63,7 +63,7 @@ describe Protocol::HTTP::Header::Priority do
 	end
 	
 	with "#<<" do
-		let(:header) { subject.new }
+		let(:header) {subject.new}
 		
 		it "can append values" do
 			header << "u=4"

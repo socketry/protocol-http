@@ -45,8 +45,7 @@ describe Protocol::HTTP::Header::Date do
 	end
 	
 	describe Protocol::HTTP::Headers do
-		let(:headers) {
-			subject[[
+		let(:headers) {subject[[
 				["Date", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["Expires", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["Last-Modified", "Wed, 21 Oct 2015 07:28:00 GMT"],

@@ -4,7 +4,7 @@
 # Copyright, 2025, by Samuel Williams.
 
 require "protocol/http/header/accept"
-	
+
 describe Protocol::HTTP::Header::Accept::MediaRange do
 	it "should have default quality_factor of 1.0" do
 		media_range = subject.new("text/plain", nil)
@@ -38,7 +38,7 @@ describe Protocol::HTTP::Header::Accept do
 				subtype: be == "html",
 				quality_factor: be == 0.5
 			)
-				
+			
 			expect(media_ranges[2]).to have_attributes(
 				type: be == "text",
 				subtype: be == "xml",

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2024, by Samuel Williams.
+# Copyright, 2019-2025, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 
 require_relative "buffered"
@@ -123,7 +123,7 @@ module Protocol
 							if buffer.bytesize > length
 								# This ensures the subsequent `slice!` works correctly.
 								buffer.force_encoding(Encoding::BINARY)
-
+								
 								@buffer = buffer.byteslice(length, buffer.bytesize)
 								buffer.slice!(length, buffer.bytesize)
 							end

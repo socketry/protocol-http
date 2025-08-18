@@ -11,7 +11,7 @@ require "tempfile"
 
 class TestReader
 	include Protocol::HTTP::Body::Reader
-
+	
 	def initialize(body)
 		@body = body
 	end

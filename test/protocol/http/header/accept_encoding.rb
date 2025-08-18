@@ -4,7 +4,7 @@
 # Copyright, 2025, by Samuel Williams.
 
 require "protocol/http/header/accept_encoding"
-	
+
 describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 	it "should have default quality_factor of 1.0" do
 		encoding = subject.new("utf-8", nil)

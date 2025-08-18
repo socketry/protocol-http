@@ -21,7 +21,7 @@ module Protocol
 			# The default wrappers to use for decoding content.
 			DEFAULT_WRAPPERS = {
 				"gzip" => Body::Inflate.method(:for),
-				"identity" => ->(body) { body }, # Identity means no encoding
+				"identity" => ->(body) {body}, # Identity means no encoding
 				
 				# There is no point including this:
 				# 'identity' => ->(body){body},

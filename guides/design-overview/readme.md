@@ -24,7 +24,7 @@ We provide an interface for request and response objects. This provides performa
 
 ~~~ ruby
 class Request
-	attr :verb
+	attr :method
 	attr :target
 	attr :headers
 	attr :body
@@ -71,7 +71,7 @@ The interfaces for streaming can be implemented a bit differently, since a respo
 ~~~ ruby
 class Stream
 	# Request details.
-	attr :verb
+	attr :method
 	attr :target
 	attr :headers
 	
@@ -101,7 +101,7 @@ class Stream
 end
 
 class Response
-	def initialize(verb, target)
+	def initialize(method, target)
 		@input = Body::Writable.new
 		@output = Body::Writable.new
 	end
@@ -110,9 +110,9 @@ class Response
 	attr_accessor :headers
 	
 	# Prepare a stream for making a request.
-	def request(verb, target, headers)
+	def request(method, target, headers)
 		# Create a request stream suitable for writing into the buffered response:
-		Stream.new(verb, target, headers, self, @input, @output)
+		Stream.new(method, target, headers, self, @input, @output)
 	end
 	
 	# Write to the request body.

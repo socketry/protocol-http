@@ -82,7 +82,7 @@ describe Protocol::HTTP::URL do
 			expect(Protocol::HTTP::URL.decode("a&&b")).to be == {"a" => nil, "b" => nil}
 		end
 	end
-
+	
 	with ".unescape" do
 		it "succeds with hex characters" do
 			expect(Protocol::HTTP::URL.unescape("%3A")).to be == ":"

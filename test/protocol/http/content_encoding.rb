@@ -44,11 +44,11 @@ describe Protocol::HTTP::ContentEncoding do
 	
 	with "partial response" do
 		let(:app) do
-			app = ->(request){
+			proc do |request|
 				Protocol::HTTP::Response[206, Protocol::HTTP::Headers["content-type" => "text/plain"], ["Hello World!"]]
-			}
+			end
 		end
-			
+		
 		let(:client) {subject.new(app)}
 		
 		it "can request resource with compression" do
@@ -62,11 +62,10 @@ describe Protocol::HTTP::ContentEncoding do
 	
 	with "existing content encoding" do
 		let(:app) do
-			app = ->(request){
-				Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain", "content-encoding" => "identity"], ["Hello World!"]]
+			app = ->(request){Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain", "content-encoding" => "identity"], ["Hello World!"]]
 			}
 		end
-			
+		
 		let(:client) {subject.new(app)}
 		
 		it "does not compress response" do
@@ -82,11 +81,10 @@ describe Protocol::HTTP::ContentEncoding do
 	
 	with "nil body" do
 		let(:app) do
-			app = ->(request){
-				Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain"], nil]
+			app = ->(request){Protocol::HTTP::Response[200, Protocol::HTTP::Headers["content-type" => "text/plain"], nil]
 			}
 		end
-			
+		
 		let(:client) {subject.new(app)}
 		
 		it "does not compress response" do

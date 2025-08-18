@@ -34,7 +34,7 @@ module Protocol
 					@digest = digest
 					@callback = callback
 				end
-
+				
 				# @attribute [Digest] digest the digest object.
 				attr :digest
 				

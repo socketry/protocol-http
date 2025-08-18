@@ -120,7 +120,7 @@ module Protocol
 				# @parameter value_name [String] the directive name to search for (e.g., "max-age").
 				# @returns [Integer | Nil] the parsed integer value, or `nil` if not found or invalid.
 				def find_integer_value(value_name)
-					if value = self.find { |value| value.start_with?(value_name) }
+					if value = self.find{|value| value.start_with?(value_name)}
 						_, age = value.split("=", 2)
 						
 						if age =~ /\A[0-9]+\z/

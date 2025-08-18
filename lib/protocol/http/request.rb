@@ -68,7 +68,7 @@ module Protocol
 			
 			# @attribute [Body::Readable] the request body. It should only be read once (it may not be idempotent).
 			attr_accessor :body
-
+			
 			# @attribute [String | Array(String) | Nil] the request protocol, usually empty, but occasionally `"websocket"` or `"webtransport"`. In HTTP/1, it is used to request a connection upgrade, and in HTTP/2 it is used to indicate a specfic protocol for the stream.
 			attr_accessor :protocol
 			

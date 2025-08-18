@@ -34,7 +34,7 @@ module Protocol
 							
 							break unless chunk&.empty?
 						end
-					
+						
 						if chunk
 							@output_length += chunk.bytesize
 						elsif !stream.closed?
