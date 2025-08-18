@@ -1,6 +1,6 @@
 # Releases
 
-## v0.52.0
+## Unreleased
 
   - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
 
