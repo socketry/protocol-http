@@ -14,15 +14,29 @@ Provides abstractions for working with the HTTP protocol.
 
 Please see the [project documentation](https://socketry.github.io/protocol-http/) for more details.
 
-  - [Streaming](https://socketry.github.io/protocol-http/guides/streaming/index) - This guide gives an overview of how to implement streaming requests and responses.
-
   - [Getting Started](https://socketry.github.io/protocol-http/guides/getting-started/index) - This guide explains how to use `protocol-http` for building abstract HTTP interfaces.
+
+  - [Message Body](https://socketry.github.io/protocol-http/guides/message-body/index) - This guide explains how to work with HTTP request and response message bodies using `Protocol::HTTP::Body` classes.
+
+  - [Middleware](https://socketry.github.io/protocol-http/guides/middleware/index) - This guide explains how to build and use HTTP middleware with `Protocol::HTTP::Middleware`.
+
+  - [Hypertext References](https://socketry.github.io/protocol-http/guides/hypertext-references/index) - This guide explains how to use `Protocol::HTTP::Reference` for constructing and manipulating hypertext references (URLs with parameters).
+
+  - [URL Parsing](https://socketry.github.io/protocol-http/guides/url-parsing/index) - This guide explains how to use `Protocol::HTTP::URL` for parsing and manipulating URL components, particularly query strings and parameters.
+
+  - [Streaming](https://socketry.github.io/protocol-http/guides/streaming/index) - This guide gives an overview of how to implement streaming requests and responses.
 
   - [Design Overview](https://socketry.github.io/protocol-http/guides/design-overview/index) - This guide explains the high level design of `protocol-http` in the context of wider design patterns that can be used to implement HTTP clients and servers.
 
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
+
+### v0.52.0
+
+  - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
+  - Expose `tail` in `Headers.new` so that trailers can be accurately reproduced.
+  - Add agent context.
 
 ### v0.51.0
 
