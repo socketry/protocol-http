@@ -5,6 +5,7 @@
 
 require_relative "body/buffered"
 require_relative "body/reader"
+require_relative "headers"
 
 module Protocol
 	module HTTP

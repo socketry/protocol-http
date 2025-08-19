@@ -1,4 +1,14 @@
 getting-started:
   order: 1
+message-body:
+  order: 2
+middleware:
+  order: 3
+hypertext-references:
+  order: 4
+url-parsing:
+  order: 5
+streaming:
+  order: 6
 design-overview:
   order: 10

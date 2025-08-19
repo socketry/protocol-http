@@ -142,24 +142,38 @@ module Protocol
 			end
 			
 			# Update the reference with the given path, parameters and fragment.
-			# @argument path [String] Append the string to this reference similar to `File.join`.
-			# @argument parameters [Hash] Append the parameters to this reference.
-			# @argument fragment [String] Set the fragment to this value.
-			# @argument pop [Boolean] If the path contains a trailing filename, pop the last component of the path before appending the new path.
-			# @argument merge [Boolean] If the parameters are specified, merge them with the existing parameters.
-			def with(path: nil, parameters: nil, fragment: @fragment, pop: false, merge: true)
-				if @parameters
-					if parameters and merge
-						parameters = @parameters.merge(parameters)
-					else
+			#
+			# @parameter path [String] Append the string to this reference similar to `File.join`.
+			# @parameter parameters [Hash] Append the parameters to this reference.
+			# @parameter fragment [String] Set the fragment to this value.
+			# @parameter pop [Boolean] If the path contains a trailing filename, pop the last component of the path before appending the new path.
+			# @parameter merge [Boolean] If the parameters are specified, merge them with the existing parameters, otherwise replace them (including query string).
+			def with(path: nil, parameters: false, fragment: @fragment, pop: false, merge: true)
+				if merge
+					# Merge mode: combine new parameters with existing, keep query:
+					# parameters = (@parameters || {}).merge(parameters || {})
+					if @parameters
+						if parameters
+							parameters = @parameters.merge(parameters)
+						else
+							parameters = @parameters
+						end
+					elsif !parameters
 						parameters = @parameters
 					end
-				end
-				
-				if @query and !merge
-					query = nil
-				else
+					
 					query = @query
+				else
+					# Replace mode: use new parameters if provided, clear query when replacing:
+					if parameters == false
+						# No new parameters provided, keep existing:
+						parameters = @parameters
+						query = @query
+					else
+						# New parameters provided, replace and clear query:
+						# parameters = parameters
+						query = nil
+					end
 				end
 				
 				if path
