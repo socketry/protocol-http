@@ -115,6 +115,36 @@ describe Protocol::HTTP::Reference do
 				expect(copy.parameters).to be_nil
 				expect(copy.query).to be_nil
 			end
+			
+			it "keeps existing query when merge: false with no parameters" do
+				copy = reference.with(fragment: "new-fragment", merge: false)
+				
+				# Original had no parameters:
+				expect(copy.parameters).to be_nil
+				
+				# Query should be preserved:
+				expect(copy.query).to be == "x=10"
+				
+				# Fragment should be updated:
+				expect(copy.fragment).to be == "new-fragment"
+			end
+		end
+		
+		with "parameters and query" do
+			let(:reference) {subject.new("foo/bar/baz.html", "x=10", nil, {y: 20, z: 30})}
+			
+			it "keeps existing parameters and query when merge: false with no new parameters" do
+				copy = reference.with(fragment: "new-fragment", merge: false)
+				
+				# Original parameters preserved:
+				expect(copy.parameters).to be == {y: 20, z: 30}
+				
+				# Query should be preserved:
+				expect(copy.query).to be == "x=10"
+				
+				# Fragment should be updated:
+				expect(copy.fragment).to be == "new-fragment"
+			end
 		end
 		
 		with "relative path" do
