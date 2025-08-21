@@ -75,6 +75,17 @@ module Protocol
 					end
 				end
 				
+				# Convert the body to a hash suitable for serialization.
+				#
+				# @returns [Hash] The body as a hash.
+				def as_json(...)
+					super.merge(
+						input_length: @input_length,
+						output_length: @output_length,
+						compression_ratio: (ratio * 100).round(2)
+					)
+				end
+				
 				# Inspect the body, including the compression ratio.
 				#
 				# @returns [String] a string representation of the body.

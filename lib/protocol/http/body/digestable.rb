@@ -64,6 +64,16 @@ module Protocol
 						return nil
 					end
 				end
+				
+				# Convert the body to a hash suitable for serialization.
+				#
+				# @returns [Hash] The body as a hash.
+				def as_json(...)
+					super.merge(
+						digest_class: @digest.class.name,
+						callback: @callback&.to_s
+					)
+				end
 			end
 		end
 	end

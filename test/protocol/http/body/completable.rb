@@ -106,4 +106,24 @@ describe Protocol::HTTP::Body::Completable do
 			expect(events).to be == [:close2, :close1]
 		end
 	end
+	
+	with "#as_json" do
+		it "includes callback information" do
+			completable = subject.new(body, proc{events << :close})
+			
+			expect(completable.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Completable",
+				callback: be =~ /Proc/
+			)
+		end
+		
+		it "shows nil when no callback" do
+			completable = subject.new(body, nil)
+			
+			expect(completable.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Completable",
+				callback: be == nil
+			)
+		end
+	end
 end

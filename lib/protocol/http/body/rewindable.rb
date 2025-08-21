@@ -82,6 +82,16 @@ module Protocol
 					true
 				end
 				
+				# Convert the body to a hash suitable for serialization.
+				#
+				# @returns [Hash] The body as a hash.
+				def as_json(...)
+					super.merge(
+						index: @index,
+						chunks: @chunks.size
+					)
+				end
+				
 				# Inspect the rewindable body.
 				#
 				# @returns [String] a string representation of the body.

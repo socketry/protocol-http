@@ -50,4 +50,27 @@ describe Protocol::HTTP::Body::Digestable do
 			expect(body.etag(weak: true)).to be == 'W/"872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"'
 		end
 	end
+	
+	with "#as_json" do
+		it "includes digest information" do
+			expect(body.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Digestable",
+				digest_class: be == "Digest::SHA256",
+				callback: be == nil
+			)
+		end
+		
+		with "callback" do
+			let(:callback) {proc {puts "digest complete"}}
+			let(:body) {subject.new(source, Digest::SHA256.new, callback)}
+			
+			it "includes callback information" do
+				expect(body.as_json).to have_keys(
+								class: be == "Protocol::HTTP::Body::Digestable",
+								digest_class: be == "Digest::SHA256",
+								callback: be =~ /Proc/
+							)
+			end
+		end
+	end
 end

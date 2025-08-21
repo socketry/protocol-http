@@ -150,7 +150,7 @@ describe Protocol::HTTP::Body::Buffered do
 	
 	with "#inspect" do
 		let(:body) {subject.new}
-
+		
 		it "generates string representation for empty body" do
 			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Buffered empty>"
 		end

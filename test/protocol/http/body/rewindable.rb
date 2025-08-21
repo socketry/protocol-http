@@ -104,4 +104,14 @@ describe Protocol::HTTP::Body::Rewindable do
 			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Buffered empty> | #<Protocol::HTTP::Body::Rewindable 0/0 chunks read>"
 		end
 	end
+	
+	with "#as_json" do
+		it "includes rewind tracking information" do
+			expect(body.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Rewindable",
+				index: be == 0,
+				chunks: be == 0
+			)
+		end
+	end
 end

@@ -54,6 +54,15 @@ module Protocol
 					super
 				end
 				
+				# Convert the body to a hash suitable for serialization.
+				#
+				# @returns [Hash] The body as a hash.
+				def as_json(...)
+					super.merge(
+						callback: @callback&.to_s
+					)
+				end
+				
 				# Inspect the completable body.
 				#
 				# @returns [String] a string representation of the completable body.

@@ -61,4 +61,15 @@ describe Protocol::HTTP::Body::Deflate do
 			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered empty> | #<Protocol::HTTP::Body::Deflate 100.0%>"
 		end
 	end
+	
+	with "#as_json" do
+		it "includes compression information" do
+			expect(compressed_body.as_json).to have_keys(
+				class: be == "Protocol::HTTP::Body::Deflate",
+				input_length: be == 0,
+				output_length: be == 0,
+				compression_ratio: be == 100.0
+			)
+		end
+	end
 end
