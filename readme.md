@@ -32,6 +32,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.53.0
+
+  - Improve consistency of Body `#inspect`.
+  - Improve `as_json` support for Body wrappers.
+
 ### v0.52.0
 
   - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.

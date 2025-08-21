@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.53.0
 
   - Improve consistency of Body `#inspect`.
   - Improve `as_json` support for Body wrappers.
