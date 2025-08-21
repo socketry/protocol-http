@@ -1,5 +1,10 @@
 # Releases
 
+## Unreleased
+
+  - Improve consistency of Body `#inspect`.
+  - Improve `as_json` support for Body wrappers.
+
 ## v0.52.0
 
   - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
