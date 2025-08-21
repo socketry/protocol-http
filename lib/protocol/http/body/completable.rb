@@ -53,6 +53,14 @@ module Protocol
 					
 					super
 				end
+				
+				# Inspect the completable body.
+				#
+				# @returns [String] a string representation of the completable body.
+				def inspect
+					callback_status = @callback ? "callback pending" : "callback completed"
+					return "#{super} | #<#{self.class} #{callback_status}>"
+				end
 			end
 		end
 	end

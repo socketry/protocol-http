@@ -65,7 +65,15 @@ describe Protocol::HTTP::Body::File do
 	
 	with "#inspect" do
 		it "generates a string representation" do
-			expect(body.inspect).to be =~ /Protocol::HTTP::Body::File file=(.*?) offset=\d+ remaining=\d+/
+			expect(body.inspect).to be =~ /Protocol::HTTP::Body::File (.*?), \d+ bytes remaining/
+		end
+		
+		with "range" do
+			let(:body) {subject.new(File.open(path), 5..10)}
+			
+			it "shows offset when present" do
+				expect(body.inspect).to be =~ /Protocol::HTTP::Body::File (.*?) \+5, \d+ bytes remaining/
+			end
 		end
 	end
 	

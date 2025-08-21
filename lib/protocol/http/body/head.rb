@@ -53,6 +53,13 @@ module Protocol
 				def length
 					@length
 				end
+				
+				# Inspect the head body.
+				#
+				# @returns [String] a string representation of the head body.
+				def inspect
+					"#<#{self.class} #{@length} bytes (empty)>"
+				end
 			end
 		end
 	end

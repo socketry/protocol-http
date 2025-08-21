@@ -153,8 +153,10 @@ module Protocol
 				#
 				# @returns [String] a string representation of the buffered body.
 				def inspect
-					if @chunks
-						"\#<#{self.class} #{@chunks.size} chunks, #{self.length} bytes>"
+					if @chunks and @chunks.size > 0
+						"#<#{self.class} #{@index}/#{@chunks.size} chunks, #{self.length} bytes>"
+					else
+						"#<#{self.class} empty>"
 					end
 				end
 			end

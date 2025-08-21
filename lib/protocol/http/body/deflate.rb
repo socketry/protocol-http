@@ -79,7 +79,7 @@ module Protocol
 				#
 				# @returns [String] a string representation of the body.
 				def inspect
-					"#{super} | \#<#{self.class} #{(ratio*100).round(2)}%>"
+					"#{super} | #<#{self.class} #{(ratio*100).round(2)}%>"
 				end
 			end
 			

@@ -93,6 +93,25 @@ describe Protocol::HTTP::Body::Streamable do
 				body.read
 			end.to raise_exception(Protocol::HTTP::Body::Streamable::ConsumedError)
 		end
+	end
+	
+	with "#inspect" do
+		it "shows block available when not consumed" do
+			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Streamable::RequestBody block available, not consumed>"
+		end
+		
+		it "shows output active after reading starts" do
+			# Start reading to create @output
+			body.read
+			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Streamable::RequestBody block consumed, output active>"
+		end
+		
+		it "shows output closed after completion" do
+			# Consume the body, then close output to trigger final else state
+			body.read
+			body.close_output
+			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Streamable::RequestBody block consumed, output closed>"
+		end
 		
 		with "a block that raises an error" do
 			let(:block) do

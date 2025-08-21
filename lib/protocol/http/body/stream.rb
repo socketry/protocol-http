@@ -386,6 +386,21 @@ module Protocol
 					@closed
 				end
 				
+				# Inspect the stream.
+				#
+				# @returns [String] a string representation of the stream.
+				def inspect
+					buffer_info = @buffer ? "#{@buffer.bytesize} bytes buffered" : "no buffer"
+					
+					status = []
+					status << "closed" if @closed
+					status << "read-closed" if @closed_read
+					
+					status_info = status.empty? ? "open" : status.join(", ")
+					
+					return "#<#{self.class} #{buffer_info}, #{status_info}>"
+				end
+				
 				# @returns [Boolean] Whether there are any output chunks remaining.
 				def empty?
 					@output.empty?

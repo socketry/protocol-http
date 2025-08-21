@@ -135,7 +135,11 @@ module Protocol
 				#
 				# @returns [String] a string representation of the file body.
 				def inspect
-					"\#<#{self.class} file=#{@file.inspect} offset=#{@offset} remaining=#{@remaining}>"
+					if @offset > 0
+						"#<#{self.class} #{@file.inspect} +#{@offset}, #{@remaining} bytes remaining>"
+					else
+						"#<#{self.class} #{@file.inspect}, #{@remaining} bytes remaining>"
+					end
 				end
 			end
 		end

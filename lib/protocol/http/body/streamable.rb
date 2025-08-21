@@ -147,7 +147,23 @@ module Protocol
 					#
 					# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 					def close_output(error = nil)
-						@output&.close(error)
+						if output = @output
+							@output = nil
+							output.close(error)
+						end
+					end
+					
+					# Inspect the streaming body.
+					#
+					# @returns [String] a string representation of the streaming body.
+					def inspect
+						if @block
+							"#<#{self.class} block available, not consumed>"
+						elsif @output
+							"#<#{self.class} block consumed, output active>"
+						else
+							"#<#{self.class} block consumed, output closed>"
+						end
 					end
 				end
 				

@@ -166,9 +166,9 @@ module Protocol
 				# @returns [String] A string representation of the body.
 				def inspect
 					if @error
-						"\#<#{self.class} #{@count} chunks written, #{status}, error=#{@error}>"
+						"#<#{self.class} #{@count} chunks written, #{status}, error=#{@error}>"
 					else
-						"\#<#{self.class} #{@count} chunks written, #{status}>"
+						"#<#{self.class} #{@count} chunks written, #{status}>"
 					end
 				end
 				

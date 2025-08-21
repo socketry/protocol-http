@@ -86,7 +86,7 @@ module Protocol
 				#
 				# @returns [String] a string representation of the body.
 				def inspect
-					"\#<#{self.class} #{@index}/#{@chunks.size} chunks read>"
+					"#{super} | #<#{self.class} #{@index}/#{@chunks.size} chunks read>"
 				end
 			end
 		end

@@ -101,7 +101,7 @@ describe Protocol::HTTP::Body::Rewindable do
 	
 	with "#inspect" do
 		it "can generate string representation" do
-			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Rewindable 0/0 chunks read>"
+			expect(body.inspect).to be == "#<Protocol::HTTP::Body::Buffered empty> | #<Protocol::HTTP::Body::Rewindable 0/0 chunks read>"
 		end
 	end
 end

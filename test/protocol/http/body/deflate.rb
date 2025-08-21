@@ -58,7 +58,7 @@ describe Protocol::HTTP::Body::Deflate do
 	
 	with "#inspect" do
 		it "can generate string representation" do
-			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered 0 chunks, 0 bytes> | #<Protocol::HTTP::Body::Deflate 100.0%>"
+			expect(compressed_body.inspect).to be == "#<Protocol::HTTP::Body::Buffered empty> | #<Protocol::HTTP::Body::Deflate 100.0%>"
 		end
 	end
 end
