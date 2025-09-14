@@ -81,7 +81,7 @@ module Protocol
 				# The input string is split into distinct entries and appended to the array.
 				#
 				# @parameter value [String] the value or values to add, separated by commas.
-				def << (value)
+				def << value
 					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
