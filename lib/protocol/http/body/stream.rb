@@ -315,7 +315,7 @@ module Protocol
 				end
 				
 				# Write data to the stream using {write}.
-				def <<(buffer)
+				def << buffer
 					write(buffer)
 				end
 				
