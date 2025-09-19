@@ -98,37 +98,37 @@ describe Protocol::HTTP::Header::TE do
 		end
 	end
 	
-	with "TransferCoding struct" do
-		it "handles quality factor conversion" do
-			coding = Protocol::HTTP::Header::TE::TransferCoding.new("gzip", "0.8")
-			expect(coding.quality_factor).to be == 0.8
-		end
-		
-		it "defaults quality factor to 1.0" do
-			coding = Protocol::HTTP::Header::TE::TransferCoding.new("gzip", nil)
-			expect(coding.quality_factor).to be == 1.0
-		end
-		
-		it "serializes with quality factor" do
-			coding = Protocol::HTTP::Header::TE::TransferCoding.new("gzip", "0.8")
-			expect(coding.to_s).to be == "gzip;q=0.8"
-		end
-		
-		it "serializes without quality factor when 1.0" do
-			coding = Protocol::HTTP::Header::TE::TransferCoding.new("gzip", nil)
-			expect(coding.to_s).to be == "gzip"
-		end
-		
-		it "compares by quality factor" do
-			high = Protocol::HTTP::Header::TE::TransferCoding.new("gzip", "0.9")
-			low = Protocol::HTTP::Header::TE::TransferCoding.new("deflate", "0.5")
-			expect(high <=> low).to be == -1  # high quality first
-		end
-	end
-	
 	with ".trailer?" do
 		it "should be forbidden in trailers" do
 			expect(subject).not.to be(:trailer?)
 		end
+	end
+end
+
+describe Protocol::HTTP::Header::TE::TransferCoding do
+	it "handles quality factor conversion" do
+		coding = subject.new("gzip", "0.8")
+		expect(coding.quality_factor).to be == 0.8
+	end
+	
+	it "defaults quality factor to 1.0" do
+		coding = subject.new("gzip", nil)
+		expect(coding.quality_factor).to be == 1.0
+	end
+	
+	it "serializes with quality factor" do
+		coding = subject.new("gzip", "0.8")
+		expect(coding.to_s).to be == "gzip;q=0.8"
+	end
+	
+	it "serializes without quality factor when 1.0" do
+		coding = subject.new("gzip", nil)
+		expect(coding.to_s).to be == "gzip"
+	end
+	
+	it "compares by quality factor" do
+		high = subject.new("gzip", "0.9")
+		low = subject.new("deflate", "0.5")
+		expect(high <=> low).to be == -1  # high quality first
 	end
 end

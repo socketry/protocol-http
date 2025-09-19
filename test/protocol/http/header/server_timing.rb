@@ -213,39 +213,37 @@ describe Protocol::HTTP::Header::ServerTiming do
 			expect(metrics.first.duration).to be == 123.456789
 		end
 	end
+end
+
+describe Protocol::HTTP::Header::ServerTiming::Metric do
+	it "can create metric directly" do
+		metric = subject.new("test", 123.45, "Test metric")
+		expect(metric.name).to be == "test"
+		expect(metric.duration).to be == 123.45
+		expect(metric.description).to be == "Test metric"
+		expect(metric.to_s).to be == "test;dur=123.45;desc=\"Test metric\""
+	end
 	
-	with "Metric class" do
-		let(:metric_class) {subject::Metric}
-		
-		it "can create metric directly" do
-			metric = metric_class.new("test", 123.45, "Test metric")
-			expect(metric.name).to be == "test"
-			expect(metric.duration).to be == 123.45
-			expect(metric.description).to be == "Test metric"
-			expect(metric.to_s).to be == "test;dur=123.45;desc=\"Test metric\""
-		end
-		
-		it "can create metric with name only" do
-			metric = metric_class.new("cache")
-			expect(metric.name).to be == "cache"
-			expect(metric.duration).to be_nil
-			expect(metric.description).to be_nil
-			expect(metric.to_s).to be == "cache"
-		end
-		
-		it "can create metric with duration only" do
-			metric = metric_class.new("test", 123.45, nil)
-			expect(metric.to_s).to be == "test;dur=123.45"
-		end
-		
-		it "can create metric with description only" do
-			metric = metric_class.new("test", nil, "description")
-			expect(metric.to_s).to be == "test;desc=\"description\""
-		end
-		
-		it "handles nil values correctly" do
-			metric = metric_class.new("test", nil, nil)
-			expect(metric.to_s).to be == "test"
-		end
+	it "can create metric with name only" do
+		metric = subject.new("cache")
+		expect(metric.name).to be == "cache"
+		expect(metric.duration).to be_nil
+		expect(metric.description).to be_nil
+		expect(metric.to_s).to be == "cache"
+	end
+	
+	it "can create metric with duration only" do
+		metric = subject.new("test", 123.45, nil)
+		expect(metric.to_s).to be == "test;dur=123.45"
+	end
+	
+	it "can create metric with description only" do
+		metric = subject.new("test", nil, "description")
+		expect(metric.to_s).to be == "test;desc=\"description\""
+	end
+	
+	it "handles nil values correctly" do
+		metric = subject.new("test", nil, nil)
+		expect(metric.to_s).to be == "test"
 	end
 end

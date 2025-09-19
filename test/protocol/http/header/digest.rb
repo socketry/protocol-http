@@ -118,33 +118,6 @@ describe Protocol::HTTP::Header::Digest do
 		end
 	end
 	
-	with "Entry class" do
-		let(:entry_class) {subject::Entry}
-		
-		it "can create entry directly" do
-			entry = entry_class.new("sha-256", "abc123")
-			expect(entry.algorithm).to be == "sha-256"
-			expect(entry.value).to be == "abc123"
-			expect(entry.to_s).to be == "sha-256=abc123"
-		end
-		
-		it "normalizes algorithm to lowercase" do
-			entry = entry_class.new("SHA-256", "abc123")
-			expect(entry.algorithm).to be == "sha-256"
-		end
-		
-		it "handles complex algorithm names" do
-			entry = entry_class.new("sha-384", "complex-value")
-			expect(entry.algorithm).to be == "sha-384"
-			expect(entry.to_s).to be == "sha-384=complex-value"
-		end
-		
-		it "handles base64 padding in values" do
-			entry = entry_class.new("md5", "abc123==")
-			expect(entry.value).to be == "abc123=="
-		end
-	end
-	
 	with "algorithm edge cases" do
 		it "handles hyphenated algorithms" do
 			header = subject.new("sha-256=abc123")
@@ -158,7 +131,7 @@ describe Protocol::HTTP::Header::Digest do
 			expect(entries.first.algorithm).to be == "md5"
 		end
 	end
-	
+
 	with "value edge cases" do
 		it "handles empty values" do
 			header = subject.new("sha-256=")
@@ -171,5 +144,30 @@ describe Protocol::HTTP::Header::Digest do
 			entries = header.entries
 			expect(entries.first.value).to be == "abc+def/123=="
 		end
+	end
+end
+
+describe Protocol::HTTP::Header::Digest::Entry do
+	it "can create entry directly" do
+		entry = subject.new("sha-256", "abc123")
+		expect(entry.algorithm).to be == "sha-256"
+		expect(entry.value).to be == "abc123"
+		expect(entry.to_s).to be == "sha-256=abc123"
+	end
+	
+	it "normalizes algorithm to lowercase" do
+		entry = subject.new("SHA-256", "abc123")
+		expect(entry.algorithm).to be == "sha-256"
+	end
+	
+	it "handles complex algorithm names" do
+		entry = subject.new("sha-384", "complex-value")
+		expect(entry.algorithm).to be == "sha-384"
+		expect(entry.to_s).to be == "sha-384=complex-value"
+	end
+	
+	it "handles base64 padding in values" do
+		entry = subject.new("md5", "abc123==")
+		expect(entry.value).to be == "abc123=="
 	end
 end
