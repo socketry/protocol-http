@@ -18,6 +18,8 @@ require_relative "header/authorization"
 require_relative "header/date"
 require_relative "header/priority"
 require_relative "header/trailer"
+require_relative "header/server_timing"
+require_relative "header/digest"
 
 require_relative "header/accept"
 require_relative "header/accept_charset"
@@ -68,13 +70,28 @@ module Protocol
 			#
 			# @parameter fields [Array] An array of `[key, value]` pairs.
 			# @parameter tail [Integer | Nil] The index of the trailer start in the @fields array.
-			def initialize(fields = [], tail = nil, indexed: nil)
+			def initialize(fields = [], tail = nil, indexed: nil, policy: POLICY)
 				@fields = fields
 				
 				# Marks where trailer start in the @fields array:
 				@tail = tail
 				
 				# The cached index of headers:
+				@indexed = nil
+				
+				@policy = policy
+			end
+			
+			# @attribute [Hash] The policy for the headers.
+			attr :policy
+			
+			# Set the policy for the headers.
+			#
+			# The policy is used to determine how headers are merged and normalized. For example, if a header is specified multiple times, the policy will determine how the values are merged.
+			#
+			# @parameter policy [Hash] The policy for the headers.
+			def policy=(policy)
+				@policy = policy
 				@indexed = nil
 			end
 			
@@ -247,26 +264,15 @@ module Protocol
 				self.dup.merge!(headers)
 			end
 			
-			# Singleton header policy that forbids trailers (for message framing headers)
-			class TrailerForbidden
-				def self.new(value)
-					value
-				end
-				
-				def self.trailer_forbidden?
-					true
-				end
-			end
-			
 			# The policy for various headers, including how they are merged and normalized.
 			POLICY = {
 				# Headers which may only be specified once:
 				"content-disposition" => false,
-				"content-length" => TrailerForbidden,
+				"content-length" => false,
 				"content-type" => false,
-				"expect" => TrailerForbidden,
+				"expect" => false,
 				"from" => false,
-				"host" => TrailerForbidden,
+				"host" => false,
 				"location" => false,
 				"max-forwards" => false,
 				"range" => false,
@@ -274,7 +280,6 @@ module Protocol
 				"retry-after" => false,
 				"server" => false,
 				"transfer-encoding" => Header::TransferEncoding,
-				"upgrade" => TrailerForbidden,
 				"user-agent" => false,
 				"trailer" => Header::Trailer,
 				
@@ -320,6 +325,12 @@ module Protocol
 				"accept-charset" => Header::AcceptCharset,
 				"accept-encoding" => Header::AcceptEncoding,
 				"accept-language" => Header::AcceptLanguage,
+				
+				# Performance headers:
+				"server-timing" => Header::ServerTiming,
+				
+				# Content integrity headers:
+				"digest" => Header::Digest,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all header values for the given key, and return the merged value.
@@ -337,7 +348,7 @@ module Protocol
 				
 				if @indexed
 					return @indexed.delete(key)
-				elsif policy = POLICY[key]
+				elsif policy = @policy[key]
 					(key, value), *tail = deleted
 					merged = policy.new(value)
 					
@@ -356,10 +367,10 @@ module Protocol
 			# @parameter key [String] The header key.
 			# @parameter value [String] The raw header value.
 			protected def merge_into(hash, key, value, trailer = @tail)
-				if policy = POLICY[key]
-					# Check if we're adding to trailers and this header is forbidden
-					if trailer && policy.trailer_forbidden?
-						raise ForbiddenTrailerError, key
+				if policy = @policy[key]
+					# Check if we're adding to trailers and this header is allowed:
+					if trailer && !policy.trailer?
+						return false
 					end
 					
 					if current_value = hash[key]
@@ -368,6 +379,11 @@ module Protocol
 						hash[key] = policy.new(value)
 					end
 				else
+					# By default, headers are not allowed in trailers:
+					if trailer
+						return false
+					end
+					
 					if hash.key?(key)
 						raise DuplicateHeaderError, key
 					end

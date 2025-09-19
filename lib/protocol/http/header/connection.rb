@@ -51,8 +51,8 @@ module Protocol
 					self.include?(UPGRADE)
 				end
 				
-				def self.trailer_forbidden?
-					true
+				def self.trailer?
+					false
 				end
 			end
 		end

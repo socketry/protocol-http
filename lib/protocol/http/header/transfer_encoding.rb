@@ -66,8 +66,8 @@ module Protocol
 					self.include?(IDENTITY)
 				end
 				
-				def self.trailer_forbidden?
-					true
+				def self.trailer?
+					false
 				end
 			end
 		end

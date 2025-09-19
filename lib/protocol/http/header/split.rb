@@ -40,7 +40,7 @@ module Protocol
 					join(",")
 				end
 				
-				def self.trailer_forbidden?
+				def self.trailer?
 					false
 				end
 				

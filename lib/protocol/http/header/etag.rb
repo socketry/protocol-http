@@ -26,8 +26,8 @@ module Protocol
 					self.start_with?("W/")
 				end
 				
-				def self.trailer_forbidden?
-					false
+				def self.trailer?
+					true
 				end
 			end
 		end

@@ -12,8 +12,8 @@ module Protocol
 			#
 			# This isn't a specific header  class is a utility for handling headers with comma-separated values, such as `accept`, `cache-control`, and other similar headers. The values are split and stored as an array internally, and serialized back to a comma-separated string when needed.
 			class Trailer < Split
-				def self.trailer_forbidden?
-					true
+				def self.trailer?
+					false
 				end
 			end
 		end

@@ -26,17 +26,5 @@ module Protocol
 			# @attribute [String] key The header key that was duplicated.
 			attr :key
 		end
-		
-		class ForbiddenTrailerError < Error
-			include BadRequest
-			
-			# @parameter key [String] The header key that was forbidden in trailers.
-			def initialize(key)
-				super("#{key} is forbidden in trailers!")
-			end
-			
-			# @attribute [String] key The header key that was forbidden in trailers.
-			attr :key
-		end
 	end
 end

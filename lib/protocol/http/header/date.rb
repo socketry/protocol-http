@@ -26,8 +26,8 @@ module Protocol
 					::Time.parse(self)
 				end
 				
-				def self.trailer_forbidden?
-					false
+				def self.trailer?
+					true
 				end
 			end
 		end

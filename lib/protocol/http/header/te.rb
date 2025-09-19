@@ -119,8 +119,8 @@ module Protocol
 					self.any? {|value| value.start_with?(TRAILERS)}
 				end
 				
-				def self.trailer_forbidden?
-					true
+				def self.trailer?
+					false
 				end
 			end
 		end

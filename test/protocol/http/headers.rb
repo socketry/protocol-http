@@ -299,62 +299,63 @@ describe Protocol::HTTP::Headers do
 		end
 		
 		with "forbidden trailers" do
+			let(:headers) {subject.new}
+			
 			forbidden_trailers = %w[
+				accept
+				accept-charset
+				accept-encoding
+				accept-language
+				
 				authorization
 				proxy-authorization
 				www-authenticate
 				proxy-authenticate
-
+				
 				connection
 				content-length
 				transfer-encoding
 				te
 				upgrade
 				trailer
-
+				
 				host
 				expect
 				range
-
+				
 				content-type
 				content-encoding
 				content-range
-
+				
 				cookie
 				set-cookie
+				
+				x-foo-bar
 			]
 			
 			forbidden_trailers.each do |key|
 				it "can't add a #{key.inspect} header in the trailer", unique: key do
 					trailer = headers.trailer!
-					headers.to_h # Force indexing
-					
-					expect do
-						headers.add(key, "example")
-					end.to raise_exception(Protocol::HTTP::ForbiddenTrailerError)
+					headers.add(key, "example")
+					expect(headers).not.to be(:include?, key)
 				end
 			end
 		end
 		
 		with "permitted trailers" do
+			let(:headers) {subject.new}
+			
 			permitted_trailers = [
 				"date",
-				"accept",
-				"x-foo-bar",
+				"digest",
 				"etag",
-				"content-md5",
-				"expires",
+				"server-timing",
 			]
 			
 			permitted_trailers.each do |key|
 				it "can add a #{key.inspect} header in the trailer", unique: key do
 					trailer = headers.trailer!
-					headers.to_h # Force indexing
-					
-					expect do
-						headers.add(key, "example")
-					end.not.to raise_exception
-					
+					headers.add(key, "example")
 					expect(headers).to be(:include?, key)
 				end
 			end
@@ -368,6 +369,78 @@ describe Protocol::HTTP::Headers do
 			headers.add("etag", "abcd")
 			
 			expect(headers.trailer.to_h).to be == {"etag" => "abcd"}
+		end
+	end
+	
+	with "custom policy" do
+		let(:headers) {subject.new}
+		
+		# Create a custom header class that allows trailers
+		let(:grpc_status_class) do
+			Class.new(String) do
+				def self.trailer?
+					true
+				end
+			end
+		end
+		
+		it "can set custom policy to allow additional trailer headers" do
+			# Create custom policy that allows grpc-status as trailer
+			custom_policy = Protocol::HTTP::Headers::POLICY.dup
+			custom_policy["grpc-status"] = grpc_status_class
+			
+			# Set the custom policy
+			headers.policy = custom_policy
+			
+			# Enable trailers
+			headers.trailer!
+			
+			# Add grpc-status header (should be allowed with custom policy)
+			headers.add("grpc-status", "0")
+			
+			# Verify it appears in trailers
+			expect(headers).to be(:include?, "grpc-status")
+			
+			trailer_headers = {}
+			headers.trailer do |key, value|
+				trailer_headers[key] = value
+			end
+			
+			expect(trailer_headers["grpc-status"]).to be == "0"
+		end
+		
+		it "policy= clears indexed cache" do
+			# Add some headers first
+			headers.add("content-type", "text/html")
+			
+			# Force indexing
+			hash1 = headers.to_h
+			expect(hash1).to be(:include?, "content-type")
+			
+			# Change policy
+			new_policy = {}
+			headers.policy = new_policy
+			
+			# Add another header
+			headers.add("x-custom", "value")
+			
+			# Verify cache was cleared and rebuilt
+			hash2 = headers.to_h
+			expect(hash2).to be(:include?, "content-type")
+			expect(hash2).to be(:include?, "x-custom")
+		end
+		
+		it "can read policy attribute" do
+			original_policy = headers.policy
+			expect(original_policy).to be == Protocol::HTTP::Headers::POLICY
+			
+			# Set new policy
+			custom_policy = {"custom" => String}
+			headers.policy = custom_policy
+			
+			# Verify policy was changed
+			expect(headers.policy).to be == custom_policy
+			expect(headers.policy).not.to be == original_policy
 		end
 	end
 	

@@ -24,8 +24,8 @@ module Protocol
 					cookies.map{|cookie| [cookie.name, cookie]}.to_h
 				end
 				
-				def self.trailer_forbidden?
-					true
+				def self.trailer?
+					false
 				end
 			end
 			

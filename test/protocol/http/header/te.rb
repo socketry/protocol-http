@@ -126,9 +126,9 @@ describe Protocol::HTTP::Header::TE do
 		end
 	end
 	
-	with ".trailer_forbidden?" do
+	with ".trailer?" do
 		it "should be forbidden in trailers" do
-			expect(subject.trailer_forbidden?).to be == true
+			expect(subject).not.to be(:trailer?)
 		end
 	end
 end
