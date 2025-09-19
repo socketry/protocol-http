@@ -92,6 +92,9 @@ module Protocol
 					join(",")
 				end
 				
+				# Whether this header is acceptable in HTTP trailers.
+				# Accept headers in trailers can provide content negotiation hints for subsequent responses.
+				# @returns [Boolean] false, as Accept headers are generally not needed in trailers.
 				def self.trailer?
 					false
 				end

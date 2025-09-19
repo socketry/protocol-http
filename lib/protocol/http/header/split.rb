@@ -40,6 +40,9 @@ module Protocol
 					join(",")
 				end
 				
+				# Whether this header is acceptable in HTTP trailers.
+				# This is a base class for comma-separated headers, default is to disallow in trailers.
+				# @returns [Boolean] false, as most comma-separated headers should not appear in trailers by default.
 				def self.trailer?
 					false
 				end

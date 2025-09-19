@@ -119,6 +119,9 @@ module Protocol
 					self.any? {|value| value.start_with?(TRAILERS)}
 				end
 				
+				# Whether this header is acceptable in HTTP trailers.
+				# TE headers negotiate transfer encodings and must not appear in trailers.
+				# @returns [Boolean] false, as TE headers are hop-by-hop and control message framing.
 				def self.trailer?
 					false
 				end
