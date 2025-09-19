@@ -131,7 +131,7 @@ describe Protocol::HTTP::Header::Digest do
 			expect(entries.first.algorithm).to be == "md5"
 		end
 	end
-
+	
 	with "value edge cases" do
 		it "handles empty values" do
 			header = subject.new("sha-256=")
