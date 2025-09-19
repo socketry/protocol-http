@@ -1,5 +1,52 @@
 # Releases
 
+## Unreleased
+
+### Improved HTTP Trailer Security
+
+This release introduces significant security improvements for HTTP trailer handling, addressing potential HTTP request smuggling vulnerabilities by implementing a restrictive-by-default policy for trailer headers.
+
+  - **Security-by-default**: HTTP trailers are now validated and restricted by default to prevent HTTP request smuggling attacks.
+  - Only safe headers are permitted in trailers:
+    - `date` - Response generation timestamps (safe metadata)
+    - `digest` - Content integrity verification (safe metadata)  
+    - `etag` - Cache validation tags (safe metadata)
+    - `server-timing` - Performance metrics (safe metadata)
+  - All other trailers are ignored by default.
+
+If you are using this library for gRPC, you will need to use a custom policy to allow the `grpc-status` and `grpc-message` trailers:
+
+```ruby
+module GRPCStatus
+	def self.new(value)
+		Integer(value)
+	end
+	
+	def self.trailer?
+		true
+	end
+end
+
+module GRPCMessage
+	def self.new(value)
+		value
+	end
+	
+	def self.trailer?
+		true
+	end
+end
+
+GRPC_POLICY = Protocol::HTTP::Headers::POLICY.dup
+GRPC_POLICY['grpc-status'] = GRPCStatus
+GRPC_POLICY['grpc-message'] = GRPCMessage
+
+# Reinterpret the headers using the new policy:
+response.headers.policy = GRPC_POLICY
+response.headers['grpc-status'] # => 0
+response.headers['grpc-message'] # => "OK"
+```
+
 ## v0.53.0
 
   - Improve consistency of Body `#inspect`.
