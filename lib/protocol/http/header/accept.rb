@@ -93,8 +93,7 @@ module Protocol
 				end
 				
 				# Whether this header is acceptable in HTTP trailers.
-				# Accept headers in trailers can provide content negotiation hints for subsequent responses.
-				# @returns [Boolean] false, as Accept headers are generally not needed in trailers.
+				# @returns [Boolean] `false`, as Accept headers are used for response content negotiation.
 				def self.trailer?
 					false
 				end

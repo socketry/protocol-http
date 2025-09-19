@@ -59,8 +59,8 @@ module Protocol
 					end
 				end
 				
-				# Digest headers are perfect for use as trailers since they contain
-				# integrity hashes that can only be calculated after the entire message body is available.
+				# Whether this header is acceptable in HTTP trailers.
+				# @returns [Boolean] `true`, as digest headers contain integrity hashes that can only be calculated after the entire message body is available.
 				def self.trailer?
 					true
 				end

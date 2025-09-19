@@ -26,7 +26,7 @@ module Protocol
 				
 				# Whether this header is acceptable in HTTP trailers.
 				# Cookie headers should not appear in trailers as they contain state information needed early in processing.
-				# @returns [Boolean] false, as cookie headers are needed during initial request processing.
+				# @returns [Boolean] `false`, as cookie headers are needed during initial request processing.
 				def self.trailer?
 					false
 				end

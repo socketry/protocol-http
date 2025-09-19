@@ -84,8 +84,8 @@ module Protocol
 					end
 				end
 				
-				# Server-Timing headers are safe to use as trailers since they contain
-				# performance metrics that are typically calculated during response generation.
+				# Whether this header is acceptable in HTTP trailers.
+				# @returns [Boolean] `true`, as server-timing headers contain performance metrics that are typically calculated during response generation.
 				def self.trailer?
 					true
 				end

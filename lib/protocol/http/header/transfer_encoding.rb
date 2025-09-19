@@ -68,7 +68,7 @@ module Protocol
 				
 				# Whether this header is acceptable in HTTP trailers.
 				# Transfer-Encoding headers control message framing and must not appear in trailers.
-				# @returns [Boolean] false, as Transfer-Encoding headers are hop-by-hop and must precede the message body.
+				# @returns [Boolean] `false`, as Transfer-Encoding headers are hop-by-hop and must precede the message body.
 				def self.trailer?
 					false
 				end

@@ -28,7 +28,7 @@ module Protocol
 				
 				# Whether this header is acceptable in HTTP trailers.
 				# ETag headers can safely appear in trailers as they provide cache validation metadata.
-				# @returns [Boolean] true, as ETag headers are metadata that can be computed after response generation.
+				# @returns [Boolean] `true`, as ETag headers are metadata that can be computed after response generation.
 				def self.trailer?
 					true
 				end
