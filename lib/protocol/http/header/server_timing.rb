@@ -26,8 +26,8 @@ module Protocol
 				ParseError = Class.new(Error)
 				
 				# https://www.w3.org/TR/server-timing/
-				METRIC = /\A(?<name>[a-zA-Z0-9][a-zA-Z0-9_\-]*)(;(?<params>.*))?\z/
-				PARAM = /(?<key>dur|desc)=(?<value>[^;,]+|"[^"]*")/
+				METRIC = /\A(?<name>[a-zA-Z0-9][a-zA-Z0-9_\-]*)(;(?<parameters>.*))?\z/
+				PARAMETER = /(?<key>dur|desc)=((?<value>#{TOKEN})|(?<quoted_value>#{QUOTED_STRING}))/
 				
 				# A single metric in the Server-Timing header.
 				Metric = Struct.new(:name, :duration, :description) do
@@ -58,22 +58,19 @@ module Protocol
 					self.map do |value|
 						if match = value.match(METRIC)
 							name = match[:name]
-							params = match[:params] || ""
+							parameters = match[:parameters] || ""
 							
 							duration = nil
 							description = nil
 							
-							params.scan(PARAM) do |key, param_value|
+							parameters.scan(PARAMETER) do |key, value, quoted_value|
+								value = QuotedString.unquote(quoted_value) if quoted_value
+								
 								case key
 								when "dur"
-									duration = param_value.to_f
+									duration = value.to_f
 								when "desc"
-									# Remove quotes if present
-									if param_value.start_with?('"') && param_value.end_with?('"')
-										description = param_value[1..-2]
-									else
-										description = param_value
-									end
+									description = value
 								end
 							end
 							

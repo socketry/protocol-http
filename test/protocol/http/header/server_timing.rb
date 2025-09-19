@@ -35,6 +35,16 @@ describe Protocol::HTTP::Header::ServerTiming do
 		end
 	end
 	
+	with 'db;dur="53.2"' do
+		it "can parse metric with quoted duration" do
+			metrics = header.metrics
+			expect(metrics.size).to be == 1
+			expect(metrics.first.name).to be == "db"
+			expect(metrics.first.duration).to be == 53.2
+			expect(metrics.first.description).to be_nil
+		end
+	end
+	
 	with 'cache;desc="Redis lookup"' do
 		it "can parse metric with description" do
 			metrics = header.metrics
@@ -47,6 +57,15 @@ describe Protocol::HTTP::Header::ServerTiming do
 	
 	with 'app;dur=12.7;desc="Application logic"' do
 		it "can parse metric with duration and description" do
+			metrics = header.metrics
+			expect(metrics.first.name).to be == "app"
+			expect(metrics.first.duration).to be == 12.7
+			expect(metrics.first.description).to be == "Application logic"
+		end
+	end
+	
+	with 'app;dur="12.7";desc="Application logic"' do
+		it "can parse metric with quoted duration and quoted description" do
 			metrics = header.metrics
 			expect(metrics.first.name).to be == "app"
 			expect(metrics.first.duration).to be == 12.7
