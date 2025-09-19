@@ -2,13 +2,15 @@ getting-started:
   order: 1
 message-body:
   order: 2
-middleware:
+headers:
   order: 3
-hypertext-references:
+middleware:
   order: 4
-url-parsing:
+hypertext-references:
   order: 5
-streaming:
+url-parsing:
   order: 6
+streaming:
+  order: 7
 design-overview:
   order: 10
