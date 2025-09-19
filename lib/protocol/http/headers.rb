@@ -17,11 +17,14 @@ require_relative "header/vary"
 require_relative "header/authorization"
 require_relative "header/date"
 require_relative "header/priority"
+require_relative "header/trailer"
 
 require_relative "header/accept"
 require_relative "header/accept_charset"
 require_relative "header/accept_encoding"
 require_relative "header/accept_language"
+require_relative "header/transfer_encoding"
+require_relative "header/te"
 
 module Protocol
 	module HTTP
@@ -244,23 +247,41 @@ module Protocol
 				self.dup.merge!(headers)
 			end
 			
+			# Singleton header policy that forbids trailers (for message framing headers)
+			class TrailerForbidden
+				def self.new(value)
+					value
+				end
+				
+				def self.trailer_forbidden?
+					true
+				end
+			end
+			
 			# The policy for various headers, including how they are merged and normalized.
 			POLICY = {
 				# Headers which may only be specified once:
 				"content-disposition" => false,
-				"content-length" => false,
+				"content-length" => TrailerForbidden,
 				"content-type" => false,
+				"expect" => TrailerForbidden,
 				"from" => false,
-				"host" => false,
+				"host" => TrailerForbidden,
 				"location" => false,
 				"max-forwards" => false,
+				"range" => false,
 				"referer" => false,
 				"retry-after" => false,
+				"server" => false,
+				"transfer-encoding" => Header::TransferEncoding,
+				"upgrade" => TrailerForbidden,
 				"user-agent" => false,
+				"trailer" => Header::Trailer,
 				
 				# Custom headers:
 				"connection" => Header::Connection,
 				"cache-control" => Header::CacheControl,
+				"te" => Header::TE,
 				"vary" => Header::Vary,
 				"priority" => Header::Priority,
 				
@@ -334,8 +355,13 @@ module Protocol
 			# @parameter hash [Hash] The hash to merge into.
 			# @parameter key [String] The header key.
 			# @parameter value [String] The raw header value.
-			protected def merge_into(hash, key, value)
+			protected def merge_into(hash, key, value, trailer = @tail)
 				if policy = POLICY[key]
+					# Check if we're adding to trailers and this header is forbidden
+					if trailer && policy.trailer_forbidden?
+						raise ForbiddenTrailerError, key
+					end
+					
 					if current_value = hash[key]
 						current_value << value
 					else
@@ -362,11 +388,17 @@ module Protocol
 			#
 			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
-				@indexed ||= @fields.inject({}) do |hash, (key, value)|
-					merge_into(hash, key.downcase, value)
+				unless @indexed
+					@indexed = {}
 					
-					hash
+					@fields.each_with_index do |(key, value), index|
+						trailer = (@tail && index >= @tail)
+						
+						merge_into(@indexed, key.downcase, value, trailer)
+					end
 				end
+				
+				return @indexed
 			end
 			
 			alias as_json to_h

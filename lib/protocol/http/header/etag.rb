@@ -25,6 +25,10 @@ module Protocol
 				def weak?
 					self.start_with?("W/")
 				end
+				
+				def self.trailer_forbidden?
+					false
+				end
 			end
 		end
 	end

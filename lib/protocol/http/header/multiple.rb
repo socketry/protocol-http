@@ -25,6 +25,10 @@ module Protocol
 				def to_s
 					join("\n")
 				end
+				
+				def self.trailer_forbidden?
+					false
+				end
 			end
 		end
 	end

@@ -25,6 +25,10 @@ module Protocol
 				def to_time
 					::Time.parse(self)
 				end
+				
+				def self.trailer_forbidden?
+					false
+				end
 			end
 		end
 	end

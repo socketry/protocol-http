@@ -92,6 +92,10 @@ module Protocol
 					join(",")
 				end
 				
+				def self.trailer_forbidden?
+					false
+				end
+				
 				# Parse the `accept` header.
 				#
 				# @returns [Array(Charset)] the list of content types and their associated parameters.

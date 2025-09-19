@@ -50,6 +50,10 @@ module Protocol
 				def upgrade?
 					self.include?(UPGRADE)
 				end
+				
+				def self.trailer_forbidden?
+					true
+				end
 			end
 		end
 	end

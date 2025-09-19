@@ -34,6 +34,10 @@ module Protocol
 						"Basic #{strict_base64_encoded}"
 					)
 				end
+				
+				def self.trailer_forbidden?
+					true
+				end
 			end
 		end
 	end

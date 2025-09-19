@@ -40,6 +40,10 @@ module Protocol
 					join(",")
 				end
 				
+				def self.trailer_forbidden?
+					false
+				end
+				
 				protected
 				
 				def reverse_find(&block)

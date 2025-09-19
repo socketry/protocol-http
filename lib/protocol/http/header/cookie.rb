@@ -23,6 +23,10 @@ module Protocol
 					
 					cookies.map{|cookie| [cookie.name, cookie]}.to_h
 				end
+				
+				def self.trailer_forbidden?
+					true
+				end
 			end
 			
 			# The `set-cookie` header sends cookies from the server to the user agent.

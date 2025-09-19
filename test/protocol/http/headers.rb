@@ -297,6 +297,68 @@ describe Protocol::HTTP::Headers do
 			
 			expect(trailer.to_h).to be == {"etag" => "abcd"}
 		end
+		
+		with "forbidden trailers" do
+			forbidden_trailers = %w[
+				authorization
+				proxy-authorization
+				www-authenticate
+				proxy-authenticate
+
+				connection
+				content-length
+				transfer-encoding
+				te
+				upgrade
+				trailer
+
+				host
+				expect
+				range
+
+				content-type
+				content-encoding
+				content-range
+
+				cookie
+				set-cookie
+			]
+			
+			forbidden_trailers.each do |key|
+				it "can't add a #{key.inspect} header in the trailer", unique: key do
+					trailer = headers.trailer!
+					headers.to_h # Force indexing
+					
+					expect do
+						headers.add(key, "example")
+					end.to raise_exception(Protocol::HTTP::ForbiddenTrailerError)
+				end
+			end
+		end
+		
+		with "permitted trailers" do
+			permitted_trailers = [
+				"date",
+				"accept",
+				"x-foo-bar",
+				"etag",
+				"content-md5",
+				"expires",
+			]
+			
+			permitted_trailers.each do |key|
+				it "can add a #{key.inspect} header in the trailer", unique: key do
+					trailer = headers.trailer!
+					headers.to_h # Force indexing
+					
+					expect do
+						headers.add(key, "example")
+					end.not.to raise_exception
+					
+					expect(headers).to be(:include?, key)
+				end
+			end
+		end
 	end
 	
 	with "#trailer" do
