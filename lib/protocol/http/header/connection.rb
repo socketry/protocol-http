@@ -50,6 +50,13 @@ module Protocol
 				def upgrade?
 					self.include?(UPGRADE)
 				end
+				
+				# Whether this header is acceptable in HTTP trailers.
+				# Connection headers control the current connection and must not appear in trailers.
+				# @returns [Boolean] `false`, as connection headers are hop-by-hop and forbidden in trailers.
+				def self.trailer?
+					false
+				end
 			end
 		end
 	end

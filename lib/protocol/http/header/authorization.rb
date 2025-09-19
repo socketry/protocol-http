@@ -34,6 +34,12 @@ module Protocol
 						"Basic #{strict_base64_encoded}"
 					)
 				end
+				
+				# Whether this header is acceptable in HTTP trailers.
+				# @returns [Boolean] `false`, as authorization headers are used for request authentication.
+				def self.trailer?
+					false
+				end
 			end
 		end
 	end

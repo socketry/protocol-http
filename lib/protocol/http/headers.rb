@@ -17,11 +17,16 @@ require_relative "header/vary"
 require_relative "header/authorization"
 require_relative "header/date"
 require_relative "header/priority"
+require_relative "header/trailer"
+require_relative "header/server_timing"
+require_relative "header/digest"
 
 require_relative "header/accept"
 require_relative "header/accept_charset"
 require_relative "header/accept_encoding"
 require_relative "header/accept_language"
+require_relative "header/transfer_encoding"
+require_relative "header/te"
 
 module Protocol
 	module HTTP
@@ -65,13 +70,28 @@ module Protocol
 			#
 			# @parameter fields [Array] An array of `[key, value]` pairs.
 			# @parameter tail [Integer | Nil] The index of the trailer start in the @fields array.
-			def initialize(fields = [], tail = nil, indexed: nil)
+			def initialize(fields = [], tail = nil, indexed: nil, policy: POLICY)
 				@fields = fields
 				
 				# Marks where trailer start in the @fields array:
 				@tail = tail
 				
 				# The cached index of headers:
+				@indexed = nil
+				
+				@policy = policy
+			end
+			
+			# @attribute [Hash] The policy for the headers.
+			attr :policy
+			
+			# Set the policy for the headers.
+			#
+			# The policy is used to determine how headers are merged and normalized. For example, if a header is specified multiple times, the policy will determine how the values are merged.
+			#
+			# @parameter policy [Hash] The policy for the headers.
+			def policy=(policy)
+				@policy = policy
 				@indexed = nil
 			end
 			
@@ -250,17 +270,23 @@ module Protocol
 				"content-disposition" => false,
 				"content-length" => false,
 				"content-type" => false,
+				"expect" => false,
 				"from" => false,
 				"host" => false,
 				"location" => false,
 				"max-forwards" => false,
+				"range" => false,
 				"referer" => false,
 				"retry-after" => false,
+				"server" => false,
+				"transfer-encoding" => Header::TransferEncoding,
 				"user-agent" => false,
+				"trailer" => Header::Trailer,
 				
 				# Custom headers:
 				"connection" => Header::Connection,
 				"cache-control" => Header::CacheControl,
+				"te" => Header::TE,
 				"vary" => Header::Vary,
 				"priority" => Header::Priority,
 				
@@ -299,6 +325,12 @@ module Protocol
 				"accept-charset" => Header::AcceptCharset,
 				"accept-encoding" => Header::AcceptEncoding,
 				"accept-language" => Header::AcceptLanguage,
+				
+				# Performance headers:
+				"server-timing" => Header::ServerTiming,
+				
+				# Content integrity headers:
+				"digest" => Header::Digest,
 			}.tap{|hash| hash.default = Split}
 			
 			# Delete all header values for the given key, and return the merged value.
@@ -316,7 +348,7 @@ module Protocol
 				
 				if @indexed
 					return @indexed.delete(key)
-				elsif policy = POLICY[key]
+				elsif policy = @policy[key]
 					(key, value), *tail = deleted
 					merged = policy.new(value)
 					
@@ -334,14 +366,24 @@ module Protocol
 			# @parameter hash [Hash] The hash to merge into.
 			# @parameter key [String] The header key.
 			# @parameter value [String] The raw header value.
-			protected def merge_into(hash, key, value)
-				if policy = POLICY[key]
+			protected def merge_into(hash, key, value, trailer = @tail)
+				if policy = @policy[key]
+					# Check if we're adding to trailers and this header is allowed:
+					if trailer && !policy.trailer?
+						return false
+					end
+					
 					if current_value = hash[key]
 						current_value << value
 					else
 						hash[key] = policy.new(value)
 					end
 				else
+					# By default, headers are not allowed in trailers:
+					if trailer
+						return false
+					end
+					
 					if hash.key?(key)
 						raise DuplicateHeaderError, key
 					end
@@ -362,11 +404,17 @@ module Protocol
 			#
 			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
-				@indexed ||= @fields.inject({}) do |hash, (key, value)|
-					merge_into(hash, key.downcase, value)
+				unless @indexed
+					@indexed = {}
 					
-					hash
+					@fields.each_with_index do |(key, value), index|
+						trailer = (@tail && index >= @tail)
+						
+						merge_into(@indexed, key.downcase, value, trailer)
+					end
 				end
+				
+				return @indexed
 			end
 			
 			alias as_json to_h

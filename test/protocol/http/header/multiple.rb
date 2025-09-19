@@ -19,4 +19,10 @@ describe Protocol::HTTP::Header::Multiple do
 			)
 		end
 	end
+	
+	with ".trailer?" do
+		it "is not allowed in trailers by default" do
+			expect(subject).not.to be(:trailer?)
+		end
+	end
 end

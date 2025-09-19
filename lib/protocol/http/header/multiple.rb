@@ -25,6 +25,13 @@ module Protocol
 				def to_s
 					join("\n")
 				end
+				
+				# Whether this header is acceptable in HTTP trailers.
+				# This is a base class for headers with multiple values, default is to disallow in trailers.
+				# @returns [Boolean] `false`, as most multiple-value headers should not appear in trailers by default.
+				def self.trailer?
+					false
+				end
 			end
 		end
 	end

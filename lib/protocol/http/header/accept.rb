@@ -92,6 +92,12 @@ module Protocol
 					join(",")
 				end
 				
+				# Whether this header is acceptable in HTTP trailers.
+				# @returns [Boolean] `false`, as Accept headers are used for response content negotiation.
+				def self.trailer?
+					false
+				end
+				
 				# Parse the `accept` header.
 				#
 				# @returns [Array(Charset)] the list of content types and their associated parameters.

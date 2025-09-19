@@ -25,6 +25,13 @@ module Protocol
 				def to_time
 					::Time.parse(self)
 				end
+				
+				# Whether this header is acceptable in HTTP trailers.
+				# Date headers can safely appear in trailers as they provide metadata about response generation.
+				# @returns [Boolean] `true`, as date headers are metadata that can be computed after response generation.
+				def self.trailer?
+					true
+				end
 			end
 		end
 	end
