@@ -33,14 +33,14 @@ module Protocol
 					self.new(
 					"Basic #{strict_base64_encoded}"
 				)
-			end
-			
-			# Whether this header is acceptable in HTTP trailers.
-			# Authorization credentials must not appear in trailers for security reasons.
-			# @returns [Boolean] false, as authorization headers contain sensitive credentials.
-			def self.trailer?
-				false
-			end
+				end
+				
+				# Whether this header is acceptable in HTTP trailers.
+				# Authorization credentials must not appear in trailers for security reasons.
+				# @returns [Boolean] false, as authorization headers contain sensitive credentials.
+				def self.trailer?
+					false
+				end
 			end
 		end
 	end
