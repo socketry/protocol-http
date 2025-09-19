@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.54.0
 
   - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.
 
@@ -10,15 +10,15 @@ This release introduces significant security improvements for HTTP trailer handl
 
   - **Security-by-default**: HTTP trailers are now validated and restricted by default to prevent HTTP request smuggling attacks.
   - Only safe headers are permitted in trailers:
-    - `date` - Response generation timestamps (safe metadata)
-    - `digest` - Content integrity verification (safe metadata)  
-    - `etag` - Cache validation tags (safe metadata)
-    - `server-timing` - Performance metrics (safe metadata)
+      - `date` - Response generation timestamps (safe metadata)
+      - `digest` - Content integrity verification (safe metadata)
+      - `etag` - Cache validation tags (safe metadata)
+      - `server-timing` - Performance metrics (safe metadata)
   - All other trailers are ignored by default.
 
 If you are using this library for gRPC, you will need to use a custom policy to allow the `grpc-status` and `grpc-message` trailers:
 
-```ruby
+``` ruby
 module GRPCStatus
 	def self.new(value)
 		Integer(value)

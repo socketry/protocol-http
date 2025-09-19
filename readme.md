@@ -18,6 +18,8 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
   - [Message Body](https://socketry.github.io/protocol-http/guides/message-body/index) - This guide explains how to work with HTTP request and response message bodies using `Protocol::HTTP::Body` classes.
 
+  - [Headers](https://socketry.github.io/protocol-http/guides/headers/index) - This guide explains how to work with HTTP headers using `protocol-http`.
+
   - [Middleware](https://socketry.github.io/protocol-http/guides/middleware/index) - This guide explains how to build and use HTTP middleware with `Protocol::HTTP::Middleware`.
 
   - [Hypertext References](https://socketry.github.io/protocol-http/guides/hypertext-references/index) - This guide explains how to use `Protocol::HTTP::Reference` for constructing and manipulating hypertext references (URLs with parameters).
@@ -31,6 +33,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
+
+### v0.54.0
+
+  - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.
+  - [Improved HTTP Trailer Security](https://socketry.github.io/protocol-http/releases/index#improved-http-trailer-security)
 
 ### v0.53.0
 
