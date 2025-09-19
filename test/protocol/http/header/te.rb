@@ -68,7 +68,7 @@ describe Protocol::HTTP::Header::TE do
 		end
 	end
 	
-	with "" do
+	with "empty header value" do
 		let(:header) {subject.new}
 		
 		it "handles empty TE header" do

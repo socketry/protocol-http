@@ -48,7 +48,7 @@ describe Protocol::HTTP::Header::TransferEncoding do
 		end
 	end
 	
-	with "" do
+	with "empty header value" do
 		let(:header) {subject.new}
 		
 		it "handles empty transfer encoding" do

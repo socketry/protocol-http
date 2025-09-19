@@ -49,7 +49,7 @@ describe Protocol::HTTP::Header::Trailer do
 		end
 	end
 	
-	with "" do
+	with "empty header value" do
 		let(:header) {subject.new}
 		
 		it "handles empty trailer" do
