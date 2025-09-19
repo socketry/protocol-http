@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+  - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.
+
 ### Improved HTTP Trailer Security
 
 This release introduces significant security improvements for HTTP trailer handling, addressing potential HTTP request smuggling vulnerabilities by implementing a restrictive-by-default policy for trailer headers.

@@ -10,7 +10,7 @@ require_relative "../error"
 module Protocol
 	module HTTP
 		module Header
-			# The `te` header indicates the transfer encodings the client is willing to accept.
+			# The `te` header indicates the transfer encodings the client is willing to accept. AKA `accept-transfer-encoding`. How we ended up with `te` instead of `accept-transfer-encoding` is a mystery lost to time.
 			#
 			# The `te` header allows a client to indicate which transfer encodings it can handle, and in what order of preference using quality factors.
 			class TE < Split
