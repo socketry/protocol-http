@@ -1,5 +1,14 @@
 # Releases
 
+## Unreleased
+
+  - **Breaking Change**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.
+  - **Breaking Change**: Handle cookie key/value pairs using `QuotedString` as per RFC 6265.
+    - Don't use URL encoding for cookie key/value.
+  - **Breaking Change**: Remove `Protocol::HTTP::URL` and `Protocol::HTTP::Reference` – replaced by `Protocol::URL` gem.
+    - `Protocol::HTTP::URL` -> `Protocol::URL::Encoding`.
+    - `Protocol::HTTP::Reference` -> `Protocol::URL::Reference`.
+
 ## v0.54.0
 
   - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.

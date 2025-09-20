@@ -4,59 +4,66 @@
 # Copyright, 2019-2025, by Samuel Williams.
 # Copyright, 2022, by Herrick Fang.
 
-require_relative "url"
+require_relative "quoted_string"
 
 module Protocol
 	module HTTP
 		# Represents an individual cookie key-value pair.
 		class Cookie
+			# Valid cookie name characters according to RFC 6265.
+			# cookie-name = token (RFC 2616 defines token)
+			VALID_COOKIE_KEY = /\A#{TOKEN}\z/.freeze
+			
+			# Valid cookie value characters according to RFC 6265.
+			# cookie-value = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
+			# cookie-octet = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
+			# Excludes control chars, whitespace, DQUOTE, comma, semicolon, and backslash
+			VALID_COOKIE_VALUE = /\A[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*\z/.freeze
+			
 			# Initialize the cookie with the given name, value, and directives.
 			#
-			# @parameter name [String] The name of the cookiel, e.g. "session_id".
+			# @parameter name [String] The name of the cookie, e.g. "session_id".
 			# @parameter value [String] The value of the cookie, e.g. "1234".
 			# @parameter directives [Hash] The directives of the cookie, e.g. `{"path" => "/"}`.
-			def initialize(name, value, directives)
+			# @raises [ArgumentError] If the name or value contains invalid characters.
+			def initialize(name, value, directives = nil)
+				unless VALID_COOKIE_KEY.match?(name)
+					raise ArgumentError, "Invalid cookie name: #{name.inspect}"
+				end
+				
+				if value && !VALID_COOKIE_VALUE.match?(value)
+					raise ArgumentError, "Invalid cookie value: #{value.inspect}"
+				end
+				
 				@name = name
 				@value = value
 				@directives = directives
 			end
 			
 			# @attribute [String] The name of the cookie.
-			attr :name
+			attr_accessor :name
 			
 			# @attribute [String] The value of the cookie.
-			attr :value
+			attr_accessor :value
 			
 			# @attribute [Hash] The directives of the cookie.
-			attr :directives
-			
-			# Encode the name of the cookie.
-			def encoded_name
-				URL.escape(@name)
-			end
-			
-			# Encode the value of the cookie.
-			def encoded_value
-				URL.escape(@value)
-			end
+			attr_accessor :directives
 			
 			# Convert the cookie to a string.
 			#
 			# @returns [String] The string representation of the cookie.
 			def to_s
-				buffer = String.new.b
+				buffer = String.new
 				
-				buffer << encoded_name << "=" << encoded_value
+				buffer << @name << "=" << @value
 				
 				if @directives
-					@directives.collect do |key, value|
+					@directives.each do |key, value|
 						buffer << ";"
+						buffer << key
 						
-						case value
-						when String
-							buffer << key << "=" << value
-						when TrueClass
-							buffer << key
+						if value != true
+							buffer << "=" << value.to_s
 						end
 					end
 				end
@@ -74,11 +81,7 @@ module Protocol
 				key, value = head.split("=", 2)
 				directives = self.parse_directives(directives)
 				
-				self.new(
-					URL.unescape(key),
-					URL.unescape(value),
-					directives,
-				)
+				self.new(key, value, directives)
 			end
 			
 			# Parse a list of strings into a hash of directives.

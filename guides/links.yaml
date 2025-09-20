@@ -6,10 +6,6 @@ headers:
   order: 3
 middleware:
   order: 4
-hypertext-references:
-  order: 5
-url-parsing:
-  order: 6
 streaming:
   order: 7
 design-overview:

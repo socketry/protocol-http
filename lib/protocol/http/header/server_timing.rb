@@ -4,7 +4,7 @@
 # Copyright, 2025, by Samuel Williams.
 
 require_relative "split"
-require_relative "quoted_string"
+require_relative "../quoted_string"
 require_relative "../error"
 
 module Protocol
