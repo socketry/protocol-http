@@ -125,3 +125,160 @@ def call(request)
 	# ...
 end
 ```
+
+## v0.29.0
+
+  - Introduce `rewind` and `rewindable?` methods for body rewinding capabilities.
+  - Add support for output buffer in `read_partial`/`readpartial` methods.
+  - `Reader#buffered!` now returns `self` for method chaining.
+
+## v0.28.0
+
+  - Add convenient `Reader#buffered!` method to buffer the body.
+  - Modernize gem infrastructure with RuboCop integration.
+
+## v0.27.0
+
+  - Expand stream interface to support `gets`/`puts` operations.
+  - Skip empty key/value pairs in header processing.
+  - Prefer lowercase method names for consistency.
+  - Add `as_json` support to avoid default Rails implementation.
+  - Use `@callback` to track invocation state.
+  - Drop `base64` gem dependency.
+
+## v0.26.0
+
+  - Prefer connection `close` over `keep-alive` when both are present.
+  - Add support for `#readpartial` method.
+  - Add `base64` dependency.
+
+## v0.25.0
+
+  - Introduce explicit support for informational responses (1xx status codes).
+  - Add `cache-control` support for `must-revalidate`, `proxy-revalidate`, and `s-maxage` directives.
+  - Add `#strong_match?` and `#weak_match?` methods to `ETags` header.
+  - Fix `last-modified`, `if-modified-since` and `if-unmodified-since` headers to use proper `Date` parsing.
+  - Improve date/expires header parsing.
+  - Add tests for `Stream#close_read`.
+  - Check if input is closed before raising `IOError`.
+  - Ensure saved files truncate existing file by default.
+
+## v0.24.0
+
+  - Add output stream `#<<` as alias for `#write`.
+  - Add support for `Headers#include?` and `#key?` methods.
+  - Fix URL unescape functionality.
+  - Fix cookie parsing issues.
+  - Fix superclass mismatch in `Protocol::HTTP::Middleware::Builder`.
+  - Allow trailers without explicit `trailer` header.
+  - Fix cookie handling and Ruby 2 keyword arguments.
+
+## v0.23.0
+
+  - Improve argument handling.
+  - Rename `path` parameter to `target` to better match RFCs.
+
+## v0.22.0
+
+  - Rename `trailers` to `trailer` for consistency.
+
+## v0.21.0
+
+  - Streaming interface improvements.
+  - Rename `Streamable` to `Completable`.
+
+## v0.20.0
+
+  - Improve `Authorization` header implementation.
+
+## v0.19.0
+
+  - Expose `Body#ready?` for more efficient response handling.
+
+## v0.18.0
+
+  - Add `#trailers` method which enumerates trailers without marking tail.
+  - Don't clear trailers in `#dup`, move functionality to `flatten!`.
+  - All requests and responses must have mutable headers instance.
+
+## v0.17.0
+
+  - Remove deferred headers due to complexity.
+  - Remove deprecated `Headers#slice!`.
+  - Add support for static, dynamic and streaming content to `cache-control` model.
+  - Initial support for trailers.
+  - Add support for `Response#not_modified?`.
+
+## v0.16.0
+
+  - Add support for `if-match` and `if-none-match` headers.
+  - Revert `Request#target` change for HTTP/2 compatibility.
+
+## v0.15.0
+
+  - Prefer `Request#target` over `Request#path`.
+  - Add body implementation to support HEAD requests.
+  - Add support for computing digest on buffered body.
+  - Add `Headers#set(key, value)` to replace existing values.
+  - Add support for `vary` header.
+  - Add support for `no-cache` & `no-store` cache directives.
+
+## v0.14.0
+
+  - Add `Cacheable` body for buffering and caching responses.
+  - Add support for `cache-control` header.
+
+## v0.13.0
+
+  - Add support for `connection` header.
+  - Fix handling of keyword arguments.
+
+## v0.12.0
+
+  - Improved handling of `cookie` header.
+  - Add `Headers#clear` method.
+
+## v0.11.0
+
+  - Ensure `Body#call` invokes `stream.close` when done.
+
+## v0.10.0
+
+  - Allow user to specify size for character devices.
+
+## v0.9.1
+
+  - Add support for `authorization` header.
+
+## v0.8.0
+
+  - Remove `reason` from `Response`.
+
+## v0.7.0
+
+  - Explicit path handling in `Reference#with`.
+
+## v0.6.0
+
+  - Initial version with basic HTTP protocol support.
+
+## v0.5.1
+
+  - Fix path splitting behavior when path is empty.
+  - Add `connect` method.
+  - Support protocol in `[]` constructor.
+  - Incorporate middleware functionality.
+
+## v0.4.0
+
+  - Add `Request`, `Response` and `Body` classes from `async-http`.
+  - Allow deletion of non-existent header fields.
+
+## v0.3.0
+
+  - **Initial release** of `protocol-http` gem.
+  - Initial implementation of HTTP/2 flow control.
+  - Support for connection preface and settings frames.
+  - Initial headers support.
+  - Implementation of `Connection`, `Client` & `Server` classes.
+  - HTTP/2 protocol framing and headers.
