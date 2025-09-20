@@ -3,6 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2019-2025, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
+# Copyright, 2025, by William T. Nelson.
 
 require_relative "buffered"
 

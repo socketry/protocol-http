@@ -2,6 +2,7 @@
 
 # Released under the MIT License.
 # Copyright, 2025, by Samuel Williams.
+# Copyright, 2025, by William T. Nelson.
 
 require_relative "split"
 require_relative "quoted_string"
