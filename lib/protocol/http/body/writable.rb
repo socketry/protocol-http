@@ -10,6 +10,8 @@ module Protocol
 		module Body
 			# A dynamic body which you can write to and read from.
 			class Writable < Readable
+				ASYNC_SAFE = true
+				
 				# An error indicating that the body has been closed and no further writes are allowed.
 				class Closed < StandardError
 				end

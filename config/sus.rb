@@ -5,3 +5,6 @@
 
 require "covered/sus"
 include Covered::Sus
+
+require "async/safe"
+Async::Safe.enable!

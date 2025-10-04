@@ -25,7 +25,7 @@ module Protocol
 				
 				# There is no point including this:
 				# 'identity' => ->(body){body},
-			}
+			}.freeze
 			
 			# Initialize the middleware with the given delegate and wrappers.
 			#

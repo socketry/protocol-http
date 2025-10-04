@@ -12,6 +12,8 @@ module Protocol
 		module Body
 			# A body which buffers all its contents.
 			class Buffered < Readable
+				ASYNC_SAFE = {initialize: true}.freeze
+				
 				# Tries to wrap an object in a {Buffered} instance.
 				#
 				# For compatibility, also accepts anything that behaves like an `Array(String)`.
