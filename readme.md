@@ -30,12 +30,12 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
-### Unreleased
+### v0.55.0
 
-  - **Breaking Change**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.
-  - **Breaking Change**: Handle cookie key/value pairs using `QuotedString` as per RFC 6265.
+  - **Breaking**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.
+  - **Breaking**: Handle cookie key/value pairs using `QuotedString` as per RFC 6265.
       - Don't use URL encoding for cookie key/value.
-  - **Breaking Change**: Remove `Protocol::HTTP::URL` and `Protocol::HTTP::Reference` – replaced by `Protocol::URL` gem.
+  - **Breaking**: Remove `Protocol::HTTP::URL` and `Protocol::HTTP::Reference` – replaced by `Protocol::URL` gem.
       - `Protocol::HTTP::URL` -\> `Protocol::URL::Encoding`.
       - `Protocol::HTTP::Reference` -\> `Protocol::URL::Reference`.
 
