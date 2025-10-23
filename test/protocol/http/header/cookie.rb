@@ -39,21 +39,21 @@ describe Protocol::HTTP::Header::Cookie do
 		end
 	end
 	
-	with "session=123==; secure" do
+	with "session=abc123; secure" do
 		it "can parse cookies" do
 			expect(cookies).to have_keys("session")
 			
 			session = cookies["session"]
 			expect(session).to have_attributes(
 				name: be == "session",
-				value: be == "123==",
+				value: be == "abc123",
 			)
 			expect(session.directives).to have_keys("secure")
 		end
 		
 		it "has string representation" do
 			session = cookies["session"]
-			expect(session.to_s).to be == "session=123%3D%3D;secure"
+			expect(session.to_s).to be == "session=abc123;secure"
 		end
 	end
 end

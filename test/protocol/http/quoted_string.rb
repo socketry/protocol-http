@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2025, by Samuel Williams.
 
-require "protocol/http/header/quoted_string"
+require "protocol/http/quoted_string"
 
-describe Protocol::HTTP::Header::QuotedString do
+describe Protocol::HTTP::QuotedString do
 	with ".unquote" do
 		it "ignores linear whitespace" do
 			quoted_string = subject.unquote(%Q{"Hello\r\n  World"})

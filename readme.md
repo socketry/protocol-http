@@ -22,10 +22,6 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
   - [Middleware](https://socketry.github.io/protocol-http/guides/middleware/index) - This guide explains how to build and use HTTP middleware with `Protocol::HTTP::Middleware`.
 
-  - [Hypertext References](https://socketry.github.io/protocol-http/guides/hypertext-references/index) - This guide explains how to use `Protocol::HTTP::Reference` for constructing and manipulating hypertext references (URLs with parameters).
-
-  - [URL Parsing](https://socketry.github.io/protocol-http/guides/url-parsing/index) - This guide explains how to use `Protocol::HTTP::URL` for parsing and manipulating URL components, particularly query strings and parameters.
-
   - [Streaming](https://socketry.github.io/protocol-http/guides/streaming/index) - This guide gives an overview of how to implement streaming requests and responses.
 
   - [Design Overview](https://socketry.github.io/protocol-http/guides/design-overview/index) - This guide explains the high level design of `protocol-http` in the context of wider design patterns that can be used to implement HTTP clients and servers.
@@ -33,6 +29,15 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
+
+### Unreleased
+
+  - **Breaking Change**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.
+  - **Breaking Change**: Handle cookie key/value pairs using `QuotedString` as per RFC 6265.
+      - Don't use URL encoding for cookie key/value.
+  - **Breaking Change**: Remove `Protocol::HTTP::URL` and `Protocol::HTTP::Reference` – replaced by `Protocol::URL` gem.
+      - `Protocol::HTTP::URL` -\> `Protocol::URL::Encoding`.
+      - `Protocol::HTTP::Reference` -\> `Protocol::URL::Reference`.
 
 ### v0.54.0
 
@@ -77,17 +82,13 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
   - Ensure chunks are flushed if required, when streaming.
 
-### v0.30.0
-
-  - [`Request[]` and `Response[]` Keyword Arguments](https://socketry.github.io/protocol-http/releases/index#request[]-and-response[]-keyword-arguments)
-  - [Interim Response Handling](https://socketry.github.io/protocol-http/releases/index#interim-response-handling)
-
 ## See Also
 
   - [protocol-http1](https://github.com/socketry/protocol-http1) — HTTP/1 client/server implementation using this
     interface.
   - [protocol-http2](https://github.com/socketry/protocol-http2) — HTTP/2 client/server implementation using this
     interface.
+  - [protocol-url](https://github.com/socketry/protocol-url) — URL parsing and manipulation library.
   - [async-http](https://github.com/socketry/async-http) — Asynchronous HTTP client and server, supporting multiple HTTP
     protocols & TLS.
   - [async-websocket](https://github.com/socketry/async-websocket) — Asynchronous client and server WebSockets.

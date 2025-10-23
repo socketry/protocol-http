@@ -5,7 +5,7 @@
 # Copyright, 2025, by William T. Nelson.
 
 require_relative "split"
-require_relative "quoted_string"
+require_relative "../quoted_string"
 require_relative "../error"
 
 module Protocol
