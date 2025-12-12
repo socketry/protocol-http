@@ -30,6 +30,14 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.56.0
+
+  - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
+  - Introduce `Header::*.coerce(value)` which coerces any value (`String`, `Array`, etc.) into a header instance with normalization.
+  - `Header::*#initialize` now accepts arrays without normalization for efficiency, or strings for backward compatibility.
+  - Update `Headers#[]=` to use `coerce(value)` for smart conversion of user input.
+  - Normalization (e.g., lowercasing) is applied by `parse`, `coerce`, and `<<` methods, but not by `new` when given arrays.
+
 ### v0.55.0
 
   - **Breaking**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.
@@ -77,10 +85,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
   - Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
   - Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
-
-### v0.31.0
-
-  - Ensure chunks are flushed if required, when streaming.
 
 ## See Also
 

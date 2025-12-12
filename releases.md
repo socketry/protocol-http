@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.56.0
 
   - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
   - Introduce `Header::*.coerce(value)` which coerces any value (`String`, `Array`, etc.) into a header instance with normalization.
