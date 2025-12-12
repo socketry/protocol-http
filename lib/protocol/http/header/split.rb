@@ -38,9 +38,9 @@ module Protocol
 					end
 				end
 				
-				# Initializes a `Split` header with already-parsed values.
+				# Initializes a `Split` header with the given values.
 				#
-				# @parameter value [Array | Nil] an array of parsed header values, or `nil` for an empty header.
+				# @parameter value [Array | String | Nil] an array of values, a raw header value, or `nil` for an empty header.
 				def initialize(value = nil)
 					if value.is_a?(Array)
 						super(value)

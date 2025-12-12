@@ -35,7 +35,7 @@ module Protocol
 					end
 				end
 				
-				# Initializes the multiple header with already-parsed values.
+				# Initializes the multiple header with the given values.
 				#
 				# @parameter value [Array | Nil] an array of header values, or `nil` for an empty header.
 				def initialize(value = nil)
