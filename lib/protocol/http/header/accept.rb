@@ -68,52 +68,26 @@ module Protocol
 					end
 				end
 				
-				# Parses a raw header value from the wire.
+				# Parses a raw header value.
 				#
-				# @parameter value [String] the raw header value containing comma-separated media types.
+				# @parameter value [String] a raw header value containing comma-separated media types.
 				# @returns [Accept] a new instance containing the parsed media types.
 				def self.parse(value)
 					self.new(value.scan(SEPARATOR).map(&:strip))
 				end
 				
-				# Coerces a value into a parsed header object.
-				#
-				# @parameter value [String | Array] the value to coerce.
-				# @returns [Accept] a parsed header object.
-				def self.coerce(value)
-					case value
-					when Array
-						self.new(value.map(&:to_s))
-					else
-						self.parse(value.to_s)
-					end
-				end
-				
-				# Initializes an Accept header with already-parsed values.
-				#
-				# @parameter value [Array | Nil] an array of parsed media type strings, or `nil` for an empty header.
-				def initialize(value = nil)
-					if value.is_a?(Array)
-						super(value)
-					elsif value.is_a?(String)
-						super(value)
-					elsif value
-						raise ArgumentError, "Invalid value: #{value.inspect}"
-					end
-				end
-				
-				# Adds one or more comma-separated values to the header from a raw wire-format string.
+				# Adds one or more comma-separated values to the header.
 				#
 				# The input string is split into distinct entries and appended to the array.
 				#
-				# @parameter value [String] a raw wire-format value containing one or more media types separated by commas.
+				# @parameter value [String] a raw header value containing one or more media types separated by commas.
 				def << value
 					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
-				# Converts the parsed header value into a raw wire-format string.
+				# Converts the parsed header value into a raw header value.
 				#
-				# @returns [String] a raw wire-format value (comma-separated string) suitable for transmission.
+				# @returns [String] a raw header value (comma-separated string).
 				def to_s
 					join(",")
 				end

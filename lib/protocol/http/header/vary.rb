@@ -12,23 +12,44 @@ module Protocol
 			#
 			# The `vary` header is used in HTTP responses to indicate which request headers affect the selected response. It allows caches to differentiate stored responses based on specific request headers.
 			class Vary < Split
-				# Initializes a `Vary` header with already-parsed and normalized values.
+				# Parses a raw header value.
 				#
-				# @parameter value [Array | Nil] an array of normalized (lowercase) header names, or `nil` for an empty header.
+				# @parameter value [String] a raw header value containing comma-separated header names.
+				# @returns [Vary] a new instance with normalized (lowercase) header names.
+				def self.parse(value)
+					self.new(value.downcase.split(COMMA))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [Vary] a parsed header object with normalized values.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value.map(&:downcase))
+					else
+						self.parse(value.to_s)
+					end
+				end
+				
+				# Initializes a `Vary` header with the given values.
+				#
+				# @parameter value [Array | String | Nil] an array of header names, a raw header value, or `nil` for an empty header.
 				def initialize(value = nil)
 					if value.is_a?(Array)
-						super(value.map(&:downcase))
-					elsif value.is_a?(String)
-						# Compatibility with the old constructor, prefer to use `parse` instead:
 						super(value)
+					elsif value.is_a?(String)
+						super()
+						self << value
 					elsif value
 						raise ArgumentError, "Invalid value: #{value.inspect}"
 					end
 				end
 				
-				# Adds one or more comma-separated values to the `vary` header from a raw wire-format string. The values are converted to lowercase for normalization.
+				# Adds one or more comma-separated values to the `vary` header. The values are converted to lowercase for normalization.
 				#
-				# @parameter value [String] a raw wire-format value containing one or more values separated by commas.
+				# @parameter value [String] a raw header value containing one or more values separated by commas.
 				def << value
 					super(value.downcase)
 				end

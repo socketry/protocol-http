@@ -57,21 +57,32 @@ describe Protocol::HTTP::Header::Connection do
 		end
 	end
 	
-	with "normalization" do
-		it "normalizes to lowercase when initialized with string" do
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["CLOSE", "UPGRADE"])
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+			expect(header).not.to be(:include?, "CLOSE")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("CLOSE, UPGRADE")
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["CLOSE", "UPGRADE"])
+			expect(header).to be(:include?, "CLOSE")
+			expect(header).to be(:include?, "UPGRADE")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
 			header = subject.new("CLOSE, UPGRADE")
 			expect(header).to be(:include?, "close")
 			expect(header).to be(:include?, "upgrade")
-			expect(header).not.to be(:include?, "CLOSE")
-			expect(header).not.to be(:include?, "UPGRADE")
-		end
-		
-		it "normalizes to lowercase when initialized with array" do
-			header = subject.new(["CLOSE", "UPGRADE"])
-			expect(header).to be(:include?, "close")
-			expect(header).to be(:include?, "upgrade")
-			expect(header).not.to be(:include?, "CLOSE")
-			expect(header).not.to be(:include?, "UPGRADE")
 		end
 		
 		it "raises ArgumentError for invalid value types" do

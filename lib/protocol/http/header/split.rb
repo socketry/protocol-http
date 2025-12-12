@@ -13,11 +13,11 @@ module Protocol
 				# Regular expression used to split values on commas, with optional surrounding whitespace.
 				COMMA = /\s*,\s*/
 				
-				# Parses a raw header value from the wire.
+				# Parses a raw header value.
 				#
-				# Split headers receive comma-separated values in a single header entry on the wire. This method splits the raw value into individual entries.
+				# Split headers receive comma-separated values in a single header entry. This method splits the raw value into individual entries.
 				#
-				# @parameter value [String] the raw header value containing multiple entries separated by commas.
+				# @parameter value [String] a raw header value containing multiple entries separated by commas.
 				# @returns [Split] a new instance containing the parsed values.
 				def self.parse(value)
 					self.new(value.split(COMMA))
@@ -32,7 +32,7 @@ module Protocol
 				def self.coerce(value)
 					case value
 					when Array
-						self.new(value)
+						self.new(value.map(&:to_s))
 					else
 						self.parse(value.to_s)
 					end
@@ -53,18 +53,18 @@ module Protocol
 					end
 				end
 				
-				# Adds one or more comma-separated values to the header from a raw wire-format string.
+				# Adds one or more comma-separated values to the header.
 				#
 				# The input string is split into distinct entries and appended to the array.
 				#
-				# @parameter value [String] a raw wire-format value containing one or more values separated by commas.
+				# @parameter value [String] a raw header value containing one or more values separated by commas.
 				def << value
 					self.concat(value.split(COMMA))
 				end
 				
-				# Converts the parsed header value into a raw wire-format string.
+				# Converts the parsed header value into a raw header value.
 				#
-				# @returns [String] a raw wire-format value (comma-separated string) suitable for transmission.
+				# @returns [String] a raw header value (comma-separated string).
 				def to_s
 					join(",")
 				end

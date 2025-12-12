@@ -15,9 +15,9 @@ module Protocol
 			#
 			# TODO Support other authorization mechanisms, e.g. bearer token.
 			class Authorization < String
-				# Parses a raw header value from the wire.
+				# Parses a raw header value.
 				#
-				# @parameter value [String] the raw header value.
+				# @parameter value [String] a raw header value.
 				# @returns [Authorization] a new instance.
 				def self.parse(value)
 					self.new(value)
@@ -47,8 +47,8 @@ module Protocol
 					strict_base64_encoded = ["#{username}:#{password}"].pack("m0")
 					
 					self.new(
-						"Basic #{strict_base64_encoded}"
-					)
+								"Basic #{strict_base64_encoded}"
+							)
 				end
 				
 				# Whether this header is acceptable in HTTP trailers.

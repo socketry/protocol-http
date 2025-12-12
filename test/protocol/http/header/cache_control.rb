@@ -89,20 +89,32 @@ describe Protocol::HTTP::Header::CacheControl do
 		end
 	end
 	
-	with "normalization" do
-		it "normalizes to lowercase when initialized with string" do
-			header = subject.new("PUBLIC, MAX-AGE=60")
-			expect(header).to be(:include?, "public")
-			expect(header).to be(:include?, "max-age=60")
-			expect(header).not.to be(:include?, "PUBLIC")
-		end
-		
-		it "normalizes to lowercase when initialized with array" do
-			header = subject.new(["PUBLIC", "NO-CACHE"])
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["PUBLIC", "NO-CACHE"])
 			expect(header).to be(:include?, "public")
 			expect(header).to be(:include?, "no-cache")
 			expect(header).not.to be(:include?, "PUBLIC")
-			expect(header).not.to be(:include?, "NO-CACHE")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("PUBLIC, MAX-AGE=60")
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "max-age=60")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["PUBLIC", "NO-CACHE"])
+			expect(header).to be(:include?, "PUBLIC")
+			expect(header).to be(:include?, "NO-CACHE")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("PUBLIC, MAX-AGE=60")
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "max-age=60")
 		end
 		
 		it "raises ArgumentError for invalid value types" do

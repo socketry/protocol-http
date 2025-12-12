@@ -35,13 +35,26 @@ describe Protocol::HTTP::Header::Vary do
 		end
 	end
 	
-	with "normalization" do
-		it "normalizes to lowercase when initialized with array" do
-			header = subject.new(["Accept-Language", "User-Agent"])
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["Accept-Language", "User-Agent"])
 			expect(header).to be(:include?, "accept-language")
 			expect(header).to be(:include?, "user-agent")
 			expect(header).not.to be(:include?, "Accept-Language")
-			expect(header).not.to be(:include?, "User-Agent")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("Accept-Language, User-Agent")
+			expect(header).to be(:include?, "accept-language")
+			expect(header).to be(:include?, "user-agent")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["Accept-Language", "User-Agent"])
+			expect(header).to be(:include?, "Accept-Language")
+			expect(header).to be(:include?, "User-Agent")
 		end
 		
 		it "can initialize with string for backward compatibility" do

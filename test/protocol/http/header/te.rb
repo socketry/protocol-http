@@ -104,21 +104,32 @@ describe Protocol::HTTP::Header::TE do
 		end
 	end
 	
-	with "normalization" do
-		it "normalizes to lowercase when initialized with string" do
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["GZIP", "CHUNKED"])
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+			expect(header).not.to be(:include?, "GZIP")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("GZIP, CHUNKED")
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["GZIP", "CHUNKED"])
+			expect(header).to be(:include?, "GZIP")
+			expect(header).to be(:include?, "CHUNKED")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
 			header = subject.new("GZIP, CHUNKED")
 			expect(header).to be(:include?, "gzip")
 			expect(header).to be(:include?, "chunked")
-			expect(header).not.to be(:include?, "GZIP")
-			expect(header).not.to be(:include?, "CHUNKED")
-		end
-		
-		it "normalizes to lowercase when initialized with array" do
-			header = subject.new(["GZIP", "CHUNKED"])
-			expect(header).to be(:include?, "gzip")
-			expect(header).to be(:include?, "chunked")
-			expect(header).not.to be(:include?, "GZIP")
-			expect(header).not.to be(:include?, "CHUNKED")
 		end
 		
 		it "raises ArgumentError for invalid value types" do

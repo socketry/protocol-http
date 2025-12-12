@@ -80,21 +80,32 @@ describe Protocol::HTTP::Header::Priority do
 		end
 	end
 	
-	with "normalization" do
-		it "normalizes to lowercase when initialized with string" do
-			header = subject.new("U=5, I")
-			expect(header).to be(:include?, "u=5")
-			expect(header).to be(:include?, "i")
-			expect(header).not.to be(:include?, "U=5")
-			expect(header).not.to be(:include?, "I")
-		end
-		
-		it "normalizes to lowercase when initialized with array" do
-			header = subject.new(["U=3", "I"])
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["U=3", "I"])
 			expect(header).to be(:include?, "u=3")
 			expect(header).to be(:include?, "i")
 			expect(header).not.to be(:include?, "U=3")
-			expect(header).not.to be(:include?, "I")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("U=5, I")
+			expect(header).to be(:include?, "u=5")
+			expect(header).to be(:include?, "i")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["U=3", "I"])
+			expect(header).to be(:include?, "U=3")
+			expect(header).to be(:include?, "I")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("U=5, I")
+			expect(header).to be(:include?, "u=5")
+			expect(header).to be(:include?, "i")
 		end
 		
 		it "raises ArgumentError for invalid value types" do

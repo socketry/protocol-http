@@ -10,11 +10,11 @@ module Protocol
 			#
 			# This isn't a specific header but is used as a base for headers that store multiple values, such as cookies. The values are split and stored as an array internally, and serialized back to a newline-separated string when needed.
 			class Multiple < Array
-				# Parses a raw header value from the wire.
+				# Parses a raw header value.
 				#
-				# Multiple headers receive each value as a separate header entry on the wire, so this method takes a single string value and creates a new instance containing it.
+				# Multiple headers receive each value as a separate header entry, so this method takes a single string value and creates a new instance containing it.
 				#
-				# @parameter value [String] a single raw header value from the wire.
+				# @parameter value [String] a single raw header value.
 				# @returns [Multiple] a new instance containing the parsed value.
 				def self.parse(value)
 					self.new([value])
@@ -46,11 +46,11 @@ module Protocol
 					end
 				end
 				
-				# Converts the parsed header value into a raw wire-format string.
+				# Converts the parsed header value into a raw header value.
 				#
-				# Multiple headers are transmitted as separate header entries on the wire, so this serializes to a newline-separated string for storage.
+				# Multiple headers are transmitted as separate header entries, so this serializes to a newline-separated string for storage.
 				#
-				# @returns [String] a raw wire-format value (newline-separated string).
+				# @returns [String] a raw header value (newline-separated string).
 				def to_s
 					join("\n")
 				end
