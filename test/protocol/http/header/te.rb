@@ -6,7 +6,7 @@
 require "protocol/http/header/te"
 
 describe Protocol::HTTP::Header::TE do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "chunked" do
 		it "detects chunked encoding" do
@@ -91,7 +91,7 @@ describe Protocol::HTTP::Header::TE do
 	
 	with "error handling" do
 		it "raises ParseError for invalid transfer coding" do
-			header = subject.new("invalid@encoding")
+			header = subject.parse("invalid@encoding")
 			expect do
 				header.transfer_codings
 			end.to raise_exception(Protocol::HTTP::Header::TE::ParseError)
@@ -101,6 +101,24 @@ describe Protocol::HTTP::Header::TE do
 	with ".trailer?" do
 		it "should be forbidden in trailers" do
 			expect(subject).not.to be(:trailer?)
+		end
+	end
+	
+	with "normalization" do
+		it "normalizes to lowercase when initialized with string" do
+			header = subject.new("GZIP, CHUNKED")
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+			expect(header).not.to be(:include?, "GZIP")
+			expect(header).not.to be(:include?, "CHUNKED")
+		end
+		
+		it "normalizes to lowercase when initialized with array" do
+			header = subject.new(["GZIP", "CHUNKED"])
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+			expect(header).not.to be(:include?, "GZIP")
+			expect(header).not.to be(:include?, "CHUNKED")
 		end
 	end
 end

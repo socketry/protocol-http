@@ -13,7 +13,7 @@ describe Protocol::HTTP::Header::AcceptCharset::Charset do
 end
 
 describe Protocol::HTTP::Header::AcceptCharset do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	let(:charsets) {header.charsets.sort}
 	
 	with "utf-8, iso-8859-1;q=0.5, windows-1252;q=0.25" do
@@ -74,7 +74,7 @@ describe Protocol::HTTP::Header::AcceptCharset do
 		]
 		
 		bad_values.each do |value|
-			expect{subject.new(value).charsets}.to raise_exception(subject::ParseError)
+			expect{subject.parse(value).charsets}.to raise_exception(subject::ParseError)
 		end
 	end
 end

@@ -68,27 +68,54 @@ module Protocol
 					end
 				end
 				
-				# Parse the `accept` header value into a list of content types.
+				# Parses a raw header value from the wire.
 				#
-				# @parameter value [String] the value of the header.
-				def initialize(value = nil)
-					if value
-						super(value.scan(SEPARATOR).map(&:strip))
+				# @parameter value [String] the raw header value containing comma-separated media types.
+				# @returns [Accept] a new instance containing the parsed media types.
+				def self.parse(value)
+					self.new(value.scan(SEPARATOR).map(&:strip))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [Accept] a parsed header object.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value)
+					else
+						self.parse(value.to_s)
 					end
 				end
 				
-				# Adds one or more comma-separated values to the header.
+				# Initializes an Accept header with already-parsed values.
+				#
+				# @parameter value [Array | Nil] an array of parsed media type strings, or `nil` for an empty header.
+				def initialize(value = nil)
+					if value.is_a?(Array)
+						super(value)
+					elsif value.is_a?(String)
+						# Compatibility with the old constructor, prefer to use `parse` instead:
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
+				end
+				
+				# Adds one or more comma-separated values to the header from a raw wire-format string.
 				#
 				# The input string is split into distinct entries and appended to the array.
 				#
-				# @parameter value [String] the value or values to add, separated by commas.
+				# @parameter value [String] a raw wire-format value containing one or more media types separated by commas.
 				def << value
 					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
-				# Serializes the stored values into a comma-separated string.
+				# Converts the parsed header value into a raw wire-format string.
 				#
-				# @returns [String] the serialized representation of the header values.
+				# @returns [String] a raw wire-format value (comma-separated string) suitable for transmission.
 				def to_s
 					join(",")
 				end

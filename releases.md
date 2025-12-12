@@ -1,5 +1,12 @@
 # Releases
 
+## Unreleased
+
+  - Introduce	`Header::*.parse(value)` which converts a string representation to a header instance.
+  - Introduce `Header::*.coerce(value)` which converts a rich representation (e.g. `Array`) to a header instance.
+  - `Header::*#initialize` still implements parse-like behaviour, but it's considered deprecated.
+  - Update `Headers#[]=` to use `parse(value)` for conversion. This provides better symmetry with `Headers#[]`.
+
 ## v0.55.0
 
   - **Breaking**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.

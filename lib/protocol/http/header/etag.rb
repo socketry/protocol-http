@@ -10,9 +10,25 @@ module Protocol
 			#
 			# The `etag` header provides a unique identifier for a specific version of a resource, typically used for cache validation or conditional requests. It can be either a strong or weak validator as defined in RFC 9110.
 			class ETag < String
-				# Replaces the current value of the `etag` header with the specified value.
+				# Parses a raw header value from the wire.
 				#
-				# @parameter value [String] the new value for the `etag` header.
+				# @parameter value [String] the raw header value.
+				# @returns [ETag] a new instance.
+				def self.parse(value)
+					self.new(value)
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String] the value to coerce.
+				# @returns [ETag] a parsed header object.
+				def self.coerce(value)
+					self.new(value.to_s)
+				end
+				
+				# Replaces the current value of the `etag` header with a raw wire-format string.
+				#
+				# @parameter value [String] a raw wire-format value for the `etag` header.
 				def << value
 					replace(value)
 				end

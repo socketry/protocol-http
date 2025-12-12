@@ -8,7 +8,7 @@ require "protocol/http/headers"
 require "protocol/http/cookie"
 
 describe Protocol::HTTP::Header::Connection do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "close" do
 		it "should indiciate connection will be closed" do
@@ -54,6 +54,24 @@ describe Protocol::HTTP::Header::Connection do
 			expect(header).to be(:upgrade?)
 			
 			expect(header.to_s).to be == "close,upgrade"
+		end
+	end
+	
+	with "normalization" do
+		it "normalizes to lowercase when initialized with string" do
+			header = subject.new("CLOSE, UPGRADE")
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+			expect(header).not.to be(:include?, "CLOSE")
+			expect(header).not.to be(:include?, "UPGRADE")
+		end
+		
+		it "normalizes to lowercase when initialized with array" do
+			header = subject.new(["CLOSE", "UPGRADE"])
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+			expect(header).not.to be(:include?, "CLOSE")
+			expect(header).not.to be(:include?, "UPGRADE")
 		end
 	end
 end

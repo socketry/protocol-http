@@ -22,16 +22,24 @@ module Protocol
 				# The `upgrade` directive indicates that the connection should be upgraded to a different protocol, as specified in the `Upgrade` header.
 				UPGRADE = "upgrade"
 				
-				# Initializes the connection header with the given value. The value is expected to be a comma-separated string of directives.
+				# Initializes the connection header with already-parsed and normalized values.
 				#
-				# @parameter value [String | Nil] the raw `connection` header value.
+				# @parameter value [Array | Nil] an array of normalized (lowercase) directives, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value.map(&:downcase))
+					elsif value.is_a?(String)
+						# Compatibility with the old constructor, prefer to use `parse` instead:
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
-				# Adds a directive to the `connection` header. The value will be normalized to lowercase before being added.
+				# Adds a directive to the `connection` header from a raw wire-format string. The value will be normalized to lowercase before being added.
 				#
-				# @parameter value [String] the directive to add.
+				# @parameter value [String] a raw wire-format directive to add.
 				def << value
 					super(value.downcase)
 				end
@@ -61,3 +69,4 @@ module Protocol
 		end
 	end
 end
+

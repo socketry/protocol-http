@@ -7,7 +7,7 @@ require "protocol/http/header/server_timing"
 require "sus"
 
 describe Protocol::HTTP::Header::ServerTiming do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "empty header" do
 		let(:header) {subject.new}

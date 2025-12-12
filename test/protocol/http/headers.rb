@@ -195,14 +195,14 @@ describe Protocol::HTTP::Headers do
 		it "can add field with a String value" do
 			headers["Content-Length"] = "1"
 			
-			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers.fields.last).to be == ["content-length", "1"]
 			expect(headers["content-length"]).to be == "1"
 		end
 		
 		it "can add field with an Integer value" do
 			headers["Content-Length"] = 1
 			
-			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers.fields.last).to be == ["content-length", "1"]
 			expect(headers["content-length"]).to be == "1"
 		end
 		

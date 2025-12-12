@@ -13,29 +13,58 @@ module Protocol
 				# Regular expression used to split values on commas, with optional surrounding whitespace.
 				COMMA = /\s*,\s*/
 				
-				# Initializes a `Split` header with the given value. If the value is provided, it is split into distinct entries and stored as an array.
+				# Parses a raw header value from the wire.
 				#
-				# @parameter value [String | Nil] the raw header value containing multiple entries separated by commas, or `nil` for an empty header.
-				def initialize(value = nil)
-					if value
-						super(value.split(COMMA))
+				# Split headers receive comma-separated values in a single header entry on the wire. This method splits the raw value into individual entries.
+				#
+				# @parameter value [String] the raw header value containing multiple entries separated by commas.
+				# @returns [Split] a new instance containing the parsed values.
+				def self.parse(value)
+					self.new(value.split(COMMA))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# This method is used by the Headers class when setting values via `[]=` to convert application values into the appropriate policy type.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [Split] a parsed header object.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value)
 					else
-						super()
+						self.parse(value.to_s)
 					end
 				end
 				
-				# Adds one or more comma-separated values to the header.
+				# Initializes a `Split` header with already-parsed values.
+				#
+				# @parameter value [Array | Nil] an array of parsed header values, or `nil` for an empty header.
+				def initialize(value = nil)
+					if value.is_a?(Array)
+						super(value)
+					elsif value.is_a?(String)
+						# Compatibility with the old constructor, prefer to use `parse` instead:
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
+				end
+				
+				# Adds one or more comma-separated values to the header from a raw wire-format string.
 				#
 				# The input string is split into distinct entries and appended to the array.
 				#
-				# @parameter value [String] the value or values to add, separated by commas.
+				# @parameter value [String] a raw wire-format value containing one or more values separated by commas.
 				def << value
 					self.concat(value.split(COMMA))
 				end
 				
-				# Serializes the stored values into a comma-separated string.
+				# Converts the parsed header value into a raw wire-format string.
 				#
-				# @returns [String] the serialized representation of the header values.
+				# @returns [String] a raw wire-format value (comma-separated string) suitable for transmission.
 				def to_s
 					join(",")
 				end
@@ -47,7 +76,7 @@ module Protocol
 					false
 				end
 				
-				protected
+			protected
 				
 				def reverse_find(&block)
 					reverse_each do |value|

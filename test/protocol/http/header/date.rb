@@ -6,7 +6,7 @@
 require "protocol/http/header/date"
 
 describe Protocol::HTTP::Header::Date do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "Wed, 21 Oct 2015 07:28:00 GMT" do
 		it "can parse time" do

@@ -7,7 +7,7 @@ require "protocol/http/header/digest"
 require "sus"
 
 describe Protocol::HTTP::Header::Digest do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "empty header" do
 		let(:header) {subject.new}
@@ -120,13 +120,13 @@ describe Protocol::HTTP::Header::Digest do
 	
 	with "algorithm edge cases" do
 		it "handles hyphenated algorithms" do
-			header = subject.new("sha-256=abc123")
+			header = subject.parse("sha-256=abc123")
 			entries = header.entries
 			expect(entries.first.algorithm).to be == "sha-256"
 		end
 		
 		it "handles numeric algorithms" do
-			header = subject.new("md5=def456")
+			header = subject.parse("md5=def456")
 			entries = header.entries
 			expect(entries.first.algorithm).to be == "md5"
 		end
@@ -134,13 +134,13 @@ describe Protocol::HTTP::Header::Digest do
 	
 	with "value edge cases" do
 		it "handles empty values" do
-			header = subject.new("sha-256=")
+			header = subject.parse("sha-256=")
 			entries = header.entries
 			expect(entries.first.value).to be == ""
 		end
 		
 		it "handles values with special characters" do
-			header = subject.new("sha-256=abc+def/123==")
+			header = subject.parse("sha-256=abc+def/123==")
 			entries = header.entries
 			expect(entries.first.value).to be == "abc+def/123=="
 		end

@@ -12,16 +12,24 @@ module Protocol
 			#
 			# The `priority` header allows clients to express their preference for how resources should be prioritized by the server. It supports directives like `u=` to specify the urgency level of a request, and `i` to indicate whether a response can be delivered incrementally. The urgency levels range from 0 (highest priority) to 7 (lowest priority), while the `i` directive is a boolean flag.
 			class Priority < Split
-				# Initialize the priority header with the given value.
+				# Initializes the priority header with already-parsed and normalized values.
 				#
-				# @parameter value [String | Nil] the value of the priority header, if any. The value should be a comma-separated string of directives.
+				# @parameter value [Array | Nil] an array of normalized (lowercase) directives, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value.map(&:downcase))
+					elsif value.is_a?(String)
+						# Compatibility with the old constructor, prefer to use `parse` instead:
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
-				# Add a value to the priority header.
+				# Add a value to the priority header from a raw wire-format string.
 				#
-				# @parameter value [String] the directive to add to the header.
+				# @parameter value [String] a raw wire-format directive to add to the header.
 				def << value
 					super(value.downcase)
 				end
@@ -55,3 +63,4 @@ module Protocol
 		end
 	end
 end
+

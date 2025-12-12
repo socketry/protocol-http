@@ -20,7 +20,7 @@ describe Protocol::HTTP::Header::Accept::MediaRange do
 end
 
 describe Protocol::HTTP::Header::Accept do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	let(:media_ranges) {header.media_ranges.sort}
 	
 	with "text/plain, text/html;q=0.5, text/xml;q=0.25" do

@@ -6,7 +6,7 @@
 require "protocol/http/header/multiple"
 
 describe Protocol::HTTP::Header::Multiple do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "first-value" do
 		it "can add several values" do

@@ -7,7 +7,7 @@
 require "protocol/http/header/cache_control"
 
 describe Protocol::HTTP::Header::CacheControl do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "max-age=60, s-maxage=30, public" do
 		it "correctly parses cache header" do
@@ -86,6 +86,23 @@ describe Protocol::HTTP::Header::CacheControl do
 			expect(header).to have_attributes(
 				max_age: be == 60,
 			)
+		end
+	end
+	
+	with "normalization" do
+		it "normalizes to lowercase when initialized with string" do
+			header = subject.new("PUBLIC, MAX-AGE=60")
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "max-age=60")
+			expect(header).not.to be(:include?, "PUBLIC")
+		end
+		
+		it "normalizes to lowercase when initialized with array" do
+			header = subject.new(["PUBLIC", "NO-CACHE"])
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "no-cache")
+			expect(header).not.to be(:include?, "PUBLIC")
+			expect(header).not.to be(:include?, "NO-CACHE")
 		end
 	end
 end

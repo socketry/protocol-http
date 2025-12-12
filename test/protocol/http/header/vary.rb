@@ -6,7 +6,7 @@
 require "protocol/http/header/vary"
 
 describe Protocol::HTTP::Header::Vary do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "#<<" do
 		it "can append normalised header names" do
@@ -32,6 +32,16 @@ describe Protocol::HTTP::Header::Vary do
 		
 		it "uses normalised lower case keys" do
 			expect(header).not.to be(:include?, "Accept-Language")
+		end
+	end
+	
+	with "normalization" do
+		it "normalizes to lowercase when initialized with array" do
+			header = subject.new(["Accept-Language", "User-Agent"])
+			expect(header).to be(:include?, "accept-language")
+			expect(header).to be(:include?, "user-agent")
+			expect(header).not.to be(:include?, "Accept-Language")
+			expect(header).not.to be(:include?, "User-Agent")
 		end
 	end
 end

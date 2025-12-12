@@ -62,16 +62,24 @@ module Protocol
 					end
 				end
 				
-				# Initializes the TE header with the given value. The value is split into distinct entries and converted to lowercase for normalization.
+				# Initializes the TE header with already-parsed and normalized values.
 				#
-				# @parameter value [String | Nil] the raw header value containing transfer encodings separated by commas.
+				# @parameter value [Array | Nil] an array of normalized (lowercase) encodings, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value.map(&:downcase))
+					elsif value.is_a?(String)
+						# Compatibility with the old constructor, prefer to use `parse` instead:
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
-				# Adds one or more comma-separated values to the TE header. The values are converted to lowercase for normalization.
+				# Adds one or more comma-separated values to the TE header from a raw wire-format string. The values are converted to lowercase for normalization.
 				#
-				# @parameter value [String] the value or values to add, separated by commas.
+				# @parameter value [String] a raw wire-format value containing one or more values separated by commas.
 				def << value
 					super(value.downcase)
 				end
@@ -129,3 +137,4 @@ module Protocol
 		end
 	end
 end
+

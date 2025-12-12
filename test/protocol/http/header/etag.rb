@@ -6,7 +6,7 @@
 require "protocol/http/header/etag"
 
 describe Protocol::HTTP::Header::ETag do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with 'W/"abcd"' do
 		it "is weak" do

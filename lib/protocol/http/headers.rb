@@ -189,7 +189,7 @@ module Protocol
 			#
 			# @yields {|key, value| ...}
 			# 	@parameter key [String] The header key.
-			# 	@parameter value [String] The header value.
+			# 	@parameter value [String] The raw header value.
 			def each(&block)
 				@fields.each(&block)
 			end
@@ -228,7 +228,6 @@ module Protocol
 			# @parameter key [String] the header key.
 			# @parameter value [String] the header value to assign.
 			def add(key, value)
-				# The value MUST be a string, so we convert it to a string to prevent errors later on.
 				value = value.to_s
 				
 				if @indexed
@@ -238,16 +237,49 @@ module Protocol
 				@fields << [key, value]
 			end
 			
-			alias []= add
-			
 			# Set the specified header key to the specified value, replacing any existing header keys with the same name.
 			#
 			# @parameter key [String] the header key to replace.
 			# @parameter value [String] the header value to assign.
 			def set(key, value)
-				# TODO This could be a bit more efficient:
 				self.delete(key)
 				self.add(key, value)
+			end
+			
+			# Set the specified header key to the specified value, replacing any existing values.
+			#
+			# The value can be a String or a coercable value.
+			#
+			# @parameter key [String] the header key.
+			# @parameter value [String | Array] the header value to assign.
+			def []=(key, value)
+				key = key.downcase
+				
+				# Delete existing value if any:
+				self.delete(key)
+				
+				if policy = @policy[key]
+					unless value.is_a?(policy)
+						value = policy.coerce(value)
+					end
+				else
+					value = value.to_s
+				end
+				
+				# Clear the indexed cache so it will be rebuilt with parsed values when accessed:
+				if @indexed
+					@indexed[key] = value
+				end
+				
+				@fields << [key, value.to_s]
+			end
+			
+			# Get the value of the specified header key.
+			#
+			# @parameter key [String] The header key.
+			# @returns [String | Array | Object] The header value.
+			def [] key
+				to_h[key]
 			end
 			
 			# Merge the headers into this instance.
@@ -338,6 +370,11 @@ module Protocol
 			# @parameter key [String] The header key.
 			# @returns [String | Array | Object] The merged header value.
 			def delete(key)
+				# If we've indexed the headers, we can bail out early if the key is not present:
+				if @indexed && !@indexed.key?(key.downcase)
+					return nil
+				end
+				
 				deleted, @fields = @fields.partition do |field|
 					field.first.downcase == key
 				end
@@ -350,7 +387,7 @@ module Protocol
 					return @indexed.delete(key)
 				elsif policy = @policy[key]
 					(key, value), *tail = deleted
-					merged = policy.new(value)
+					merged = policy.parse(value)
 					
 					tail.each{|k,v| merged << v}
 					
@@ -376,7 +413,11 @@ module Protocol
 					if current_value = hash[key]
 						current_value << value
 					else
-						hash[key] = policy.new(value)
+						if policy.respond_to?(:parse)
+							hash[key] = policy.parse(value)
+						else
+							hash[key] = policy.new(value)
+						end
 					end
 				else
 					# By default, headers are not allowed in trailers:
@@ -390,14 +431,6 @@ module Protocol
 					
 					hash[key] = value
 				end
-			end
-			
-			# Get the value of the specified header key.
-			#
-			# @parameter key [String] The header key.
-			# @returns [String | Array | Object] The header value.
-			def [] key
-				to_h[key]
 			end
 			
 			# Compute a hash table of headers, where the keys are normalized to lower case and the values are normalized according to the policy for that header.
