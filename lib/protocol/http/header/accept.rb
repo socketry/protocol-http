@@ -12,7 +12,7 @@ module Protocol
 	module HTTP
 		module Header
 			# The `accept-content-type` header represents a list of content-types that the client can accept.
-			class Accept < Array
+			class Accept < Split
 				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
 				SEPARATOR = /
 					(?:            # Start non-capturing group
@@ -83,7 +83,7 @@ module Protocol
 				def self.coerce(value)
 					case value
 					when Array
-						self.new(value)
+						self.new(value.map(&:to_s))
 					else
 						self.parse(value.to_s)
 					end
@@ -96,9 +96,7 @@ module Protocol
 					if value.is_a?(Array)
 						super(value)
 					elsif value.is_a?(String)
-						# Compatibility with the old constructor, prefer to use `parse` instead:
-						super()
-						self << value
+						super(value)
 					elsif value
 						raise ArgumentError, "Invalid value: #{value.inspect}"
 					end

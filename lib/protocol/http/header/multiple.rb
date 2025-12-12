@@ -29,7 +29,7 @@ module Protocol
 				def self.coerce(value)
 					case value
 					when Array
-						self.new(value)
+						self.new(value.map(&:to_s))
 					else
 						self.parse(value.to_s)
 					end

@@ -30,8 +30,7 @@ module Protocol
 						super(value.map(&:downcase))
 					elsif value.is_a?(String)
 						# Compatibility with the old constructor, prefer to use `parse` instead:
-						super()
-						self << value
+						super(value)
 					elsif value
 						raise ArgumentError, "Invalid value: #{value.inspect}"
 					end
