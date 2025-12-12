@@ -74,8 +74,14 @@ describe Protocol::HTTP::Header::Trailer do
 		end
 	end
 	
-	with "backward compatibility" do
-		it "can initialize with string for backward compatibility" do
+	with ".new" do
+		it "preserves values when given array" do
+			header = subject.new(["etag", "content-md5"])
+			expect(header).to be(:include?, "etag")
+			expect(header).to be(:include?, "content-md5")
+		end
+		
+		it "can initialize with string (backward compatibility)" do
 			header = subject.new("etag, content-md5")
 			expect(header).to be(:include?, "etag")
 			expect(header).to be(:include?, "content-md5")

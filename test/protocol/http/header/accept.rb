@@ -98,8 +98,14 @@ describe Protocol::HTTP::Header::Accept do
 		end
 	end
 	
-	with "backward compatibility" do
-		it "can initialize with string" do
+	with ".new" do
+		it "preserves values when given array" do
+			header = subject.new(["text/html", "application/json"])
+			expect(header).to be(:include?, "text/html")
+			expect(header).to be(:include?, "application/json")
+		end
+		
+		it "can initialize with string (backward compatibility)" do
 			header = subject.new("text/plain, text/html")
 			expect(header).to be(:include?, "text/plain")
 			expect(header).to be(:include?, "text/html")
