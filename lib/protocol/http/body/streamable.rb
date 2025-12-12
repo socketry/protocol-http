@@ -127,10 +127,10 @@ module Protocol
 						
 						# Ownership of the stream is passed into the block, in other words, the block is responsible for closing the stream.
 						block.call(stream)
-							rescue => error
-								# If, for some reason, the block raises an error, we assume it may not have closed the stream, so we close it here:
-								stream.close
-								raise
+					rescue => error
+						# If, for some reason, the block raises an error, we assume it may not have closed the stream, so we close it here:
+						stream.close
+						raise
 					end
 					
 					# Close the input. The streaming body will eventually read all the input.
