@@ -206,6 +206,12 @@ describe Protocol::HTTP::Headers do
 			expect(headers["content-length"]).to be == "1"
 		end
 		
+		it "can add field with an Array value" do
+			headers["accept-encoding"] = ["gzip", "deflate"]
+			expect(headers["accept-encoding"]).to be(:include?, "gzip")
+			expect(headers["accept-encoding"]).to be(:include?, "deflate")
+		end
+		
 		it "can add field with indexed hash" do
 			expect(headers.to_h).not.to be(:empty?)
 			

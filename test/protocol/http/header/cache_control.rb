@@ -104,5 +104,9 @@ describe Protocol::HTTP::Header::CacheControl do
 			expect(header).not.to be(:include?, "PUBLIC")
 			expect(header).not.to be(:include?, "NO-CACHE")
 		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
 	end
 end

@@ -96,5 +96,9 @@ describe Protocol::HTTP::Header::Priority do
 			expect(header).not.to be(:include?, "U=3")
 			expect(header).not.to be(:include?, "I")
 		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
 	end
 end

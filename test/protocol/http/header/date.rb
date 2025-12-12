@@ -44,6 +44,14 @@ describe Protocol::HTTP::Header::Date do
 		end
 	end
 	
+	with ".coerce" do
+		it "coerces string to Date" do
+			result = subject.coerce("Wed, 21 Oct 2015 07:28:00 GMT")
+			expect(result).to be_a(subject)
+			expect(result.to_time.year).to be == 2015
+		end
+	end
+	
 	describe Protocol::HTTP::Headers do
 		let(:headers) {subject[[
 				["Date", "Wed, 21 Oct 2015 07:28:00 GMT"],

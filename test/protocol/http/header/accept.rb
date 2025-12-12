@@ -83,4 +83,30 @@ describe Protocol::HTTP::Header::Accept do
 			)
 		end
 	end
+	
+	with ".coerce" do
+		it "coerces array to Accept" do
+			result = subject.coerce(["text/html", "application/json"])
+			expect(result).to be_a(subject)
+			expect(result).to be == ["text/html", "application/json"]
+		end
+		
+		it "coerces string to Accept" do
+			result = subject.coerce("text/html, application/json")
+			expect(result).to be_a(subject)
+			expect(result).to be(:include?, "text/html")
+		end
+	end
+	
+	with "backward compatibility" do
+		it "can initialize with string" do
+			header = subject.new("text/plain, text/html")
+			expect(header).to be(:include?, "text/plain")
+			expect(header).to be(:include?, "text/html")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
+	end
 end

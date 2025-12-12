@@ -43,5 +43,15 @@ describe Protocol::HTTP::Header::Vary do
 			expect(header).not.to be(:include?, "Accept-Language")
 			expect(header).not.to be(:include?, "User-Agent")
 		end
+		
+		it "can initialize with string for backward compatibility" do
+			header = subject.new("Accept-Language, User-Agent")
+			expect(header).to be(:include?, "accept-language")
+			expect(header).to be(:include?, "user-agent")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
 	end
 end

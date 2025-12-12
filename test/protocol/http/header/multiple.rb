@@ -25,4 +25,18 @@ describe Protocol::HTTP::Header::Multiple do
 			expect(subject).not.to be(:trailer?)
 		end
 	end
+	
+	with ".coerce" do
+		it "coerces array to Multiple" do
+			result = subject.coerce(["value1", "value2"])
+			expect(result).to be_a(subject)
+			expect(result).to be == ["value1", "value2"]
+		end
+		
+		it "coerces string to Multiple" do
+			result = subject.coerce("single-value")
+			expect(result).to be_a(subject)
+			expect(result).to be == ["single-value"]
+		end
+	end
 end

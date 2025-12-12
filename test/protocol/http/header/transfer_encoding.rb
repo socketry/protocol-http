@@ -91,5 +91,9 @@ describe Protocol::HTTP::Header::TransferEncoding do
 			expect(header).not.to be(:include?, "GZIP")
 			expect(header).not.to be(:include?, "CHUNKED")
 		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
 	end
 end

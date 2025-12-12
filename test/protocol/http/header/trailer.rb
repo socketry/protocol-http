@@ -73,4 +73,16 @@ describe Protocol::HTTP::Header::Trailer do
 			expect(subject).not.to be(:trailer?)
 		end
 	end
+	
+	with "backward compatibility" do
+		it "can initialize with string for backward compatibility" do
+			header = subject.new("etag, content-md5")
+			expect(header).to be(:include?, "etag")
+			expect(header).to be(:include?, "content-md5")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
+	end
 end

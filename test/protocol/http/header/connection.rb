@@ -73,5 +73,9 @@ describe Protocol::HTTP::Header::Connection do
 			expect(header).not.to be(:include?, "CLOSE")
 			expect(header).not.to be(:include?, "UPGRADE")
 		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
+		end
 	end
 end

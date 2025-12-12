@@ -31,4 +31,12 @@ describe Protocol::HTTP::Header::ETag do
 			expect(header).to be(:weak?)
 		end
 	end
+	
+	with ".coerce" do
+		it "coerces string to ETag" do
+			result = subject.coerce('"xyz"')
+			expect(result).to be_a(subject)
+			expect(result).to be == '"xyz"'
+		end
+	end
 end
