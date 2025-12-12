@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-  - Introduce `Header::*.parse(value)` which converts a string representation to a header instance.
-  - Introduce `Header::*.coerce(value)` which converts a rich representation (e.g. `Array`) to a header instance.
-  - `Header::*#initialize` still implements parse-like behaviour, but it's considered deprecated.
-  - Update `Headers#[]=` to use `parse(value)` for conversion. This provides better symmetry with `Headers#[]`.
+  - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
+  - Introduce `Header::*.coerce(value)` which coerces any value (`String`, `Array`, etc.) into a header instance with normalization.
+  - `Header::*#initialize` now accepts arrays without normalization for efficiency, or strings for backward compatibility.
+  - Update `Headers#[]=` to use `coerce(value)` for smart conversion of user input.
+  - Normalization (e.g., lowercasing) is applied by `parse`, `coerce`, and `<<` methods, but not by `new` when given arrays.
 
 ## v0.55.0
 
