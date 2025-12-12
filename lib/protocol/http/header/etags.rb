@@ -52,7 +52,7 @@ module Protocol
 					wildcard? || self.include?(etag) || self.include?(opposite_tag(etag))
 				end
 				
-				private
+			private
 				
 				# Converts a weak tag to its strong counterpart or vice versa.
 				#

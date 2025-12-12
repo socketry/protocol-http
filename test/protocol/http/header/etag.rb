@@ -6,7 +6,7 @@
 require "protocol/http/header/etag"
 
 describe Protocol::HTTP::Header::ETag do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with 'W/"abcd"' do
 		it "is weak" do
@@ -29,6 +29,14 @@ describe Protocol::HTTP::Header::ETag do
 			
 			header << 'W/"abcd"'
 			expect(header).to be(:weak?)
+		end
+	end
+	
+	with ".coerce" do
+		it "coerces string to ETag" do
+			result = subject.coerce('"xyz"')
+			expect(result).to be_a(subject)
+			expect(result).to be == '"xyz"'
 		end
 	end
 end

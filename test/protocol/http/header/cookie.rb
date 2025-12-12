@@ -7,7 +7,7 @@
 require "protocol/http/header/cookie"
 
 describe Protocol::HTTP::Header::Cookie do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	let(:cookies) {header.to_h}
 	
 	with "session=123; secure" do

@@ -7,7 +7,7 @@
 require "protocol/http/header/etags"
 
 describe Protocol::HTTP::Header::ETags do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "*" do
 		it "is a wildcard" do

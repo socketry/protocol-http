@@ -8,7 +8,7 @@ require "protocol/http/headers"
 require "protocol/http/cookie"
 
 describe Protocol::HTTP::Header::Connection do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "close" do
 		it "should indiciate connection will be closed" do
@@ -54,6 +54,39 @@ describe Protocol::HTTP::Header::Connection do
 			expect(header).to be(:upgrade?)
 			
 			expect(header.to_s).to be == "close,upgrade"
+		end
+	end
+	
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["CLOSE", "UPGRADE"])
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+			expect(header).not.to be(:include?, "CLOSE")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("CLOSE, UPGRADE")
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["CLOSE", "UPGRADE"])
+			expect(header).to be(:include?, "CLOSE")
+			expect(header).to be(:include?, "UPGRADE")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("CLOSE, UPGRADE")
+			expect(header).to be(:include?, "close")
+			expect(header).to be(:include?, "upgrade")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
 		end
 	end
 end

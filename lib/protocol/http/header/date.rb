@@ -12,9 +12,25 @@ module Protocol
 			#
 			# This header is typically included in HTTP responses and follows the format defined in RFC 9110.
 			class Date < String
-				# Replaces the current value of the `date` header with the specified value.
+				# Parses a raw header value.
 				#
-				# @parameter value [String] the new value for the `date` header.
+				# @parameter value [String] a raw header value.
+				# @returns [Date] a new instance.
+				def self.parse(value)
+					self.new(value)
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String] the value to coerce.
+				# @returns [Date] a parsed header object.
+				def self.coerce(value)
+					self.new(value.to_s)
+				end
+				
+				# Replaces the current value of the `date` header.
+				#
+				# @parameter value [String] a raw header value for the `date` header.
 				def << value
 					replace(value)
 				end

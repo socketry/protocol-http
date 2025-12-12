@@ -12,7 +12,7 @@ module Protocol
 	module HTTP
 		module Header
 			# The `accept-content-type` header represents a list of content-types that the client can accept.
-			class Accept < Array
+			class Accept < Split
 				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
 				SEPARATOR = /
 					(?:            # Start non-capturing group
@@ -68,27 +68,26 @@ module Protocol
 					end
 				end
 				
-				# Parse the `accept` header value into a list of content types.
+				# Parses a raw header value.
 				#
-				# @parameter value [String] the value of the header.
-				def initialize(value = nil)
-					if value
-						super(value.scan(SEPARATOR).map(&:strip))
-					end
+				# @parameter value [String] a raw header value containing comma-separated media types.
+				# @returns [Accept] a new instance containing the parsed media types.
+				def self.parse(value)
+					self.new(value.scan(SEPARATOR).map(&:strip))
 				end
 				
 				# Adds one or more comma-separated values to the header.
 				#
 				# The input string is split into distinct entries and appended to the array.
 				#
-				# @parameter value [String] the value or values to add, separated by commas.
+				# @parameter value [String] a raw header value containing one or more media types separated by commas.
 				def << value
 					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
-				# Serializes the stored values into a comma-separated string.
+				# Converts the parsed header value into a raw header value.
 				#
-				# @returns [String] the serialized representation of the header values.
+				# @returns [String] a raw header value (comma-separated string).
 				def to_s
 					join(",")
 				end

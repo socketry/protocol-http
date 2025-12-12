@@ -20,4 +20,20 @@ describe Protocol::HTTP::Header::Authorization do
 			end
 		end
 	end
+	
+	with ".parse" do
+		it "parses raw authorization value" do
+			result = subject.parse("Bearer token123")
+			expect(result).to be_a(subject)
+			expect(result).to be == "Bearer token123"
+		end
+	end
+	
+	with ".coerce" do
+		it "coerces string to Authorization" do
+			result = subject.coerce("Bearer xyz")
+			expect(result).to be_a(subject)
+			expect(result).to be == "Bearer xyz"
+		end
+	end
 end

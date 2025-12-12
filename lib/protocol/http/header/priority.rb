@@ -12,16 +12,44 @@ module Protocol
 			#
 			# The `priority` header allows clients to express their preference for how resources should be prioritized by the server. It supports directives like `u=` to specify the urgency level of a request, and `i` to indicate whether a response can be delivered incrementally. The urgency levels range from 0 (highest priority) to 7 (lowest priority), while the `i` directive is a boolean flag.
 			class Priority < Split
-				# Initialize the priority header with the given value.
+				# Parses a raw header value.
 				#
-				# @parameter value [String | Nil] the value of the priority header, if any. The value should be a comma-separated string of directives.
+				# @parameter value [String] a raw header value containing comma-separated directives.
+				# @returns [Priority] a new instance with normalized (lowercase) directives.
+				def self.parse(value)
+					self.new(value.downcase.split(COMMA))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [Priority] a parsed header object with normalized values.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value.map(&:downcase))
+					else
+						self.parse(value.to_s)
+					end
+				end
+				
+				# Initializes the priority header with the given values.
+				#
+				# @parameter value [Array | String | Nil] an array of directives, a raw header value, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value)
+					elsif value.is_a?(String)
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
 				# Add a value to the priority header.
 				#
-				# @parameter value [String] the directive to add to the header.
+				# @parameter value [String] a raw header value containing directives to add to the header.
 				def << value
 					super(value.downcase)
 				end
@@ -55,3 +83,4 @@ module Protocol
 		end
 	end
 end
+

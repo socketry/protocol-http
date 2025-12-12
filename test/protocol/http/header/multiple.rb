@@ -6,7 +6,7 @@
 require "protocol/http/header/multiple"
 
 describe Protocol::HTTP::Header::Multiple do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "first-value" do
 		it "can add several values" do
@@ -23,6 +23,20 @@ describe Protocol::HTTP::Header::Multiple do
 	with ".trailer?" do
 		it "is not allowed in trailers by default" do
 			expect(subject).not.to be(:trailer?)
+		end
+	end
+	
+	with ".coerce" do
+		it "coerces array to Multiple" do
+			result = subject.coerce(["value1", "value2"])
+			expect(result).to be_a(subject)
+			expect(result).to be == ["value1", "value2"]
+		end
+		
+		it "coerces string to Multiple" do
+			result = subject.coerce("single-value")
+			expect(result).to be_a(subject)
+			expect(result).to be == ["single-value"]
 		end
 	end
 end

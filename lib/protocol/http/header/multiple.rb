@@ -10,18 +10,47 @@ module Protocol
 			#
 			# This isn't a specific header but is used as a base for headers that store multiple values, such as cookies. The values are split and stored as an array internally, and serialized back to a newline-separated string when needed.
 			class Multiple < Array
-				# Initializes the multiple header with the given value. As the header key-value pair can only contain one value, the value given here is added to the internal array, and subsequent values can be added using the `<<` operator.
+				# Parses a raw header value.
 				#
-				# @parameter value [String] the raw header value.
-				def initialize(value)
-					super()
-					
-					self << value
+				# Multiple headers receive each value as a separate header entry, so this method takes a single string value and creates a new instance containing it.
+				#
+				# @parameter value [String] a single raw header value.
+				# @returns [Multiple] a new instance containing the parsed value.
+				def self.parse(value)
+					self.new([value])
 				end
 				
-				# Serializes the stored values into a newline-separated string.
+				# Coerces a value into a parsed header object.
 				#
-				# @returns [String] the serialized representation of the header values.
+				# This method is used by the Headers class when setting values via `[]=` to convert application values into the appropriate policy type.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [Multiple] a parsed header object.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value.map(&:to_s))
+					else
+						self.parse(value.to_s)
+					end
+				end
+				
+				# Initializes the multiple header with the given values.
+				#
+				# @parameter value [Array | Nil] an array of header values, or `nil` for an empty header.
+				def initialize(value = nil)
+					super()
+					
+					if value
+						self.concat(value)
+					end
+				end
+				
+				# Converts the parsed header value into a raw header value.
+				#
+				# Multiple headers are transmitted as separate header entries, so this serializes to a newline-separated string for storage.
+				#
+				# @returns [String] a raw header value (newline-separated string).
 				def to_s
 					join("\n")
 				end

@@ -44,16 +44,44 @@ module Protocol
 				# The `proxy-revalidate` directive is similar to `must-revalidate` but applies only to shared caches.
 				PROXY_REVALIDATE = "proxy-revalidate"
 				
-				# Initializes the cache control header with the given value. The value is expected to be a comma-separated string of cache directives.
+				# Parses a raw header value.
 				#
-				# @parameter value [String | Nil] the raw Cache-Control header value.
+				# @parameter value [String] a raw header value containing comma-separated directives.
+				# @returns [CacheControl] a new instance containing the parsed and normalized directives.
+				def self.parse(value)
+					self.new(value.downcase.split(COMMA))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [CacheControl] a parsed header object with normalized values.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value.map(&:downcase))
+					else
+						self.parse(value.to_s)
+					end
+				end
+				
+				# Initializes the cache control header with the given values.
+				#
+				# @parameter value [Array | String | Nil] an array of directives, a raw header value, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value)
+					elsif value.is_a?(String)
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
 				# Adds a directive to the Cache-Control header. The value will be normalized to lowercase before being added.
 				#
-				# @parameter value [String] the directive to add.
+				# @parameter value [String] a raw header value containing directives to add.
 				def << value
 					super(value.downcase)
 				end
@@ -132,3 +160,4 @@ module Protocol
 		end
 	end
 end
+

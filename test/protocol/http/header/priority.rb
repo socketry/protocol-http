@@ -6,7 +6,7 @@
 require "protocol/http/header/priority"
 
 describe Protocol::HTTP::Header::Priority do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "u=1, i" do
 		it "correctly parses priority header" do
@@ -77,6 +77,39 @@ describe Protocol::HTTP::Header::Priority do
 			expect(header).to have_attributes(
 				incremental?: be == true,
 			)
+		end
+	end
+	
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["U=3", "I"])
+			expect(header).to be(:include?, "u=3")
+			expect(header).to be(:include?, "i")
+			expect(header).not.to be(:include?, "U=3")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("U=5, I")
+			expect(header).to be(:include?, "u=5")
+			expect(header).to be(:include?, "i")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["U=3", "I"])
+			expect(header).to be(:include?, "U=3")
+			expect(header).to be(:include?, "I")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("U=5, I")
+			expect(header).to be(:include?, "u=5")
+			expect(header).to be(:include?, "i")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
 		end
 	end
 end

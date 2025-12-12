@@ -6,7 +6,7 @@
 require "protocol/http/header/trailer"
 
 describe Protocol::HTTP::Header::Trailer do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "etag" do
 		it "contains etag header" do
@@ -59,7 +59,7 @@ describe Protocol::HTTP::Header::Trailer do
 	end
 	
 	with "#<<" do
-		let(:header) {subject.new("etag")}
+		let(:header) {subject.parse("etag")}
 		
 		it "can add headers" do
 			header << "content-md5, expires"
@@ -71,6 +71,24 @@ describe Protocol::HTTP::Header::Trailer do
 	with ".trailer?" do
 		it "should be forbidden in trailers" do
 			expect(subject).not.to be(:trailer?)
+		end
+	end
+	
+	with ".new" do
+		it "preserves values when given array" do
+			header = subject.new(["etag", "content-md5"])
+			expect(header).to be(:include?, "etag")
+			expect(header).to be(:include?, "content-md5")
+		end
+		
+		it "can initialize with string (backward compatibility)" do
+			header = subject.new("etag, content-md5")
+			expect(header).to be(:include?, "etag")
+			expect(header).to be(:include?, "content-md5")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
 		end
 	end
 end

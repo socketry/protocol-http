@@ -6,7 +6,7 @@
 require "protocol/http/header/date"
 
 describe Protocol::HTTP::Header::Date do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "Wed, 21 Oct 2015 07:28:00 GMT" do
 		it "can parse time" do
@@ -41,6 +41,14 @@ describe Protocol::HTTP::Header::Date do
 				month: be == 10,
 				mday: be == 22
 			)
+		end
+	end
+	
+	with ".coerce" do
+		it "coerces string to Date" do
+			result = subject.coerce("Wed, 21 Oct 2015 07:28:00 GMT")
+			expect(result).to be_a(subject)
+			expect(result.to_time.year).to be == 2015
 		end
 	end
 	

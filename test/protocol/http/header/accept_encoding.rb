@@ -13,7 +13,7 @@ describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 end
 
 describe Protocol::HTTP::Header::AcceptEncoding do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	let(:encodings) {header.encodings.sort}
 	
 	with "gzip, deflate;q=0.5, identity;q=0.25" do
@@ -74,7 +74,7 @@ describe Protocol::HTTP::Header::AcceptEncoding do
 		]
 		
 		bad_values.each do |value|
-			expect{subject.new(value).encodings}.to raise_exception(subject::ParseError)
+			expect{subject.parse(value).encodings}.to raise_exception(subject::ParseError)
 		end
 	end
 end

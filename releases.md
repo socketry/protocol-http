@@ -1,5 +1,13 @@
 # Releases
 
+## Unreleased
+
+  - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
+  - Introduce `Header::*.coerce(value)` which coerces any value (`String`, `Array`, etc.) into a header instance with normalization.
+  - `Header::*#initialize` now accepts arrays without normalization for efficiency, or strings for backward compatibility.
+  - Update `Headers#[]=` to use `coerce(value)` for smart conversion of user input.
+  - Normalization (e.g., lowercasing) is applied by `parse`, `coerce`, and `<<` methods, but not by `new` when given arrays.
+
 ## v0.55.0
 
   - **Breaking**: Move `Protocol::HTTP::Header::QuotedString` to `Protocol::HTTP::QuotedString` for better reusability.

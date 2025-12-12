@@ -29,6 +29,7 @@ group :test do
 	gem "rubocop-socketry"
 	
 	gem "sus-fixtures-async"
+	gem "sus-fixtures-benchmark"
 	
 	gem "bake-test"
 	gem "bake-test-external"

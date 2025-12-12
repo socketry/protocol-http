@@ -27,16 +27,44 @@ module Protocol
 				# The `identity` transfer encoding indicates no transformation has been applied.
 				IDENTITY = "identity"
 				
-				# Initializes the transfer encoding header with the given value. The value is split into distinct entries and converted to lowercase for normalization.
+				# Parses a raw header value.
 				#
-				# @parameter value [String | Nil] the raw header value containing transfer encodings separated by commas.
+				# @parameter value [String] a raw header value containing comma-separated encodings.
+				# @returns [TransferEncoding] a new instance with normalized (lowercase) encodings.
+				def self.parse(value)
+					self.new(value.downcase.split(COMMA))
+				end
+				
+				# Coerces a value into a parsed header object.
+				#
+				# @parameter value [String | Array] the value to coerce.
+				# @returns [TransferEncoding] a parsed header object with normalized values.
+				def self.coerce(value)
+					case value
+					when Array
+						self.new(value.map(&:downcase))
+					else
+						self.parse(value.to_s)
+					end
+				end
+				
+				# Initializes the transfer encoding header with the given values.
+				#
+				# @parameter value [Array | String | Nil] an array of encodings, a raw header value, or `nil` for an empty header.
 				def initialize(value = nil)
-					super(value&.downcase)
+					if value.is_a?(Array)
+						super(value)
+					elsif value.is_a?(String)
+						super()
+						self << value
+					elsif value
+						raise ArgumentError, "Invalid value: #{value.inspect}"
+					end
 				end
 				
 				# Adds one or more comma-separated values to the transfer encoding header. The values are converted to lowercase for normalization.
 				#
-				# @parameter value [String] the value or values to add, separated by commas.
+				# @parameter value [String] a raw header value containing one or more values separated by commas.
 				def << value
 					super(value.downcase)
 				end
@@ -76,3 +104,4 @@ module Protocol
 		end
 	end
 end
+

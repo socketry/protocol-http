@@ -7,7 +7,7 @@
 require "protocol/http/header/cache_control"
 
 describe Protocol::HTTP::Header::CacheControl do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "max-age=60, s-maxage=30, public" do
 		it "correctly parses cache header" do
@@ -86,6 +86,39 @@ describe Protocol::HTTP::Header::CacheControl do
 			expect(header).to have_attributes(
 				max_age: be == 60,
 			)
+		end
+	end
+	
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["PUBLIC", "NO-CACHE"])
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "no-cache")
+			expect(header).not.to be(:include?, "PUBLIC")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("PUBLIC, MAX-AGE=60")
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "max-age=60")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["PUBLIC", "NO-CACHE"])
+			expect(header).to be(:include?, "PUBLIC")
+			expect(header).to be(:include?, "NO-CACHE")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("PUBLIC, MAX-AGE=60")
+			expect(header).to be(:include?, "public")
+			expect(header).to be(:include?, "max-age=60")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
 		end
 	end
 end

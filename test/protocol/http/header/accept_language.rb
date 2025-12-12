@@ -13,7 +13,7 @@ describe Protocol::HTTP::Header::AcceptLanguage::Language do
 end
 
 describe Protocol::HTTP::Header::AcceptLanguage do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	let(:languages) {header.languages.sort}
 	
 	with "da, en-gb;q=0.5, en;q=0.25" do
@@ -89,7 +89,7 @@ describe Protocol::HTTP::Header::AcceptLanguage do
 		]
 		
 		bad_values.each do |value|
-			expect{subject.new(value).languages}.to raise_exception(subject::ParseError)
+			expect{subject.parse(value).languages}.to raise_exception(subject::ParseError)
 		end
 	end
 end

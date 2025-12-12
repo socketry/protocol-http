@@ -6,7 +6,7 @@
 require "protocol/http/header/transfer_encoding"
 
 describe Protocol::HTTP::Header::TransferEncoding do
-	let(:header) {subject.new(description)}
+	let(:header) {subject.parse(description)}
 	
 	with "chunked" do
 		it "detects chunked encoding" do
@@ -72,6 +72,39 @@ describe Protocol::HTTP::Header::TransferEncoding do
 	with ".trailer?" do
 		it "should be forbidden in trailers" do
 			expect(subject).not.to be(:trailer?)
+		end
+	end
+	
+	with ".coerce" do
+		it "normalizes array values to lowercase" do
+			header = subject.coerce(["GZIP", "CHUNKED"])
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+			expect(header).not.to be(:include?, "GZIP")
+		end
+		
+		it "normalizes string values to lowercase" do
+			header = subject.coerce("GZIP, CHUNKED")
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+		end
+	end
+	
+	with ".new" do
+		it "preserves case when given array" do
+			header = subject.new(["GZIP", "CHUNKED"])
+			expect(header).to be(:include?, "GZIP")
+			expect(header).to be(:include?, "CHUNKED")
+		end
+		
+		it "normalizes when given string (backward compatibility)" do
+			header = subject.new("GZIP, CHUNKED")
+			expect(header).to be(:include?, "gzip")
+			expect(header).to be(:include?, "chunked")
+		end
+		
+		it "raises ArgumentError for invalid value types" do
+			expect{subject.new(123)}.to raise_exception(ArgumentError)
 		end
 	end
 end
