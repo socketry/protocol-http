@@ -43,20 +43,6 @@ module Protocol
 					end
 				end
 				
-				# Initializes the connection header with the given values.
-				#
-				# @parameter value [Array | String | Nil] an array of directives, a raw header value, or `nil` for an empty header.
-				def initialize(value = nil)
-					if value.is_a?(Array)
-						super(value)
-					elsif value.is_a?(String)
-						super()
-						self << value
-					elsif value
-						raise ArgumentError, "Invalid value: #{value.inspect}"
-					end
-				end
-				
 				# Adds a directive to the `connection` header. The value will be normalized to lowercase before being added.
 				#
 				# @parameter value [String] a raw header value containing directives to add.

@@ -47,8 +47,8 @@ module Protocol
 					strict_base64_encoded = ["#{username}:#{password}"].pack("m0")
 					
 					self.new(
-								"Basic #{strict_base64_encoded}"
-							)
+						"Basic #{strict_base64_encoded}"
+					)
 				end
 				
 				# Whether this header is acceptable in HTTP trailers.

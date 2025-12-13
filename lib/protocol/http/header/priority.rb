@@ -33,20 +33,6 @@ module Protocol
 					end
 				end
 				
-				# Initializes the priority header with the given values.
-				#
-				# @parameter value [Array | String | Nil] an array of directives, a raw header value, or `nil` for an empty header.
-				def initialize(value = nil)
-					if value.is_a?(Array)
-						super(value)
-					elsif value.is_a?(String)
-						super()
-						self << value
-					elsif value
-						raise ArgumentError, "Invalid value: #{value.inspect}"
-					end
-				end
-				
 				# Add a value to the priority header.
 				#
 				# @parameter value [String] a raw header value containing directives to add to the header.
