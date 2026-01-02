@@ -407,7 +407,7 @@ module Protocol
 				if policy = @policy[key]
 					# Check if we're adding to trailers and this header is allowed:
 					if trailer && !policy.trailer?
-						return false
+						raise InvalidTrailerError, key
 					end
 					
 					if current_value = hash[key]
@@ -418,7 +418,7 @@ module Protocol
 				else
 					# By default, headers are not allowed in trailers:
 					if trailer
-						return false
+						raise InvalidTrailerError, key
 					end
 					
 					if hash.key?(key)
@@ -431,6 +431,8 @@ module Protocol
 			
 			# Compute a hash table of headers, where the keys are normalized to lower case and the values are normalized according to the policy for that header.
 			#
+			# This will enforce policy rules, such as merging multiple headers into arrays, or raising errors for duplicate headers.
+			# 
 			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
 				unless @indexed

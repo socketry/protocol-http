@@ -343,7 +343,7 @@ describe Protocol::HTTP::Headers do
 				it "can't add a #{key.inspect} header in the trailer", unique: key do
 					trailer = headers.trailer!
 					headers.add(key, "example")
-					expect(headers).not.to be(:include?, key)
+					expect{headers.to_h}.to raise_exception(Protocol::HTTP::InvalidTrailerError)
 				end
 			end
 		end
