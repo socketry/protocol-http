@@ -25,3 +25,6 @@ falcon:
 async-rest:
   url: https://github.com/socketry/async-rest.git
   command: bundle exec sus
+async-grpc:
+  url: https://github.com/socketry/async-grpc.git
+  command: bundle exec sus
