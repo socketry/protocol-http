@@ -413,11 +413,7 @@ module Protocol
 					if current_value = hash[key]
 						current_value << value
 					else
-						if policy.respond_to?(:parse)
-							hash[key] = policy.parse(value)
-						else
-							hash[key] = policy.new(value)
-						end
+						hash[key] = policy.parse(value)
 					end
 				else
 					# By default, headers are not allowed in trailers:

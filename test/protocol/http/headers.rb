@@ -384,6 +384,10 @@ describe Protocol::HTTP::Headers do
 		# Create a custom header class that allows trailers
 		let(:grpc_status_class) do
 			Class.new(String) do
+				def self.parse(value)
+					new(value)
+				end
+				
 				def self.trailer?
 					true
 				end
