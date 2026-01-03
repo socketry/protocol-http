@@ -24,6 +24,11 @@ module Protocol
 					cookies.map{|cookie| [cookie.name, cookie]}.to_h
 				end
 				
+				# Serializes the `cookie` header by joining individual cookie strings with semicolons.
+				def to_s
+					join(";")
+				end
+				
 				# Whether this header is acceptable in HTTP trailers.
 				# Cookie headers should not appear in trailers as they contain state information needed early in processing.
 				# @returns [Boolean] `false`, as cookie headers are needed during initial request processing.

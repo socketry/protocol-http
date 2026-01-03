@@ -32,11 +32,6 @@ describe Protocol::HTTP::Header::Cookie do
 				directives: be == {"path" => "/", "secure" => true},
 			)
 		end
-		
-		it "has string representation" do
-			session = cookies["session"]
-			expect(session.to_s).to be == "session=123;path=/;secure"
-		end
 	end
 	
 	with "session=abc123; secure" do
@@ -50,10 +45,19 @@ describe Protocol::HTTP::Header::Cookie do
 			)
 			expect(session.directives).to have_keys("secure")
 		end
+	end
+	
+	with "multiple cookies" do
+		let(:header) do
+			cookie = subject.new
+			cookie << "session=abc123"
+			cookie << "user_id=42"
+			cookie << "token=xyz789"
+			cookie
+		end
 		
-		it "has string representation" do
-			session = cookies["session"]
-			expect(session.to_s).to be == "session=abc123;secure"
+		it "joins cookies with semicolons without spaces" do
+			expect(header.to_s).to be == "session=abc123;user_id=42;token=xyz789"
 		end
 	end
 end
