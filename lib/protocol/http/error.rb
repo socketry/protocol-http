@@ -26,5 +26,18 @@ module Protocol
 			# @attribute [String] key The header key that was duplicated.
 			attr :key
 		end
+		
+		# Raised when an invalid trailer header is encountered in headers.
+		class InvalidTrailerError < Error
+			include BadRequest
+			
+			# @parameter key [String] The trailer key that is invalid.
+			def initialize(key)
+				super("Invalid trailer key: #{key.inspect}")
+			end
+			
+			# @attribute [String] key The trailer key that is invalid.
+			attr :key
+		end
 	end
 end
