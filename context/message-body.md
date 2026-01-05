@@ -97,7 +97,7 @@ body.empty?  # => true
 Use {ruby Protocol::HTTP::Body::File} for serving files efficiently:
 
 ``` ruby
-require 'protocol/http/body/file'
+require "protocol/http/body/file"
 
 # Open a file:
 body = Protocol::HTTP::Body::File.open("/path/to/file.txt")
@@ -140,7 +140,7 @@ body = Protocol::HTTP::Body::File.new(file, block_size: 8192)  # 8KB chunks
 Use {ruby Protocol::HTTP::Body::Writable} for dynamic content generation:
 
 ``` ruby
-require 'protocol/http/body/writable'
+require "protocol/http/body/writable"
 
 # Create a writable body:
 body = Protocol::HTTP::Body::Writable.new
@@ -181,7 +181,7 @@ body.write("chunk 1")
 Use {ruby Protocol::HTTP::Body::Streamable} for computed content:
 
 ``` ruby
-require 'protocol/http/body/streamable'
+require "protocol/http/body/streamable"
 
 # Generate content dynamically:
 body = Protocol::HTTP::Body::Streamable.new do |output|
@@ -202,7 +202,7 @@ end
 Use {ruby Protocol::HTTP::Body::Stream} to wrap IO-like objects:
 
 ``` ruby
-require 'protocol/http/body/stream'
+require "protocol/http/body/stream"
 
 # Wrap an IO object:
 io = StringIO.new("Hello\nWorld\nFrom\nStream")
@@ -224,8 +224,8 @@ rest = body.read     # => "Stream"
 ### Compression Bodies
 
 ``` ruby
-require 'protocol/http/body/deflate'
-require 'protocol/http/body/inflate'
+require "protocol/http/body/deflate"
+require "protocol/http/body/inflate"
 
 # Compress a body:
 original = Protocol::HTTP::Body::Buffered.new(["Hello World"])
@@ -241,7 +241,7 @@ content = decompressed.join  # => "Hello World"
 Create custom body transformations:
 
 ``` ruby
-require 'protocol/http/body/wrapper'
+require "protocol/http/body/wrapper"
 
 class UppercaseBody < Protocol::HTTP::Body::Wrapper
 	def read
@@ -299,7 +299,7 @@ end
 Make any body rewindable by buffering:
 
 ``` ruby
-require 'protocol/http/body/rewindable'
+require "protocol/http/body/rewindable"
 
 # Wrap a non-rewindable body:
 file_body = Protocol::HTTP::Body::File.open("data.txt")
@@ -318,7 +318,7 @@ same_chunk = rewindable.read  # Same as first_chunk
 For HEAD requests that need content-length but no body:
 
 ``` ruby
-require 'protocol/http/body/head'
+require "protocol/http/body/head"
 
 # Create head body from another body:
 original = Protocol::HTTP::Body::File.open("large_file.zip")

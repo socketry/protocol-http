@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2025, by Samuel Williams.
+# Copyright, 2025-2026, by Samuel Williams.
 
 require "protocol/http/header/digest"
 require "sus"
@@ -101,7 +101,7 @@ describe Protocol::HTTP::Header::Digest do
 		it "can be enumerated" do
 			header << "sha-256=abc123, md5=def456"
 			values = []
-			header.each {|value| values << value}
+			header.each{|value| values << value}
 			expect(values).to be == ["sha-256=abc123", "md5=def456"]
 		end
 		

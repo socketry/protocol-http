@@ -15,17 +15,17 @@ This guide explains how to work with HTTP headers using `protocol-http`.
 The {Protocol::HTTP::Headers} class provides a comprehensive interface for creating and manipulating HTTP headers:
 
 ```ruby
-require 'protocol/http'
+require "protocol/http"
 
 headers = Protocol::HTTP::Headers.new
-headers.add('content-type', 'text/html')
-headers.add('set-cookie', 'session=abc123')
+headers.add("content-type", "text/html")
+headers.add("set-cookie", "session=abc123")
 
 # Access headers
-content_type = headers['content-type'] # => "text/html"
+content_type = headers["content-type"] # => "text/html"
 
 # Check if header exists
-headers.include?('content-type') # => true
+headers.include?("content-type") # => true
 ```
 
 ### Header Policies
@@ -34,11 +34,11 @@ Different header types have different behaviors for merging, validation, and tra
 
 ```ruby
 # Some headers can be specified multiple times
-headers.add('set-cookie', 'first=value1')
-headers.add('set-cookie', 'second=value2')
+headers.add("set-cookie", "first=value1")
+headers.add("set-cookie", "second=value2")
 
 # Others are singletons and will raise errors if duplicated
-headers.add('content-length', '100')
+headers.add("content-length", "100")
 # headers.add('content-length', '200') # Would raise DuplicateHeaderError
 ```
 
@@ -48,11 +48,11 @@ Some headers have specialized classes for parsing and formatting:
 
 ```ruby
 # Accept header with media ranges
-accept = Protocol::HTTP::Header::Accept.new('text/html,application/json;q=0.9')
+accept = Protocol::HTTP::Header::Accept.new("text/html,application/json;q=0.9")
 media_ranges = accept.media_ranges
 
 # Authorization header
-auth = Protocol::HTTP::Header::Authorization.basic('username', 'password')
+auth = Protocol::HTTP::Header::Authorization.basic("username", "password")
 # => "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
 ```
 
@@ -63,20 +63,20 @@ HTTP trailers are headers that appear after the message body. For security reaso
 ```ruby
 # Working with trailers
 headers = Protocol::HTTP::Headers.new([
-  ['content-type', 'text/html'],
-  ['content-length', '1000']
+		["content-type", "text/html"],
+		["content-length", "1000"]
 ])
 
 # Start trailer section
 headers.trailer!
 
 # These will be allowed (safe metadata)
-headers.add('etag', '"12345"')
-headers.add('date', Time.now.httpdate)
+headers.add("etag", '"12345"')
+headers.add("date", Time.now.httpdate)
 
 # These will be silently ignored for security
-headers.add('authorization', 'Bearer token') # Ignored - credential leakage risk
-headers.add('connection', 'close') # Ignored - hop-by-hop header
+headers.add("authorization", "Bearer token") # Ignored - credential leakage risk
+headers.add("connection", "close") # Ignored - hop-by-hop header
 ```
 
 The trailer security system prevents HTTP request smuggling by restricting which headers can appear in trailers:

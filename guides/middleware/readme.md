@@ -38,7 +38,7 @@ end
 The `Protocol::HTTP::Middleware` class provides a convenient base for building middleware:
 
 ``` ruby
-require 'protocol/http/middleware'
+require "protocol/http/middleware"
 
 class LoggingMiddleware < Protocol::HTTP::Middleware
 	def call(request)
@@ -60,7 +60,7 @@ app = LoggingMiddleware.new(Protocol::HTTP::Middleware::HelloWorld)
 Use `Protocol::HTTP::Middleware.build` to construct middleware stacks:
 
 ``` ruby
-require 'protocol/http/middleware'
+require "protocol/http/middleware"
 
 app = Protocol::HTTP::Middleware.build do
 	use LoggingMiddleware
@@ -84,7 +84,7 @@ Convert a block into middleware using `Middleware.for`:
 
 ``` ruby
 middleware = Protocol::HTTP::Middleware.for do |request|
-	if request.path == '/health'
+	if request.path == "/health"
 		Protocol::HTTP::Response[200, {}, ["OK"]]
 	else
 		# This would normally delegate, but this example doesn't have a delegate
@@ -141,7 +141,7 @@ class AuthenticationMiddleware < Protocol::HTTP::Middleware
 	end
 	
 	def call(request)
-		auth_header = request.headers['authorization']
+		auth_header = request.headers["authorization"]
 		
 		unless auth_header == "Bearer #{@api_key}"
 			return Protocol::HTTP::Response[401, {}, ["Unauthorized"]]
@@ -166,8 +166,8 @@ class ContentTypeMiddleware < Protocol::HTTP::Middleware
 		response = super
 		
 		# Add content-type header if not present
-		unless response.headers.include?('content-type')
-			response.headers['content-type'] = 'text/plain'
+		unless response.headers.include?("content-type")
+			response.headers["content-type"] = "text/plain"
 		end
 		
 		response
@@ -189,7 +189,7 @@ describe MyMiddleware do
 	end
 	
 	it "closes properly" do
-		expect { app.close }.not.to raise_exception
+		expect{app.close}.not.to raise_exception
 	end
 end
 ```

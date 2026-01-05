@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require "protocol/http/body/digestable"
 require "protocol/http/body/buffered"
@@ -34,7 +34,7 @@ describe Protocol::HTTP::Body::Digestable do
 		end
 		
 		it "can compute digest" do
-			2.times {body.read}
+			2.times{body.read}
 			
 			expect(body.digest).to be == "872e4e50ce9990d8b041330c47c9ddd11bec6b503ae9386a99da8584e9bb12c4"
 		end
@@ -61,7 +61,7 @@ describe Protocol::HTTP::Body::Digestable do
 		end
 		
 		with "callback" do
-			let(:callback) {proc {puts "digest complete"}}
+			let(:callback) {proc{puts "digest complete"}}
 			let(:body) {subject.new(source, Digest::SHA256.new, callback)}
 			
 			it "includes callback information" do

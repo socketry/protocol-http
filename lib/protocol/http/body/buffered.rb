@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2025, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 # Copyright, 2020, by Bryan Powell.
 # Copyright, 2025, by William T. Nelson.
 
@@ -90,7 +90,7 @@ module Protocol
 				
 				# The length of the body. Will compute and cache the length of the body, if it was not provided.
 				def length
-					@length ||= @chunks.inject(0) {|sum, chunk| sum + chunk.bytesize}
+					@length ||= @chunks.inject(0){|sum, chunk| sum + chunk.bytesize}
 				end
 				
 				# @returns [Boolean] if the body is empty.

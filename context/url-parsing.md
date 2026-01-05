@@ -11,7 +11,7 @@ While basic query parameter encoding follows the `application/x-www-form-urlenco
 ## Basic Query Parameter Parsing
 
 ``` ruby
-require 'protocol/http/url'
+require "protocol/http/url"
 
 # Parse query parameters from a URL:
 reference = Protocol::HTTP::Reference.parse("/search?q=ruby&category=programming&page=2")

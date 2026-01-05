@@ -57,13 +57,13 @@ module GRPCMessage
 end
 
 GRPC_POLICY = Protocol::HTTP::Headers::POLICY.dup
-GRPC_POLICY['grpc-status'] = GRPCStatus
-GRPC_POLICY['grpc-message'] = GRPCMessage
+GRPC_POLICY["grpc-status"] = GRPCStatus
+GRPC_POLICY["grpc-message"] = GRPCMessage
 
 # Reinterpret the headers using the new policy:
 response.headers.policy = GRPC_POLICY
-response.headers['grpc-status'] # => 0
-response.headers['grpc-message'] # => "OK"
+response.headers["grpc-status"] # => 0
+response.headers["grpc-message"] # => "OK"
 ```
 
 ## v0.53.0
@@ -117,6 +117,7 @@ client.get("/", headers: {"accept" => "text/html"}, authority: "example.com")
 # Response keyword arguments:
 def call(request)
 	return Response[200, headers: {"content-Type" => "text/html"}, body: "Hello, World!"]
+end
 ```
 
 ### Interim Response Handling
@@ -127,7 +128,12 @@ On the client side, you can pass a callback using the `interim_response` keyword
 
 ``` ruby
 client = ...
-response = client.get("/index", interim_response: proc{|status, headers| ...})
+
+interim_response = proc do |status, headers|
+	puts "Received interim response: #{status} -> #{headers.inspect}"
+end
+
+response = client.get("/index", interim_response: interim_response)
 ```
 
 On the server side, you can send an interim response using the `#send_interim_response` method:

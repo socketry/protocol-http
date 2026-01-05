@@ -205,5 +205,5 @@ interim_response_callback = proc do |status, headers|
 	end
 end
 
-response = client.post("/upload", {'expect' => '100-continue'}, body, interim_response: interim_response_callback)
+response = client.post("/upload", {"expect" => "100-continue"}, body, interim_response: interim_response_callback)
 ```

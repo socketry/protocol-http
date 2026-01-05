@@ -9,15 +9,15 @@ The request and response body work independently of each other can stream data i
 ```ruby
 #!/usr/bin/env ruby
 
-require 'async'
-require 'async/http/client'
-require 'async/http/server'
-require 'async/http/endpoint'
+require "async"
+require "async/http/client"
+require "async/http/server"
+require "async/http/endpoint"
 
-require 'protocol/http/body/stream'
-require 'protocol/http/body/writable'
+require "protocol/http/body/stream"
+require "protocol/http/body/writable"
 
-endpoint = Async::HTTP::Endpoint.parse('http://localhost:3000')
+endpoint = Async::HTTP::Endpoint.parse("http://localhost:3000")
 
 Async do
 	server = Async::HTTP::Server.for(endpoint) do |request|
@@ -38,7 +38,7 @@ Async do
 		Protocol::HTTP::Response[200, {}, output]
 	end
 	
-	server_task = Async{server.run}
+	server_task = Async {server.run}
 	
 	client = Async::HTTP::Client.new(endpoint)
 	
@@ -74,15 +74,15 @@ While WebSockets can work on the above streaming interface, it's a bit more conv
 ```ruby
 #!/usr/bin/env ruby
 
-require 'async'
-require 'async/http/client'
-require 'async/http/server'
-require 'async/http/endpoint'
+require "async"
+require "async/http/client"
+require "async/http/server"
+require "async/http/endpoint"
 
-require 'protocol/http/body/stream'
-require 'protocol/http/body/writable'
+require "protocol/http/body/stream"
+require "protocol/http/body/writable"
 
-endpoint = Async::HTTP::Endpoint.parse('http://localhost:3000')
+endpoint = Async::HTTP::Endpoint.parse("http://localhost:3000")
 
 Async do
 	server = Async::HTTP::Server.for(endpoint) do |request|
@@ -104,7 +104,7 @@ Async do
 		Protocol::HTTP::Response[200, {}, output]
 	end
 	
-	server_task = Async{server.run}
+	server_task = Async {server.run}
 	
 	client = Async::HTTP::Client.new(endpoint)
 	

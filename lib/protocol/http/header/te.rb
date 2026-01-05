@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2025, by Samuel Williams.
+# Copyright, 2025-2026, by Samuel Williams.
 
 require_relative "split"
 require_relative "../quoted_string"
@@ -105,32 +105,32 @@ module Protocol
 				
 				# @returns [Boolean] whether the `chunked` encoding is accepted.
 				def chunked?
-					self.any? {|value| value.start_with?(CHUNKED)}
+					self.any?{|value| value.start_with?(CHUNKED)}
 				end
 				
 				# @returns [Boolean] whether the `gzip` encoding is accepted.
 				def gzip?
-					self.any? {|value| value.start_with?(GZIP)}
+					self.any?{|value| value.start_with?(GZIP)}
 				end
 				
 				# @returns [Boolean] whether the `deflate` encoding is accepted.
 				def deflate?
-					self.any? {|value| value.start_with?(DEFLATE)}
+					self.any?{|value| value.start_with?(DEFLATE)}
 				end
 				
 				# @returns [Boolean] whether the `compress` encoding is accepted.
 				def compress?
-					self.any? {|value| value.start_with?(COMPRESS)}
+					self.any?{|value| value.start_with?(COMPRESS)}
 				end
 				
 				# @returns [Boolean] whether the `identity` encoding is accepted.
 				def identity?
-					self.any? {|value| value.start_with?(IDENTITY)}
+					self.any?{|value| value.start_with?(IDENTITY)}
 				end
 				
 				# @returns [Boolean] whether trailers are accepted.
 				def trailers?
-					self.any? {|value| value.start_with?(TRAILERS)}
+					self.any?{|value| value.start_with?(TRAILERS)}
 				end
 				
 				# Whether this header is acceptable in HTTP trailers.

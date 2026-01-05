@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2025, by Samuel Williams.
+# Copyright, 2025-2026, by Samuel Williams.
 
 require "protocol/http/header/server_timing"
 require "sus"
@@ -153,7 +153,7 @@ describe Protocol::HTTP::Header::ServerTiming do
 		it "can be enumerated" do
 			header << "db;dur=25.5, cache;desc=\"Hit\""
 			values = []
-			header.each {|value| values << value}
+			header.each{|value| values << value}
 			expect(values).to be == ["db;dur=25.5", "cache;desc=\"Hit\""]
 		end
 		

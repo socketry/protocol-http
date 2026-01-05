@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2024, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 
 require_relative "../middleware"
 
@@ -25,7 +25,7 @@ module Protocol
 				# @parameter options [Hash] The options to pass to the middleware constructor.
 				# @parameter block [Proc] The block to pass to the middleware constructor.
 				def use(middleware, *arguments, **options, &block)
-					@use << proc {|app| middleware.new(app, *arguments, **options, &block)}
+					@use << proc{|app| middleware.new(app, *arguments, **options, &block)}
 				end
 				
 				# Specify the (default) middleware application to use.
@@ -39,7 +39,7 @@ module Protocol
 				#
 				# @returns [Middleware] The application.
 				def to_app
-					@use.reverse.inject(@app) {|app, use| use.call(app)}
+					@use.reverse.inject(@app){|app, use| use.call(app)}
 				end
 			end
 			

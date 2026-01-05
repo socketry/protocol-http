@@ -34,7 +34,7 @@ This gem does not provide any specific client or server implementation, rather i
 {ruby Protocol::HTTP::Request} represents an HTTP request which can be used both server and client-side.
 
 ``` ruby
-require 'protocol/http/request'
+require "protocol/http/request"
 
 # Short form (recommended):
 request = Protocol::HTTP::Request["GET", "/index.html", {"accept" => "text/html"}]
@@ -54,7 +54,7 @@ request.headers          # => Protocol::HTTP::Headers instance
 {ruby Protocol::HTTP::Response} represents an HTTP response which can be used both server and client-side.
 
 ``` ruby
-require 'protocol/http/response'
+require "protocol/http/response"
 
 # Short form (recommended):
 response = Protocol::HTTP::Response[200, {"content-type" => "text/html"}, "Hello, World!"]
@@ -83,15 +83,15 @@ response.failure?        # => false (400-599)
 #### Basic Usage
 
 ``` ruby
-require 'protocol/http/headers'
+require "protocol/http/headers"
 
 headers = Protocol::HTTP::Headers.new
 
 # Assignment by title-case key:
-headers['Content-Type'] = "image/jpeg"
+headers["Content-Type"] = "image/jpeg"
 
 # Lookup by lower-case (normalized) key:
-headers['content-type']
+headers["content-type"]
 # => "image/jpeg"
 ```
 
@@ -101,8 +101,8 @@ Many headers receive special semantic processing, automatically splitting comma-
 
 ``` ruby
 # Accept header with quality values:
-headers['Accept'] = 'text/html, application/json;q=0.8, */*;q=0.1'
-accept = headers['accept']
+headers["Accept"] = "text/html, application/json;q=0.8, */*;q=0.1"
+accept = headers["accept"]
 # => ["text/html", "application/json;q=0.8", "*/*;q=0.1"]
 
 # Access parsed media ranges with quality factors:
@@ -114,17 +114,17 @@ end
 # */* (q=0.1)
 
 # Accept-Encoding automatically splits values:
-headers['Accept-Encoding'] = 'gzip, deflate, br;q=0.9'
-headers['accept-encoding']
+headers["Accept-Encoding"] = "gzip, deflate, br;q=0.9"
+headers["accept-encoding"]
 # => ["gzip", "deflate", "br;q=0.9"]
 
 # Cache-Control splits directives:
-headers['Cache-Control'] = 'max-age=3600, no-cache, must-revalidate'
-headers['cache-control']
+headers["Cache-Control"] = "max-age=3600, no-cache, must-revalidate"
+headers["cache-control"]
 # => ["max-age=3600", "no-cache", "must-revalidate"]
 
 # Vary header normalizes field names to lowercase:
-headers['Vary'] = 'Accept-Encoding, User-Agent'
-headers['vary']
+headers["Vary"] = "Accept-Encoding, User-Agent"
+headers["vary"]
 # => ["accept-encoding", "user-agent"]
 ```

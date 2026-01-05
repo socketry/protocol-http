@@ -9,10 +9,10 @@ This guide explains how to use `Protocol::HTTP::Reference` for constructing and 
 ## Basic Construction
 
 ``` ruby
-require 'protocol/http/reference'
+require "protocol/http/reference"
 
 # Simple reference with parameters:
-reference = Protocol::HTTP::Reference.new("/search", nil, nil, {q: 'kittens', limit: 10})
+reference = Protocol::HTTP::Reference.new("/search", nil, nil, {q: "kittens", limit: 10})
 reference.to_s
 # => "/search?q=kittens&limit=10"
 

@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2024-2026, by Samuel Williams.
 
 require "async"
 require "async/http/client"
@@ -36,7 +36,7 @@ Async do
 		Protocol::HTTP::Response[200, {}, output]
 	end
 	
-	server_task = Async{server.run}
+	server_task = Async {server.run}
 	
 	client = Async::HTTP::Client.new(endpoint)
 	
@@ -58,7 +58,7 @@ Async do
 		$stderr.puts "Client EOF."
 		# Ignore EOF errors.
 	ensure
-		$stderr.puts "Client closing stream: #{$!}"
+		$stderr.puts "Client closing stream."
 		stream.close
 	end
 	
