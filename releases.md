@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
+  - Introduce `Protocol::HTTP::InvalidTrailerError` which is raised when a trailer header is not allowed by the current policy.
 
 ## v0.56.0
 
