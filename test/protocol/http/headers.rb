@@ -153,7 +153,7 @@ describe Protocol::HTTP::Headers do
 		end
 		
 		it "can enumerate fields" do
-			headers.each.with_index do |field, index|
+			headers.fields.each_with_index do |field, index|
 				expect(field).to be == fields[index]
 			end
 		end
