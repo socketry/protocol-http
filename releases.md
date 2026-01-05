@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
+
 ## v0.56.0
 
   - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
