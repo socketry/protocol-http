@@ -4,6 +4,7 @@
 
   - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
   - Introduce `Protocol::HTTP::InvalidTrailerError` which is raised when a trailer header is not allowed by the current policy.
+  - **Breaking**: `Headers#each` now yields parsed values according to the current policy. For the previous behaviour, use `Headers#fields`.
 
 ## v0.56.0
 
