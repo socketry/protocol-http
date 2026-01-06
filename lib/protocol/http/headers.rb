@@ -191,7 +191,7 @@ module Protocol
 			# 	@parameter key [String] The header key.
 			# 	@parameter value [String] The raw header value.
 			def each(&block)
-				@fields.each(&block)
+				self.to_h.each(&block)
 			end
 			
 			# @returns [Boolean] Whether the headers include the specified key.
@@ -279,7 +279,7 @@ module Protocol
 			# @parameter key [String] The header key.
 			# @returns [String | Array | Object] The header value.
 			def [] key
-				to_h[key]
+				self.to_h[key]
 			end
 			
 			# Merge the headers into this instance.
@@ -403,11 +403,12 @@ module Protocol
 			# @parameter hash [Hash] The hash to merge into.
 			# @parameter key [String] The header key.
 			# @parameter value [String] The raw header value.
+			# @parameter trailer [Boolean] Whether this header is in the trailer section.
 			protected def merge_into(hash, key, value, trailer = @tail)
 				if policy = @policy[key]
 					# Check if we're adding to trailers and this header is allowed:
 					if trailer && !policy.trailer?
-						return false
+						raise InvalidTrailerError, key
 					end
 					
 					if current_value = hash[key]
@@ -418,7 +419,7 @@ module Protocol
 				else
 					# By default, headers are not allowed in trailers:
 					if trailer
-						return false
+						raise InvalidTrailerError, key
 					end
 					
 					if hash.key?(key)
@@ -431,6 +432,8 @@ module Protocol
 			
 			# Compute a hash table of headers, where the keys are normalized to lower case and the values are normalized according to the policy for that header.
 			#
+			# This will enforce policy rules, such as merging multiple headers into arrays, or raising errors for duplicate headers.
+			# 
 			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
 				unless @indexed
@@ -461,7 +464,7 @@ module Protocol
 			def == other
 				case other
 				when Hash
-					to_h == other
+					self.to_h == other
 				when Headers
 					@fields == other.fields
 				else
