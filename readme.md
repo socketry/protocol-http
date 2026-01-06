@@ -30,6 +30,12 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.57.0
+
+  - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
+  - Introduce `Protocol::HTTP::InvalidTrailerError` which is raised when a trailer header is not allowed by the current policy.
+  - **Breaking**: `Headers#each` now yields parsed values according to the current policy. For the previous behaviour, use `Headers#fields`.
+
 ### v0.56.0
 
   - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
@@ -80,11 +86,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.46.0
 
   - Add support for `priority:` header.
-
-### v0.33.0
-
-  - Clarify behaviour of streaming bodies and copy `Protocol::Rack::Body::Streaming` to `Protocol::HTTP::Body::Streamable`.
-  - Copy `Async::HTTP::Body::Writable` to `Protocol::HTTP::Body::Writable`.
 
 ## See Also
 
