@@ -14,7 +14,7 @@ describe Protocol::HTTP::Headers do
 			["Set-Cookie", "hello=world"],
 			["Accept", "*/*"],
 			["set-cookie", "foo=bar"],
-		]
+		].freeze
 	end
 	
 	let(:headers) {subject[fields]}
@@ -293,7 +293,7 @@ describe Protocol::HTTP::Headers do
 			
 			headers.add("etag", "abcd")
 			
-			expect(trailer.to_h).to be == {"etag" => "abcd"}
+			expect(trailer.to_a).to be == [["etag", "abcd"]]
 		end
 		
 		it "can add trailer without explicit header" do
@@ -301,7 +301,7 @@ describe Protocol::HTTP::Headers do
 			
 			headers.add("etag", "abcd")
 			
-			expect(trailer.to_h).to be == {"etag" => "abcd"}
+			expect(trailer.to_a).to be == [["etag", "abcd"]]
 		end
 		
 		with "forbidden trailers" do
@@ -335,15 +335,42 @@ describe Protocol::HTTP::Headers do
 				
 				cookie
 				set-cookie
-				
-				x-foo-bar
 			]
 			
 			forbidden_trailers.each do |key|
-				it "can't add a #{key.inspect} header in the trailer", unique: key do
-					trailer = headers.trailer!
-					headers.add(key, "example")
-					expect{headers.to_h}.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+				with "forbidden trailer #{key.inspect}", unique: key do
+					it "can't add a #{key.inspect} header in the trailer" do
+						trailer = headers.trailer!
+						expect do
+							headers.add(key, "example", trailer: true)
+						end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+					end
+					
+					it "can't add a #{key.inspect} header with trailer: true" do
+						expect do
+							headers.add(key, "example", trailer: true)
+						end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+					end
+				end
+			end
+		end
+		
+		with "unknown trailers", unique: "unknown" do
+			let(:headers) {subject.new}
+			
+			unknown_trailers = %w[
+				x-foo-bar
+				grpc-status
+				grpc-message
+				x-custom-header
+			]
+			
+			unknown_trailers.each do |key|
+				with "unknown trailer #{key.inspect}", unique: key do
+					it "can add unknown header #{key.inspect} as trailer" do
+						headers.add(key, "example", trailer: true)
+						expect(headers).to be(:include?, key)
+					end
 				end
 			end
 		end
@@ -359,12 +386,63 @@ describe Protocol::HTTP::Headers do
 			]
 			
 			permitted_trailers.each do |key|
-				it "can add a #{key.inspect} header in the trailer", unique: key do
-					trailer = headers.trailer!
-					headers.add(key, "example")
-					expect(headers).to be(:include?, key)
+				with "permitted trailer #{key.inspect}", unique: key do
+					it "can add a #{key.inspect} header in the trailer" do
+						trailer = headers.trailer!
+						headers.add(key, "example")
+						expect(headers).to be(:include?, key)
+					end
+					
+					it "can add a #{key.inspect} header with trailer: true" do
+						headers.add(key, "example", trailer: true)
+						expect(headers).to be(:include?, key)
+					end
 				end
 			end
+		end
+	end
+	
+	with "#header" do
+		it "can enumerate all headers when there are no trailers" do
+			result = headers.header.to_a
+			
+			expect(result).to be == fields
+		end
+		
+		it "enumerates headers but not trailers" do
+			headers.trailer!
+			headers.add("etag", "abcd")
+			headers.add("digest", "sha-256=xyz")
+			
+			header = headers.header.to_a
+			
+			# Should only include the original 5 fields, not the 2 trailers
+			expect(header.size).to be == 5
+			expect(header).to be == fields
+		end
+		
+		it "returns an enumerator when no block is given" do
+			enumerator = headers.header
+			
+			expect(enumerator).to be_a(Enumerator)
+			expect(enumerator.to_a).to be == fields
+		end
+		
+		it "returns an enumerator that excludes trailers" do
+			headers.trailer!
+			headers.add("etag", "abcd")
+			
+			enumerator = headers.header
+			
+			expect(enumerator).to be_a(Enumerator)
+			expect(enumerator.to_a.size).to be == 5
+			expect(enumerator.to_a).to be == [
+				["Content-Type", "text/html"],
+				["connection", "Keep-Alive"],
+				["Set-Cookie", "hello=world"],
+				["Accept", "*/*"],
+				["set-cookie", "foo=bar"]
+			]
 		end
 	end
 	
@@ -374,7 +452,44 @@ describe Protocol::HTTP::Headers do
 			headers.trailer!
 			headers.add("etag", "abcd")
 			
-			expect(headers.trailer.to_h).to be == {"etag" => "abcd"}
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"]]
+		end
+	end
+	
+	with "#add with trailer: keyword" do
+		let(:headers) {subject.new}
+		
+		it "allows adding regular headers without trailer: true" do
+			headers.add("content-type", "text/plain")
+			expect(headers["content-type"]).to be == "text/plain"
+		end
+		
+		it "validates trailers immediately when trailer: true" do
+			expect do
+				headers.add("content-type", "text/plain", trailer: true)
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+		end
+		
+		it "allows permitted trailers with trailer: true" do
+			headers.add("etag", "abcd", trailer: true)
+			expect(headers["etag"]).to be == "abcd"
+		end
+		
+		it "validates trailers without calling trailer! first" do
+			# This should fail immediately, without needing trailer! to be called
+			expect do
+				headers.add("authorization", "Bearer token", trailer: true)
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+		end
+		
+		it "validates trailers even when headers are not indexed" do
+			# Add without triggering indexing
+			expect do
+				headers.add("host", "example.com", trailer: true)
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+			
+			# Ensure we haven't triggered indexing yet
+			expect(headers.instance_variable_get(:@indexed)).to be_nil
 		end
 	end
 	
