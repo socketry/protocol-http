@@ -38,7 +38,7 @@ Async do
 		Protocol::HTTP::Response[200, {}, output]
 	end
 	
-	server_task = Async {server.run}
+	server_task = Async{server.run}
 	
 	client = Async::HTTP::Client.new(endpoint)
 	
@@ -104,7 +104,7 @@ Async do
 		Protocol::HTTP::Response[200, {}, output]
 	end
 	
-	server_task = Async {server.run}
+	server_task = Async{server.run}
 	
 	client = Async::HTTP::Client.new(endpoint)
 	
