@@ -1,5 +1,11 @@
 # Releases
 
+## Unreleased
+
+  - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
+  - Introduce `Headers#header` method to enumerate only the main headers, excluding trailers. This can be used after invoking `Headers#trailer!` to avoid race conditions.
+  - Fix `Headers#to_h` so that indexed headers are not left in an inconsistent state if errors occur during processing.
+
 ## v0.57.0
 
   - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.

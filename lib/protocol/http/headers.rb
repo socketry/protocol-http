@@ -20,6 +20,7 @@ require_relative "header/priority"
 require_relative "header/trailer"
 require_relative "header/server_timing"
 require_relative "header/digest"
+require_relative "header/generic"
 
 require_relative "header/accept"
 require_relative "header/accept_charset"
@@ -158,7 +159,26 @@ module Protocol
 				return trailer(&block)
 			end
 			
+			# Enumerate all the headers in the header, if there are any.
+			# 
+			# @yields {|key, value| ...} The header key and value.
+			# 	@parameter key [String] The header key.
+			# 	@parameter value [String] The raw header value.
+			def header(&block)
+				return to_enum(:header) unless block_given?
+				
+				if @tail and @tail < @fields.size
+					@fields.first(@tail).each(&block)
+				else
+					@fields.each(&block)
+				end
+			end
+			
 			# Enumerate all headers in the trailer, if there are any.
+			# 
+			# @yields {|key, value| ...} The header key and value.
+			# 	@parameter key [String] The header key.
+			# 	@parameter value [String] The raw header value.
 			def trailer(&block)
 				return to_enum(:trailer) unless block_given?
 				
@@ -191,7 +211,7 @@ module Protocol
 			# 	@parameter key [String] The header key.
 			# 	@parameter value [String] The raw header value.
 			def each(&block)
-				self.to_h.each(&block)
+				@fields.each(&block)
 			end
 			
 			# @returns [Boolean] Whether the headers include the specified key.
@@ -227,8 +247,17 @@ module Protocol
 			#
 			# @parameter key [String] the header key.
 			# @parameter value [String] the header value to assign.
-			def add(key, value)
+			# @parameter trailer [Boolean] whether this header is being added as a trailer.
+			def add(key, value, trailer: self.trailer?)
 				value = value.to_s
+				
+				if trailer
+					policy = @policy[key.downcase]
+					
+					if !policy or !policy.trailer?
+						raise InvalidTrailerError, key
+					end
+				end
 				
 				if @indexed
 					merge_into(@indexed, key.downcase, value)
@@ -297,6 +326,10 @@ module Protocol
 			end
 			
 			# The policy for various headers, including how they are merged and normalized.
+			#
+			# A policy may be `false` to indicate that the header may only be specified once and is a simple string.
+			#
+			# Otherwise, the policy is a class which implements the header normalization logic, including `parse` and `coerce` class methods.
 			POLICY = {
 				# Headers which may only be specified once:
 				"content-disposition" => false,
@@ -315,8 +348,11 @@ module Protocol
 				"user-agent" => false,
 				"trailer" => Header::Trailer,
 				
-				# Custom headers:
+				# Connection handling:
 				"connection" => Header::Connection,
+				"upgrade" => Header::Split,
+				
+				# Cache handling:
 				"cache-control" => Header::CacheControl,
 				"te" => Header::TE,
 				"vary" => Header::Vary,
@@ -354,16 +390,21 @@ module Protocol
 				
 				# Accept headers:
 				"accept" => Header::Accept,
+				"accept-ranges" => Header::Split,
 				"accept-charset" => Header::AcceptCharset,
 				"accept-encoding" => Header::AcceptEncoding,
 				"accept-language" => Header::AcceptLanguage,
+				
+				# Content negotiation headers:
+				"content-encoding" => Header::Split,
+				"content-range" => false,
 				
 				# Performance headers:
 				"server-timing" => Header::ServerTiming,
 				
 				# Content integrity headers:
 				"digest" => Header::Digest,
-			}.tap{|hash| hash.default = Split}
+			}.tap{|hash| hash.default = Header::Generic}
 			
 			# Delete all header values for the given key, and return the merged value.
 			#
@@ -403,25 +444,14 @@ module Protocol
 			# @parameter hash [Hash] The hash to merge into.
 			# @parameter key [String] The header key.
 			# @parameter value [String] The raw header value.
-			# @parameter trailer [Boolean] Whether this header is in the trailer section.
-			protected def merge_into(hash, key, value, trailer = @tail)
+			protected def merge_into(hash, key, value)
 				if policy = @policy[key]
-					# Check if we're adding to trailers and this header is allowed:
-					if trailer && !policy.trailer?
-						raise InvalidTrailerError, key
-					end
-					
 					if current_value = hash[key]
 						current_value << value
 					else
 						hash[key] = policy.parse(value)
 					end
 				else
-					# By default, headers are not allowed in trailers:
-					if trailer
-						raise InvalidTrailerError, key
-					end
-					
 					if hash.key?(key)
 						raise DuplicateHeaderError, key
 					end
@@ -437,13 +467,14 @@ module Protocol
 			# @returns [Hash] A hash table of `{key, value}` pairs.
 			def to_h
 				unless @indexed
-					@indexed = {}
+					indexed = {}
 					
-					@fields.each_with_index do |(key, value), index|
-						trailer = (@tail && index >= @tail)
-						
-						merge_into(@indexed, key.downcase, value, trailer)
+					@fields.each do |key, value|
+						merge_into(indexed, key.downcase, value)
 					end
+					
+					# Deferred assignment so that exceptions in `merge_into` don't leave us in an inconsistent state:
+					@indexed = indexed
 				end
 				
 				return @indexed
