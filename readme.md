@@ -30,6 +30,12 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.58.0
+
+  - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
+  - Introduce `Headers#header` method to enumerate only the main headers, excluding trailers. This can be used after invoking `Headers#trailer!` to avoid race conditions.
+  - Fix `Headers#to_h` so that indexed headers are not left in an inconsistent state if errors occur during processing.
+
 ### v0.57.0
 
   - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
@@ -82,10 +88,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.48.0
 
   - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.
-
-### v0.46.0
-
-  - Add support for `priority:` header.
 
 ## See Also
 

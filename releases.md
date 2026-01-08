@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.58.0
 
   - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
   - Introduce `Headers#header` method to enumerate only the main headers, excluding trailers. This can be used after invoking `Headers#trailer!` to avoid race conditions.
