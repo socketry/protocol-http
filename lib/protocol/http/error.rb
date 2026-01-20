@@ -36,6 +36,9 @@ module Protocol
 			# @attribute [String] new_value The new value for the duplicated header.
 			attr :new_value
 			
+			# Provides a detailed error message including the existing and new values.
+			# @parameter highlight [Boolean] Whether to highlight the message (not currently used).
+			# @return [String] The detailed error message.
 			def detailed_message(highlight: false)
 				<<~MESSAGE
 					#{self.message}
