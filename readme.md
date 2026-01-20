@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.58.1
+
+  - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
+
 ### v0.58.0
 
   - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
@@ -84,10 +88,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.50.0
 
     - Drop support for Ruby v3.1.
-
-### v0.48.0
-
-  - Add support for parsing `accept`, `accept-charset`, `accept-encoding` and `accept-language` headers into structured values.
 
 ## See Also
 

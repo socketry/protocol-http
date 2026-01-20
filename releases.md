@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.58.1
 
   - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
 
