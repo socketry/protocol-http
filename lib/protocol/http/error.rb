@@ -19,12 +19,30 @@ module Protocol
 			include BadRequest
 			
 			# @parameter key [String] The header key that was duplicated.
-			def initialize(key)
+			def initialize(key, existing_value, new_value)
 				super("Duplicate singleton header key: #{key.inspect}")
+				
+				@key = key
+				@existing_value = existing_value
+				@new_value = new_value
 			end
 			
 			# @attribute [String] key The header key that was duplicated.
 			attr :key
+			
+			# @attribute [String] existing_value The existing value for the duplicated header.
+			attr :existing_value
+			
+			# @attribute [String] new_value The new value for the duplicated header.
+			attr :new_value
+			
+			def detailed_message(highlight: false)
+				<<~MESSAGE
+					#{self.message}
+						Existing value: #{@existing_value.inspect}
+						New value: #{@new_value.inspect}
+				MESSAGE
+			end
 		end
 		
 		# Raised when an invalid trailer header is encountered in headers.

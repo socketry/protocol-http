@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
+
 ## v0.58.0
 
   - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.

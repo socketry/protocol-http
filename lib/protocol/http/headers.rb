@@ -453,7 +453,7 @@ module Protocol
 					end
 				else
 					if hash.key?(key)
-						raise DuplicateHeaderError, key
+						raise DuplicateHeaderError.new(key, hash[key], value)
 					end
 					
 					hash[key] = value
