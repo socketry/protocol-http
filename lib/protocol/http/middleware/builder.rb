@@ -18,6 +18,22 @@ module Protocol
 					@app = default_app
 				end
 				
+				# Build the middleware application using the given block.
+				#
+				# @parameter block [Proc] The block to pass to the middleware constructor.
+				# @returns [Builder] The builder.
+				def build(&block)
+					if block_given?
+						if block.arity == 0
+							instance_exec(&block)
+						else
+							yield self
+						end
+					end
+					
+					return self
+				end
+				
 				# Use the given middleware with the given arguments and options.
 				#
 				# @parameter middleware [Class | Object] The middleware class to use.
@@ -44,15 +60,28 @@ module Protocol
 			end
 			
 			# Build a middleware application using the given block.
-			def self.build(&block)
-				builder = Builder.new
+			def self.build(*arguments, &block)
+				builder = Builder.new(*arguments)
+				
+				builder.build(&block)
+				
+				return builder.to_app
+			end
+			
+			# Load a middleware application from the given path.
+			#
+			# @parameter path [String] The path to the middleware application.
+			# @parameter arguments [Array] The arguments to pass to the middleware constructor.
+			# @parameter options [Hash] The options to pass to the middleware constructor.
+			# @parameter block [Proc] The block to pass to the middleware constructor.
+			def self.load(path, *arguments, &block)
+				builder = Builder.new(*arguments)
+				
+				binding = Builder::TOPLEVEL_BINDING.call(builder)
+				eval(File.read(path), binding, path)
 				
 				if block_given?
-					if block.arity == 0
-						builder.instance_exec(&block)
-					else
-						yield builder
-					end
+					builder.build(&block)
 				end
 				
 				return builder.to_app
@@ -60,3 +89,5 @@ module Protocol
 		end
 	end
 end
+
+Protocol::HTTP::Middleware::Builder::TOPLEVEL_BINDING = ->(builder){builder.instance_eval{binding}}

@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
+
 ## v0.58.1
 
   - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
