@@ -72,4 +72,13 @@ describe Protocol::HTTP::Body::Deflate do
 			)
 		end
 	end
+	
+	with "empty chunks" do
+		let(:body) {Protocol::HTTP::Body::Buffered.new(["", "bar", ""])}
+		
+		it "can read empty chunks" do
+			expect(decompressed_body.read).to be == "bar"
+			expect(decompressed_body.read).to be == nil
+		end
+	end
 end
