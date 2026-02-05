@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.59.0
 
   - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
   - Prevent `ZLib::BufError` when deflating empty chunks by skipping deflation for empty chunks.

@@ -30,6 +30,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.59.0
+
+  - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
+  - Prevent `ZLib::BufError` when deflating empty chunks by skipping deflation for empty chunks.
+
 ### v0.58.1
 
   - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
@@ -84,10 +89,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
   - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
   - `Protocol::HTTP::Headers#add` now coerces the value to a string when adding a header, ensuring consistent behaviour.
   - `Protocol::HTTP::Body::Head.for` now accepts an optional `length` parameter, allowing it to create a head body even when the body is not provided, based on the known content length.
-
-### v0.50.0
-
-    - Drop support for Ruby v3.1.
 
 ## See Also
 
