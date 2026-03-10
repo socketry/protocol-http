@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.60.0
+
+  - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
+
 ### v0.59.0
 
   - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
@@ -83,12 +87,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
   - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
   - Expose `tail` in `Headers.new` so that trailers can be accurately reproduced.
   - Add agent context.
-
-### v0.51.0
-
-  - `Protocol::HTTP::Headers` now raise a `DuplicateHeaderError` when a duplicate singleton header (e.g. `content-length`) is added.
-  - `Protocol::HTTP::Headers#add` now coerces the value to a string when adding a header, ensuring consistent behaviour.
-  - `Protocol::HTTP::Body::Head.for` now accepts an optional `length` parameter, allowing it to create a head body even when the body is not provided, based on the known content length.
 
 ## See Also
 

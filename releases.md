@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.60.0
 
   - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
 
