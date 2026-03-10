@@ -53,14 +53,15 @@ describe Protocol::HTTP::Header::Date do
 	end
 	
 	describe Protocol::HTTP::Headers do
-		let(:headers) {subject[[
+		let(:headers) do
+			subject[[
 				["Date", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["Expires", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["Last-Modified", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["If-Modified-Since", "Wed, 21 Oct 2015 07:28:00 GMT"],
 				["If-Unmodified-Since", "Wed, 21 Oct 2015 07:28:00 GMT"]
 			]]
-		}
+		end
 		
 		it "should parse date headers" do
 			# When you convert headers into a hash, the policy is applied (i.e. conversion to Date instances):

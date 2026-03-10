@@ -66,10 +66,10 @@ describe Protocol::HTTP::Body::Digestable do
 			
 			it "includes callback information" do
 				expect(body.as_json).to have_keys(
-								class: be == "Protocol::HTTP::Body::Digestable",
-								digest_class: be == "Digest::SHA256",
-								callback: be =~ /Proc/
-							)
+					class: be == "Protocol::HTTP::Body::Digestable",
+					digest_class: be == "Digest::SHA256",
+					callback: be =~ /Proc/
+				)
 			end
 		end
 	end

@@ -63,8 +63,8 @@ HTTP trailers are headers that appear after the message body. For security reaso
 ```ruby
 # Working with trailers
 headers = Protocol::HTTP::Headers.new([
-		["content-type", "text/html"],
-		["content-length", "1000"]
+	["content-type", "text/html"],
+	["content-length", "1000"]
 ])
 
 # Start trailer section
