@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
+
 ## v0.59.0
 
   - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.

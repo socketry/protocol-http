@@ -18,6 +18,45 @@ describe Protocol::HTTP::Body::Writable do
 		end
 	end
 	
+	with "#count" do
+		it "should be zero by default" do
+			expect(body.count).to be == 0
+		end
+		
+		it "should increment when chunks are written" do
+			expect(body.count).to be == 0
+			
+			body.write("Hello")
+			expect(body.count).to be == 1
+			
+			body.write("World")
+			expect(body.count).to be == 2
+			
+			body.write("")
+			expect(body.count).to be == 3
+		end
+		
+		it "should not increment when reading chunks" do
+			body.write("Hello")
+			body.write("World")
+			
+			expect(body.count).to be == 2
+			
+			body.read
+			body.read
+			
+			expect(body.count).to be == 2
+		end
+		
+		it "should not change when body is closed" do
+			body.write("Hello")
+			expect(body.count).to be == 1
+			
+			body.close
+			expect(body.count).to be == 1
+		end
+	end
+	
 	with "#closed?" do
 		it "should not be closed by default" do
 			expect(body).not.to be(:closed?)

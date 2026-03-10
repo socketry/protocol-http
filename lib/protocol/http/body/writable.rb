@@ -28,6 +28,9 @@ module Protocol
 				# @attribute [Integer] The length of the response body if known.
 				attr :length
 				
+				# @attribute [Integer] The number of chunks written to the body.
+				attr :count
+				
 				# Stop generating output; cause the next call to write to fail with the given error. Does not prevent existing chunks from being read. In other words, this indicates both that no more data will be or should be written to the body.
 				#
 				# @parameter error [Exception] The error that caused this body to be closed, if any. Will be raised on the next call to {read}.
