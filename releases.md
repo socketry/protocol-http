@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Introduce `Protocol::HTTP::RequestRefusedError` for indicating a request was not processed by the server and can be safely retried.
+
 ## v0.60.0
 
   - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.

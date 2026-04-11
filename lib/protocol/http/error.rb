@@ -9,6 +9,10 @@ module Protocol
 		class Error < StandardError
 		end
 		
+		# Raised when a request was not processed by the server and can be safely retried, even for non-idempotent methods.
+		class RequestRefusedError < Error
+		end
+		
 		# Represents a bad request error (as opposed to a server error).
 		# This is used to indicate that the request was malformed or invalid.
 		module BadRequest

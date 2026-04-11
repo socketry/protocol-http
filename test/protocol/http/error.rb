@@ -5,6 +5,20 @@
 
 require "protocol/http/error"
 
+describe Protocol::HTTP::RequestRefusedError do
+	let(:error) {subject.new("GOAWAY: request not processed.")}
+	
+	with "#initialize" do
+		it "is an HTTP error" do
+			expect(error).to be_a(Protocol::HTTP::Error)
+		end
+		
+		it "has a descriptive message" do
+			expect(error.message).to be == "GOAWAY: request not processed."
+		end
+	end
+end
+
 describe Protocol::HTTP::DuplicateHeaderError do
 	let(:key) {"content-length"}
 	let(:existing_value) {"100"}
