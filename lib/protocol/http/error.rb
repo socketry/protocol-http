@@ -9,9 +9,13 @@ module Protocol
 		class Error < StandardError
 		end
 		
-		# Raised when a request was not processed by the server and can be safely retried, even for non-idempotent methods.
-		class RequestRefusedError < Error
+		# Raised when an HTTP stream or request was refused before any processing occurred.
+		# In the case of requests, it indicates that the request was refused before any processing occurred, and can be safely retried.
+		class RefusedError < Error
 		end
+		
+		# @deprecated Use {RefusedError} instead.
+		RequestRefusedError = RefusedError
 		
 		# Represents a bad request error (as opposed to a server error).
 		# This is used to indicate that the request was malformed or invalid.

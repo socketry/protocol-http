@@ -2,7 +2,7 @@
 
 ## v0.61.0
 
-  - Introduce `Protocol::HTTP::RequestRefusedError` for indicating a request was not processed by the server and can be safely retried.
+  - Introduce `Protocol::HTTP::RefusedError` for indicating a stream or request was refused before processing and can be safely retried. `RequestRefusedError` is provided as an alias for backwards compatibility.
 
 ## v0.60.0
 

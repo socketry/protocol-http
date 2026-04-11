@@ -5,8 +5,8 @@
 
 require "protocol/http/error"
 
-describe Protocol::HTTP::RequestRefusedError do
-	let(:error) {subject.new("GOAWAY: request not processed.")}
+describe Protocol::HTTP::RefusedError do
+	let(:error) {subject.new("Stream refused.")}
 	
 	with "#initialize" do
 		it "is an HTTP error" do
@@ -14,8 +14,12 @@ describe Protocol::HTTP::RequestRefusedError do
 		end
 		
 		it "has a descriptive message" do
-			expect(error.message).to be == "GOAWAY: request not processed."
+			expect(error.message).to be == "Stream refused."
 		end
+	end
+	
+	it "is aliased as RequestRefusedError" do
+		expect(Protocol::HTTP::RequestRefusedError).to be == Protocol::HTTP::RefusedError
 	end
 end
 
