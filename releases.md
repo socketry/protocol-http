@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.61.0
 
   - Introduce `Protocol::HTTP::RequestRefusedError` for indicating a request was not processed by the server and can be safely retried.
 

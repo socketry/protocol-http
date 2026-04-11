@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.61.0
+
+  - Introduce `Protocol::HTTP::RequestRefusedError` for indicating a request was not processed by the server and can be safely retried.
+
 ### v0.60.0
 
   - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
@@ -81,12 +85,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
   - Improve consistency of Body `#inspect`.
   - Improve `as_json` support for Body wrappers.
-
-### v0.52.0
-
-  - Add `Protocol::HTTP::Headers#to_a` method that returns the fields array, providing compatibility with standard Ruby array conversion pattern.
-  - Expose `tail` in `Headers.new` so that trailers can be accurately reproduced.
-  - Add agent context.
 
 ## See Also
 
