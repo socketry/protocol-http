@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.62.1
+
+  - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
+
 ### v0.61.0
 
   - Introduce `Protocol::HTTP::RefusedError` for indicating a stream or request was refused before processing and can be safely retried. `RequestRefusedError` is provided as an alias for backwards compatibility.
@@ -80,11 +84,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
   - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.
   - [Improved HTTP Trailer Security](https://socketry.github.io/protocol-http/releases/index#improved-http-trailer-security)
-
-### v0.53.0
-
-  - Improve consistency of Body `#inspect`.
-  - Improve `as_json` support for Body wrappers.
 
 ## See Also
 

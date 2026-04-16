@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.62.1
 
   - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
 
