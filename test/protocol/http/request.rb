@@ -128,6 +128,10 @@ describe Protocol::HTTP::Request do
 			expect(request).to be(:idempotent?)
 		end
 		
+		it "defaults idempotent to nil" do
+			expect(request.idempotent).to be_nil
+		end
+		
 		it "should have a string representation" do
 			expect(request.to_s).to be == "http://localhost: GET /index.html HTTP/1.0"
 		end
@@ -138,6 +142,42 @@ describe Protocol::HTTP::Request do
 			expect(connection).to receive(:call).with(request)
 			
 			request.call(connection)
+		end
+	end
+	
+	with "simple POST request" do
+		let(:request) {subject.new("http", "localhost", "POST", "/submit", "HTTP/1.1", headers, nil)}
+		
+		it "should not be idempotent" do
+			expect(request).not.to be(:idempotent?)
+		end
+		
+		with "idempotent: true" do
+			let(:request) {subject.new("http", "localhost", "POST", "/submit", "HTTP/1.1", headers, nil, nil, nil, idempotent: true)}
+			
+			it "should be idempotent" do
+				expect(request).to be(:idempotent?)
+			end
+		end
+	end
+	
+	with "idempotent: false" do
+		let(:request) {subject.new("http", "localhost", "GET", "/index.html", "HTTP/1.0", headers, body, nil, nil, idempotent: false)}
+		
+		it "should not be idempotent" do
+			expect(request).not.to be(:idempotent?)
+		end
+	end
+	
+	with ".[] with idempotent: true" do
+		let(:request) {subject["POST", "/submit", idempotent: true]}
+		
+		it "should be idempotent" do
+			expect(request).to be(:idempotent?)
+		end
+		
+		it "should expose the idempotent attribute" do
+			expect(request.idempotent).to be == true
 		end
 	end
 	
