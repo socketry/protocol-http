@@ -52,7 +52,7 @@ module Protocol
 					# @parameter buffer [String] the buffer which will receive the data
 					# @returns [String] a buffer containing the data
 					def read(length = nil, buffer = nil)
-						return "" if length == 0
+						return (buffer ? buffer.clear : String.new) if length == 0
 						
 						buffer ||= String.new.force_encoding(Encoding::BINARY)
 						

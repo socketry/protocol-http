@@ -38,6 +38,18 @@ describe Protocol::HTTP::Body::Stream do
 			expect(stream.read(0)).to be == ""
 		end
 		
+		it "returns a mutable string for zero-length read" do
+			result = stream.read(0)
+			expect(result).not.to be(:frozen?)
+		end
+		
+		it "populates the buffer on zero-length read" do
+			buffer = String.new
+			result = stream.read(0, buffer)
+			expect(result).to be == ""
+			expect(result).to be_equal(buffer)
+		end
+		
 		it "can read the entire input" do
 			expect(stream.read).to be == "HelloWorld"
 		end

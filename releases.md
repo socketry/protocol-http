@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
+
 ## v0.61.0
 
   - Introduce `Protocol::HTTP::RefusedError` for indicating a stream or request was refused before processing and can be safely retried. `RequestRefusedError` is provided as an alias for backwards compatibility.
