@@ -52,9 +52,11 @@ module Protocol
 					# @parameter buffer [String] the buffer which will receive the data
 					# @returns [String] a buffer containing the data
 					def read(length = nil, buffer = nil)
-						return (buffer ? buffer.clear : String.new) if length == 0
+						if length == 0
+							return (buffer ? buffer.clear : String.new(encoding: Encoding::BINARY))
+						end
 						
-						buffer ||= String.new.force_encoding(Encoding::BINARY)
+						buffer ||= String.new(encoding: Encoding::BINARY)
 						
 						# Take any previously buffered data and replace it into the given buffer.
 						if @buffer
