@@ -56,8 +56,8 @@ describe Protocol::HTTP::Header::Cookie do
 			cookie
 		end
 		
-		it "joins cookies with semicolons without spaces" do
-			expect(header.to_s).to be == "session=abc123;user_id=42;token=xyz789"
+		it "joins cookies with semicolons and spaces per RFC 6265" do
+			expect(header.to_s).to be == "session=abc123; user_id=42; token=xyz789"
 		end
 	end
 end
