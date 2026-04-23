@@ -600,7 +600,7 @@ describe Protocol::HTTP::Headers do
 	
 	with "set-cookie" do
 		it "can extract parsed cookies" do
-			expect(headers["set-cookie"]).to be_a(Protocol::HTTP::Header::Cookie)
+			expect(headers["set-cookie"]).to be_a(Protocol::HTTP::Header::SetCookie)
 		end
 	end
 	
