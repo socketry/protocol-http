@@ -17,4 +17,10 @@ describe Protocol::HTTP::Peer do
 			address: be_equal(address),
 		)
 	end
+	
+	it "returns nil for IO that does not support remote_address" do
+		io = StringIO.new
+		
+		expect(Protocol::HTTP::Peer.for(io)).to be_nil
+	end
 end

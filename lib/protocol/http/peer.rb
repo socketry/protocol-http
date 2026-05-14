@@ -11,9 +11,13 @@ module Protocol
 			#
 			# @returns [Peer | Nil] The peer object, or nil if the remote address is not available.
 			def self.for(io)
-				if address = io.remote_address
-					return new(address)
+				if io.respond_to?(:remote_address)
+					if address = io.remote_address
+						return new(address)
+					end
 				end
+				
+				return nil
 			end
 			
 			# Initialize the peer with the given address.

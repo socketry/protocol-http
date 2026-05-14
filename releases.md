@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - `Protocol::HTTP::Peer.for` now returns `nil` for IO objects that do not respond to `remote_address`, rather than raising `NoMethodError`.
+
 ## v0.62.1
 
   - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
