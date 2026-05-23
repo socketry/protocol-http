@@ -281,6 +281,16 @@ describe Protocol::HTTP::Headers do
 			
 			expect(headers["content-length"]).to be == "2"
 		end
+		
+		it "can merge multiple user-agent headers" do
+			headers.merge!([
+				["user-agent", "foobar/2000"],
+				["user-agent", "foobar/2001"],
+			])
+			
+			expect(headers["user-agent"]).to be == ["foobar/2000", "foobar/2001"]
+			expect(headers["user-agent"].to_s).to be == "foobar/2000,foobar/2001"
+		end
 	end
 	
 	with "#trailer!" do
