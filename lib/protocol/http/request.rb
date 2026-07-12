@@ -134,7 +134,23 @@ module Protocol
 			
 			# Whether the request can be replayed without side-effects.
 			def idempotent?
-				@method != Methods::POST && (@body.nil? || @body.empty?)
+				# QUERY requests are idempotent, even if they have a body:
+				if @method == Methods::QUERY
+					return true
+				end
+				
+				# POST requests are not idempotent, even if they have no body:
+				if @method == Methods::POST
+					return false
+				end
+				
+				# All other requests are idempotent if they have no body:
+				if @body.nil? || @body.empty?
+					return true
+				end
+				
+				# Otherwise, we don't know if the request is idempotent or not, so we assume it is not:
+				return false
 			end
 			
 			# Convert the request to a hash, suitable for serialization.

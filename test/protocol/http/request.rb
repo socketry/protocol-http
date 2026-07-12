@@ -128,6 +128,14 @@ describe Protocol::HTTP::Request do
 			expect(request).to be(:idempotent?)
 		end
 		
+		with "QUERY request with a body" do
+			let(:request) {subject["QUERY", "/search", body: "term=ruby"]}
+			
+			it "should be idempotent" do
+				expect(request).to be(:idempotent?)
+			end
+		end
+		
 		it "should have a string representation" do
 			expect(request.to_s).to be == "http://localhost: GET /index.html HTTP/1.0"
 		end
