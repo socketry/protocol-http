@@ -33,9 +33,10 @@ describe Protocol::HTTP::Methods do
 	it_behaves_like ValidMethod, "OPTIONS"
 	it_behaves_like ValidMethod, "TRACE"
 	it_behaves_like ValidMethod, "CONNECT"
+	it_behaves_like ValidMethod, "QUERY"
 	
-	it "defines exactly 9 methods" do
-		expect(subject.constants.length).to be == 9
+	it "defines exactly 10 methods" do
+		expect(subject.constants.length).to be == 10
 	end
 	
 	with ".valid?" do
