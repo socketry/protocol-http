@@ -134,6 +134,8 @@ module Protocol
 			
 			# Whether the request can be replayed without side-effects.
 			def idempotent?
+				return true if @method == Methods::QUERY
+				
 				@method != Methods::POST && (@body.nil? || @body.empty?)
 			end
 			
