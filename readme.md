@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.63.0
+
+  - Add support for the HTTP `QUERY` method.
+
 ### v0.62.1
 
   - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
@@ -79,11 +83,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
   - **Breaking**: Remove `Protocol::HTTP::URL` and `Protocol::HTTP::Reference` – replaced by `Protocol::URL` gem.
       - `Protocol::HTTP::URL` -\> `Protocol::URL::Encoding`.
       - `Protocol::HTTP::Reference` -\> `Protocol::URL::Reference`.
-
-### v0.54.0
-
-  - Introduce rich support for `Header::Digest`, `Header::ServerTiming`, `Header::TE`, `Header::Trailer` and `Header::TransferEncoding`.
-  - [Improved HTTP Trailer Security](https://socketry.github.io/protocol-http/releases/index#improved-http-trailer-security)
 
 ## See Also
 

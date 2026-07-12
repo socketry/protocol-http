@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.63.0
 
   - Add support for the HTTP `QUERY` method.
 
