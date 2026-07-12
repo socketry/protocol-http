@@ -18,6 +18,7 @@ module Protocol
 		# | OPTIONS     | Optional     | Yes           | Yes  | Yes        | No        |
 		# | TRACE       | No           | Yes           | Yes  | Yes        | No        |
 		# | PATCH       | Yes          | Yes           | No   | No         | No        |
+		# | QUERY       | Yes          | Yes           | Yes  | Yes        | Yes       |
 		#
 		# These methods are defined in this module using lower case names. They are for convenience only and you should not overload those methods.
 		#
@@ -49,6 +50,9 @@ module Protocol
 			
 			# The PATCH method applies partial modifications to a resource.
 			PATCH = "PATCH"
+			
+			# The QUERY method performs a read-only, idempotent query using a request body.
+			QUERY = "QUERY"
 			
 			# Check if the given name is a valid HTTP method, according to this module.
 			#
