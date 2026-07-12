@@ -20,11 +20,19 @@ module Protocol
 				# https://tools.ietf.org/html/rfc7231#section-5.3.4
 				ENCODING = /\A(?<name>#{TOKEN})(;q=(?<q>#{QVALUE}))?\z/
 				
+				# A parsed content encoding entry with an optional quality factor.
 				Encoding = Struct.new(:name, :q) do
+					# The quality factor for this encoding.
+					#
+					# @returns [Float] the parsed quality factor, defaulting to `1.0`.
 					def quality_factor
 						(q || 1.0).to_f
 					end
 					
+					# Compare encodings by descending quality factor.
+					#
+					# @parameter other [Encoding] the other encoding to compare.
+					# @returns [Integer] the comparison result.
 					def <=> other
 						other.quality_factor <=> self.quality_factor
 					end

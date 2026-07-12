@@ -23,11 +23,19 @@ module Protocol
 				# https://greenbytes.de/tech/webdav/rfc7231.html#quality.values
 				LANGUAGE = /\A(?<name>#{NAME})(\s*;\s*q=(?<q>#{QVALUE}))?\z/
 				
+				# A parsed language entry with an optional quality factor.
 				Language = Struct.new(:name, :q) do
+					# The quality factor for this language.
+					#
+					# @returns [Float] the parsed quality factor, defaulting to `1.0`.
 					def quality_factor
 						(q || 1.0).to_f
 					end
 					
+					# Compare languages by descending quality factor.
+					#
+					# @parameter other [Language] the other language to compare.
+					# @returns [Integer] the comparison result.
 					def <=> other
 						other.quality_factor <=> self.quality_factor
 					end

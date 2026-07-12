@@ -208,6 +208,14 @@ describe Protocol::HTTP::Body::Stream do
 		it "can read until a pattern which isn't encountered" do
 			expect(stream.read_until("X")).to be_nil
 		end
+		
+		with "empty input" do
+			let(:input) {Protocol::HTTP::Body::Buffered.new}
+			
+			it "returns nil" do
+				expect(stream.read_until("X")).to be_nil
+			end
+		end
 	end
 	
 	with "#gets" do

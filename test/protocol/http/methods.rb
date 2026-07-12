@@ -4,6 +4,7 @@
 # Copyright, 2019-2025, by Samuel Williams.
 
 require "protocol/http/methods"
+require "protocol/http/request"
 
 ValidMethod = Sus::Shared("valid method") do |name|
 	it "defines #{name} method" do
@@ -37,6 +38,23 @@ describe Protocol::HTTP::Methods do
 	
 	it "defines exactly 10 methods" do
 		expect(subject.constants.length).to be == 10
+	end
+	
+	it "defines QUERY helper method" do
+		middleware = Class.new(subject) do
+			attr :request
+			
+			def call(request)
+				@request = request
+			end
+		end.new
+		
+		middleware.query("/search", body: "term=ruby")
+		
+		expect(middleware.request).to have_attributes(
+			method: be == "QUERY",
+			path: be == "/search",
+		)
 	end
 	
 	with ".valid?" do

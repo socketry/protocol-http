@@ -17,11 +17,19 @@ module Protocol
 				# https://tools.ietf.org/html/rfc7231#section-5.3.3
 				CHARSET = /\A(?<name>#{TOKEN})(;q=(?<q>#{QVALUE}))?\z/
 				
+				# A parsed character set entry with an optional quality factor.
 				Charset = Struct.new(:name, :q) do
+					# The quality factor for this character set.
+					#
+					# @returns [Float] the parsed quality factor, defaulting to `1.0`.
 					def quality_factor
 						(q || 1.0).to_f
 					end
 					
+					# Compare character sets by descending quality factor.
+					#
+					# @parameter other [Charset] the other character set to compare.
+					# @returns [Integer] the comparison result.
 					def <=> other
 						other.quality_factor <=> self.quality_factor
 					end

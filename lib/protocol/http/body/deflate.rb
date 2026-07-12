@@ -110,7 +110,10 @@ module Protocol
 				#
 				# @returns [String | Nil] the compressed chunk or `nil` if the stream is closed.
 				def read
-					return if @stream.finished?
+					if @stream.finished?
+						# Once the stream is finished, there is no more compressed output to produce:
+						return nil
+					end
 					
 					# The stream might have been closed while waiting for the chunk to come in.
 					while chunk = super
