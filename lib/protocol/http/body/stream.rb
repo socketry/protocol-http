@@ -200,7 +200,10 @@ module Protocol
 						split_offset = pattern.bytesize - 1
 						
 						@buffer ||= read_next
-						return nil if @buffer.nil?
+						if @buffer.nil?
+							# Without any buffered input, there is nothing to search for:
+							return nil
+						end
 						
 						until index = @buffer.index(pattern, offset)
 							offset = @buffer.bytesize - split_offset

@@ -45,14 +45,24 @@ module Protocol
 				
 				# A single transfer coding entry with optional quality factor
 				TransferCoding = Struct.new(:name, :q) do
+					# The quality factor for this transfer coding.
+					#
+					# @returns [Float] the parsed quality factor, defaulting to `1.0`.
 					def quality_factor
 						(q || 1.0).to_f
 					end
 					
+					# Compare transfer codings by descending quality factor.
+					#
+					# @parameter other [TransferCoding] the other transfer coding to compare.
+					# @returns [Integer] the comparison result.
 					def <=> other
 						other.quality_factor <=> self.quality_factor
 					end
 					
+					# Convert the transfer coding entry to a header value.
+					#
+					# @returns [String] the formatted transfer coding with quality factor when present.
 					def to_s
 						if q && q != 1.0
 							"#{name};q=#{q}"
@@ -143,4 +153,3 @@ module Protocol
 		end
 	end
 end
-

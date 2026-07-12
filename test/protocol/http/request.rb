@@ -136,6 +136,22 @@ describe Protocol::HTTP::Request do
 			end
 		end
 		
+		with "POST request without a body" do
+			let(:request) {subject["POST", "/submit"]}
+			
+			it "should not be idempotent" do
+				expect(request).not.to be(:idempotent?)
+			end
+		end
+		
+		with "PUT request with a body" do
+			let(:request) {subject["PUT", "/resource", body: "content"]}
+			
+			it "should not be idempotent" do
+				expect(request).not.to be(:idempotent?)
+			end
+		end
+		
 		it "should have a string representation" do
 			expect(request.to_s).to be == "http://localhost: GET /index.html HTTP/1.0"
 		end
