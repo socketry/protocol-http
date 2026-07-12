@@ -51,7 +51,7 @@ module Protocol
 			# The PATCH method applies partial modifications to a resource.
 			PATCH = "PATCH"
 			
-			# The QUERY method requests a server-side query of the target resource.
+			# The QUERY method performs a safe, idempotent query using a request body.
 			QUERY = "QUERY"
 			
 			# Check if the given name is a valid HTTP method, according to this module.
