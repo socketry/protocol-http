@@ -345,7 +345,7 @@ module Protocol
 				"retry-after" => false,
 				"server" => false,
 				"transfer-encoding" => Header::TransferEncoding,
-				"user-agent" => false,
+				"user-agent" => Header::Split,
 				"trailer" => Header::Trailer,
 				
 				# Connection handling:
