@@ -147,8 +147,50 @@ describe Protocol::HTTP::Request do
 		with "PUT request with a body" do
 			let(:request) {subject["PUT", "/resource", body: "content"]}
 			
+			it "should be idempotent" do
+				expect(request).to be(:idempotent?)
+			end
+		end
+		
+		with "PATCH request without a body" do
+			let(:request) {subject["PATCH", "/resource"]}
+			
 			it "should not be idempotent" do
 				expect(request).not.to be(:idempotent?)
+			end
+		end
+		
+		with "#retry!" do
+			it "allows idempotent requests without a body" do
+				expect(request.retry!).to be == true
+			end
+			
+			with "idempotent request with a rewindable body" do
+				let(:request) {subject["PUT", "/resource", body: "content"]}
+				
+				it "rewinds the body" do
+					expect(request.body.read).to be == "content"
+					
+					expect(request.retry!).to be == true
+					expect(request.body.read).to be == "content"
+				end
+			end
+			
+			with "idempotent request with a non-rewindable body" do
+				let(:body) {Protocol::HTTP::Body::Readable.new}
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
+			end
+			
+			with "non-idempotent request" do
+				let(:request) {subject["POST", "/submit"]}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
 			end
 		end
 		
