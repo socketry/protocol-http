@@ -145,12 +145,27 @@ module Protocol
 			# Prepare the request body to be sent again, if it is safe to retry.
 			# @returns [Boolean] Whether the request was prepared for retry.
 			def retry!
-				return false unless self.idempotent?
-				return true unless body = @body
-				return true if body.empty? && !body.rewindable?
-				return false unless body.rewindable?
+				# Only idempotent requests can be retried safely.
+				if !self.idempotent?
+					return false
+				end
 				
-				return false unless body.rewind
+				# Requests without a body can be sent again immediately.
+				if body = @body
+					# Empty, non-rewindable bodies have nothing left to send.
+					if body.empty? && !body.rewindable?
+						return true
+					end
+					
+					# Non-empty bodies must be rewindable so the same data can be sent again.
+					if !body.rewindable?
+						return false
+					end
+					
+					if !body.rewind
+						return false
+					end
+				end
 				
 				return true
 			end
