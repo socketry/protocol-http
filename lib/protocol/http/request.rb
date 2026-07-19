@@ -132,21 +132,32 @@ module Protocol
 				self.new(scheme, authority, method, path, nil, headers, body, protocol, interim_response)
 			end
 			
-			# Whether the request method is idempotent according to HTTP semantics.
+			# Whether the request can be replayed without side-effects.
 			def idempotent?
-				case @method
-				when Methods::POST, Methods::PATCH, Methods::CONNECT
-					false
-				else
-					true
+				# QUERY requests are idempotent, even if they have a body:
+				if @method == Methods::QUERY
+					return true
 				end
+				
+				# POST requests are not idempotent, even if they have no body:
+				if @method == Methods::POST
+					return false
+				end
+				
+				# All other requests are idempotent if they have no body:
+				if @body.nil? || @body.empty?
+					return true
+				end
+				
+				# Otherwise, we don't know if the request is idempotent or not, so we assume it is not:
+				return false
 			end
 			
 			# Prepare the request body to be sent again, if it is safe to retry.
 			# @returns [Boolean] Whether the request was prepared for retry.
 			def retry!
-				# Only idempotent requests can be retried safely.
-				if !self.idempotent?
+				# Only idempotent request methods can be retried safely.
+				if @method == Methods::POST || @method == Methods::PATCH || @method == Methods::CONNECT
 					return false
 				end
 				

@@ -147,16 +147,16 @@ describe Protocol::HTTP::Request do
 		with "PUT request with a body" do
 			let(:request) {subject["PUT", "/resource", body: "content"]}
 			
-			it "should be idempotent" do
-				expect(request).to be(:idempotent?)
+			it "should not be idempotent" do
+				expect(request).not.to be(:idempotent?)
 			end
 		end
 		
 		with "PATCH request without a body" do
 			let(:request) {subject["PATCH", "/resource"]}
 			
-			it "should not be idempotent" do
-				expect(request).not.to be(:idempotent?)
+			it "should be idempotent" do
+				expect(request).to be(:idempotent?)
 			end
 		end
 		
@@ -168,7 +168,7 @@ describe Protocol::HTTP::Request do
 			with "idempotent request with a rewindable body" do
 				let(:request) {subject["PUT", "/resource", body: "content"]}
 				
-				it "rewinds the body" do
+				it "allows retry and rewinds the body" do
 					expect(request.body.read).to be == "content"
 					
 					expect(request.retry!).to be == true
@@ -187,6 +187,14 @@ describe Protocol::HTTP::Request do
 			
 			with "non-idempotent request" do
 				let(:request) {subject["POST", "/submit"]}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
+			end
+			
+			with "PATCH request" do
+				let(:request) {subject["PATCH", "/resource"]}
 				
 				it "does not allow retry" do
 					expect(request.retry!).to be == false
