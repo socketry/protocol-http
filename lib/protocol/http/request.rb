@@ -156,18 +156,11 @@ module Protocol
 			# Rewind the request body so it can be sent again.
 			# @returns [Boolean] Whether the request body was rewound.
 			def rewind!
-				# Requests without a body can be sent again immediately.
 				if body = @body
-					# Bodies must be rewindable so the same data can be sent again.
-					if !body.rewindable?
-						return false
-					end
-					
-					if !body.rewind
-						return false
-					end
+					return body.rewind
 				end
 				
+				# Requests without a body can be sent again immediately.
 				return true
 			end
 			
