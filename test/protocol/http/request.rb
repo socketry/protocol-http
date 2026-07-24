@@ -160,6 +160,32 @@ describe Protocol::HTTP::Request do
 			end
 		end
 		
+		with "#rewind!" do
+			it "allows requests without a body" do
+				expect(request.rewind!).to be == true
+			end
+			
+			with "request with a rewindable body" do
+				let(:request) {subject["POST", "/submit", body: "content"]}
+				
+				it "rewinds the body" do
+					expect(request.body.read).to be == "content"
+					
+					expect(request.rewind!).to be == true
+					expect(request.body.read).to be == "content"
+				end
+			end
+			
+			with "request with a non-rewindable body" do
+				let(:body) {Protocol::HTTP::Body::Readable.new}
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not rewind" do
+					expect(request.rewind!).to be == false
+				end
+			end
+		end
+		
 		with "#retry!" do
 			it "allows idempotent requests without a body" do
 				expect(request.retry!).to be == true

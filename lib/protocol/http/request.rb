@@ -153,14 +153,9 @@ module Protocol
 				return false
 			end
 			
-			# Prepare the request body to be sent again, if it is safe to retry.
-			# @returns [Boolean] Whether the request was prepared for retry.
-			def retry!
-				# Only idempotent request methods can be retried safely.
-				if @method == Methods::POST || @method == Methods::PATCH || @method == Methods::CONNECT
-					return false
-				end
-				
+			# Rewind the request body so it can be sent again.
+			# @returns [Boolean] Whether the request body was rewound.
+			def rewind!
 				# Requests without a body can be sent again immediately.
 				if body = @body
 					# Empty, non-rewindable bodies have nothing left to send.
@@ -179,6 +174,17 @@ module Protocol
 				end
 				
 				return true
+			end
+			
+			# Prepare the request body to be sent again, if it is safe to retry.
+			# @returns [Boolean] Whether the request was prepared for retry.
+			def retry!
+				# Only idempotent request methods can be retried safely.
+				if @method == Methods::POST || @method == Methods::PATCH || @method == Methods::CONNECT
+					return false
+				end
+				
+				return self.rewind!
 			end
 			
 			# Convert the request to a hash, suitable for serialization.
