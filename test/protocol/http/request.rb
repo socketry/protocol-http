@@ -152,6 +152,127 @@ describe Protocol::HTTP::Request do
 			end
 		end
 		
+		with "PATCH request without a body" do
+			let(:request) {subject["PATCH", "/resource"]}
+			
+			it "should be idempotent" do
+				expect(request).to be(:idempotent?)
+			end
+		end
+		
+		with "#rewind!" do
+			it "allows requests without a body" do
+				expect(request.rewind!).to be == true
+			end
+			
+			with "request with a rewindable body" do
+				let(:request) {subject["POST", "/submit", body: "content"]}
+				
+				it "rewinds the body" do
+					expect(request.body.read).to be == "content"
+					
+					expect(request.rewind!).to be == true
+					expect(request.body.read).to be == "content"
+				end
+			end
+			
+			with "request with a non-rewindable body" do
+				let(:body) {Protocol::HTTP::Body::Readable.new}
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not rewind" do
+					expect(request.rewind!).to be == false
+				end
+			end
+			
+			with "request with a consumed non-rewindable body" do
+				let(:body) do
+					Class.new(Protocol::HTTP::Body::Readable) do
+						def initialize
+							@chunk = "content"
+						end
+						
+						def read
+							chunk = @chunk
+							@chunk = nil
+							return chunk
+						end
+						
+						def empty?
+							@chunk.nil?
+						end
+					end.new
+				end
+				
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not treat empty as rewindable" do
+					expect(request.body.read).to be == "content"
+					expect(request.body).to be(:empty?)
+					
+					expect(request.rewind!).to be == false
+				end
+			end
+			
+			with "request with an empty non-rewindable body" do
+				let(:body) do
+					Class.new(Protocol::HTTP::Body::Readable) do
+						def empty?
+							true
+						end
+					end.new
+				end
+				
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not rewind" do
+					expect(request.rewind!).to be == false
+				end
+			end
+		end
+		
+		with "#retry!" do
+			it "allows idempotent requests without a body" do
+				expect(request.retry!).to be == true
+			end
+			
+			with "idempotent request with a rewindable body" do
+				let(:request) {subject["PUT", "/resource", body: "content"]}
+				
+				it "allows retry and rewinds the body" do
+					expect(request.body.read).to be == "content"
+					
+					expect(request.retry!).to be == true
+					expect(request.body.read).to be == "content"
+				end
+			end
+			
+			with "idempotent request with a non-rewindable body" do
+				let(:body) {Protocol::HTTP::Body::Readable.new}
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
+			end
+			
+			with "non-idempotent request" do
+				let(:request) {subject["POST", "/submit"]}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
+			end
+			
+			with "PATCH request" do
+				let(:request) {subject["PATCH", "/resource"]}
+				
+				it "does not allow retry" do
+					expect(request.retry!).to be == false
+				end
+			end
+		end
+		
 		it "should have a string representation" do
 			expect(request.to_s).to be == "http://localhost: GET /index.html HTTP/1.0"
 		end

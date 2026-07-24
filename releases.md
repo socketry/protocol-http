@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add `Protocol::HTTP::Request#rewind!` and `#retry!` for preparing requests to be sent again.
+
 ## v0.63.0
 
   - Add support for the HTTP `QUERY` method.
