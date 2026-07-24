@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.64.0
 
   - Add `Protocol::HTTP::Request#rewind!` and `#retry!` for preparing requests to be sent again.
 
