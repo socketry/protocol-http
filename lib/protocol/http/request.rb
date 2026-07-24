@@ -158,12 +158,7 @@ module Protocol
 			def rewind!
 				# Requests without a body can be sent again immediately.
 				if body = @body
-					# Empty, non-rewindable bodies have nothing left to send.
-					if body.empty? && !body.rewindable?
-						return true
-					end
-					
-					# Non-empty bodies must be rewindable so the same data can be sent again.
+					# Bodies must be rewindable so the same data can be sent again.
 					if !body.rewindable?
 						return false
 					end

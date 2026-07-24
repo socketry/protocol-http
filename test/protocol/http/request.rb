@@ -184,6 +184,51 @@ describe Protocol::HTTP::Request do
 					expect(request.rewind!).to be == false
 				end
 			end
+			
+			with "request with a consumed non-rewindable body" do
+				let(:body) do
+					Class.new(Protocol::HTTP::Body::Readable) do
+						def initialize
+							@chunk = "content"
+						end
+						
+						def read
+							chunk = @chunk
+							@chunk = nil
+							return chunk
+						end
+						
+						def empty?
+							@chunk.nil?
+						end
+					end.new
+				end
+				
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not treat empty as rewindable" do
+					expect(request.body.read).to be == "content"
+					expect(request.body).to be(:empty?)
+					
+					expect(request.rewind!).to be == false
+				end
+			end
+			
+			with "request with an empty non-rewindable body" do
+				let(:body) do
+					Class.new(Protocol::HTTP::Body::Readable) do
+						def empty?
+							true
+						end
+					end.new
+				end
+				
+				let(:request) {subject.new(nil, nil, "PUT", "/resource", nil, headers, body)}
+				
+				it "does not rewind" do
+					expect(request.rewind!).to be == false
+				end
+			end
 		end
 		
 		with "#retry!" do
