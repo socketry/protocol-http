@@ -212,6 +212,27 @@ describe Protocol::HTTP::Headers do
 			expect(headers["accept-encoding"]).to be(:include?, "deflate")
 		end
 		
+		it "adds multiple set-cookie values as separate fields" do
+			headers["set-cookie"] = ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+			
+			expect(headers.fields.select{|key, value| key == "set-cookie"}).to be == [
+				["set-cookie", "session=abc123; Path=/"],
+				["set-cookie", "theme=dark; HttpOnly"],
+			]
+			expect(headers["set-cookie"]).to be == ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+		end
+		
+		it "adds multiple set-cookie values after indexing headers" do
+			headers.to_h
+			headers["set-cookie"] = ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+			
+			expect(headers.fields.select{|key, value| key == "set-cookie"}).to be == [
+				["set-cookie", "session=abc123; Path=/"],
+				["set-cookie", "theme=dark; HttpOnly"],
+			]
+			expect(headers["set-cookie"]).to be == ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+		end
+		
 		it "can add field with indexed hash" do
 			expect(headers.to_h).not.to be(:empty?)
 			
