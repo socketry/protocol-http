@@ -212,6 +212,35 @@ describe Protocol::HTTP::Headers do
 			expect(headers["accept-encoding"]).to be(:include?, "deflate")
 		end
 		
+		it "joins multiple cookie values into one field" do
+			headers["cookie"] = ["session=abc123", "theme=dark"]
+			
+			expect(headers.fields.select{|key, value| key == "cookie"}).to be == [
+				["cookie", "session=abc123; theme=dark"],
+			]
+		end
+		
+		it "adds multiple set-cookie values as separate fields" do
+			headers["set-cookie"] = ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+			
+			expect(headers.fields.select{|key, value| key == "set-cookie"}).to be == [
+				["set-cookie", "session=abc123; Path=/"],
+				["set-cookie", "theme=dark; HttpOnly"],
+			]
+			expect(headers["set-cookie"]).to be == ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+		end
+		
+		it "adds multiple set-cookie values after indexing headers" do
+			headers.to_h
+			headers["set-cookie"] = ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+			
+			expect(headers.fields.select{|key, value| key == "set-cookie"}).to be == [
+				["set-cookie", "session=abc123; Path=/"],
+				["set-cookie", "theme=dark; HttpOnly"],
+			]
+			expect(headers["set-cookie"]).to be == ["session=abc123; Path=/", "theme=dark; HttpOnly"]
+		end
+		
 		it "can add field with indexed hash" do
 			expect(headers.to_h).not.to be(:empty?)
 			
@@ -600,7 +629,7 @@ describe Protocol::HTTP::Headers do
 	
 	with "set-cookie" do
 		it "can extract parsed cookies" do
-			expect(headers["set-cookie"]).to be_a(Protocol::HTTP::Header::Cookie)
+			expect(headers["set-cookie"]).to be_a(Protocol::HTTP::Header::SetCookie)
 		end
 	end
 	

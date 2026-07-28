@@ -10,6 +10,12 @@ describe Protocol::HTTP::Header::Cookie do
 	let(:header) {subject.parse(description)}
 	let(:cookies) {header.to_h}
 	
+	it "can coerce a single value" do
+		header = subject.coerce("session=abc123")
+		
+		expect(header).to be == ["session=abc123"]
+	end
+	
 	with "session=123; secure" do
 		it "can parse cookies" do
 			expect(cookies).to have_keys("session")
@@ -56,8 +62,8 @@ describe Protocol::HTTP::Header::Cookie do
 			cookie
 		end
 		
-		it "joins cookies with semicolons without spaces" do
-			expect(header.to_s).to be == "session=abc123;user_id=42;token=xyz789"
+		it "joins cookies with semicolons and spaces per RFC 6265" do
+			expect(header.to_s).to be == "session=abc123; user_id=42; token=xyz789"
 		end
 	end
 end
