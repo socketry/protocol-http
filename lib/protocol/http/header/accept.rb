@@ -65,8 +65,6 @@ module Protocol
 				# @parameter value [String] a raw header value containing comma-separated media types.
 				# @returns [Accept] a new instance containing the parsed media types.
 				def self.parse(value)
-					raise TypeError, "Expected a String, got: #{value.class}" unless value.is_a?(String)
-					
 					self.new << value
 				end
 				
@@ -104,6 +102,8 @@ module Protocol
 				private
 				
 				def split_values(value)
+					raise TypeError, "Expected a String, got: #{value.class}" unless value.is_a?(String)
+					
 					return [] if value.empty?
 					
 					values = []

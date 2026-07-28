@@ -143,6 +143,12 @@ describe Protocol::HTTP::Header::Accept do
 		end
 	end
 	
+	with "#<<" do
+		it "rejects nil" do
+			expect{subject.new << nil}.to raise_exception(TypeError)
+		end
+	end
+	
 	with "text/html;q=0, text/plain;q=0.123, application/json;q=1.000" do
 		it "accepts standard quality factors" do
 			expect(media_ranges.collect(&:quality_factor)).to be == [1.0, 0.123, 0.0]
