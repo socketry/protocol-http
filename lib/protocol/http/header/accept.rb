@@ -15,12 +15,12 @@ module Protocol
 			class Accept < Split
 				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
 				SEPARATOR = /
-					(?:
-						"(?:[^"\\]|\\.)*" # Match quoted strings, including quoted pairs.
-						|
-						[^,"]+ # Match non-quoted strings until a comma or quote.
+					(?:                       # Start non-capturing group
+						"(?:[^"\\]|\\.)*"       # Match quoted strings, including quoted pairs
+						|                       # OR
+						[^,"]+                  # Match non-quoted strings until a comma or quote
 					)+
-					(?=,|\z)
+					(?=,|\z)                  # Match until a comma or end of string
 				/x
 				
 				ParseError = Class.new(Error)
