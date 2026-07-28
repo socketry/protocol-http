@@ -84,6 +84,71 @@ describe Protocol::HTTP::Header::Accept do
 		end
 	end
 	
+	with 'foo/bar;key="A,B,C", text/plain;note="a,b; c\\"d"' do
+		it "preserves commas and escapes in quoted parameters" do
+			expect(header.length).to be == 2
+			expect(media_ranges[0].parameters).to have_keys(
+				"key" => be == "A,B,C",
+			)
+			expect(media_ranges[1].parameters).to have_keys(
+				"note" => be == 'a,b; c"d',
+			)
+		end
+	end
+	
+	with "invalid media ranges" do
+		it "rejects malformed parameters" do
+			[
+				",",
+				"text/html,",
+				"text/html;",
+				"text/html;invalid",
+				"text/html;charset=",
+				'text/html;charset="unterminated',
+			].each do |value|
+				expect{subject.parse(value).media_ranges}.to raise_exception(Protocol::HTTP::Header::Accept::ParseError)
+			end
+		end
+		
+		it "rejects invalid wildcard forms" do
+			[
+				"*/json",
+				"text/*+json",
+				"te*t/plain",
+			].each do |value|
+				expect{subject.parse(value).media_ranges}.to raise_exception(Protocol::HTTP::Header::Accept::ParseError)
+			end
+		end
+		
+		it "rejects invalid quality factors" do
+			[
+				"text/html;q=1.1",
+				"text/html;q=0.1234",
+				"text/html;q=invalid",
+				'text/html;q="0.5"',
+				"text/html;q=0.5;q=0.4",
+			].each do |value|
+				expect{subject.parse(value).media_ranges}.to raise_exception(Protocol::HTTP::Header::Accept::ParseError)
+			end
+		end
+	end
+	
+	with ".parse" do
+		it "accepts an empty string" do
+			expect(subject.parse("").media_ranges).to be == []
+		end
+		
+		it "rejects nil" do
+			expect{subject.parse(nil)}.to raise_exception(TypeError)
+		end
+	end
+	
+	with "text/html;q=0, text/plain;q=0.123, application/json;q=1.000" do
+		it "accepts standard quality factors" do
+			expect(media_ranges.collect(&:quality_factor)).to be == [1.0, 0.123, 0.0]
+		end
+	end
+	
 	with ".coerce" do
 		it "coerces array to Accept" do
 			result = subject.coerce(["text/html", "application/json"])
