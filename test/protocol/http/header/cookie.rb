@@ -10,6 +10,12 @@ describe Protocol::HTTP::Header::Cookie do
 	let(:header) {subject.parse(description)}
 	let(:cookies) {header.to_h}
 	
+	it "can coerce a single value" do
+		header = subject.coerce("session=abc123")
+		
+		expect(header).to be == ["session=abc123"]
+	end
+	
 	with "session=123; secure" do
 		it "can parse cookies" do
 			expect(cookies).to have_keys("session")
