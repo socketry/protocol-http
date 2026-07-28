@@ -99,8 +99,6 @@ describe Protocol::HTTP::Header::Accept do
 	with "invalid media ranges" do
 		it "rejects malformed parameters" do
 			[
-				",",
-				"text/html,",
 				"text/html;",
 				"text/html;invalid",
 				"text/html;charset=",
@@ -140,6 +138,12 @@ describe Protocol::HTTP::Header::Accept do
 		
 		it "rejects nil" do
 			expect{subject.parse(nil)}.to raise_exception(TypeError)
+		end
+		
+		it "ignores empty list members" do
+			expect(subject.parse(", text/html,").media_ranges).to have_attributes(
+				length: be == 1,
+			)
 		end
 	end
 	

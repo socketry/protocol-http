@@ -8,13 +8,21 @@ require_relative "split"
 require_relative "../quoted_string"
 require_relative "../error"
 
-require "strscan"
-
 module Protocol
 	module HTTP
 		module Header
 			# The `accept-content-type` header represents a list of content-types that the client can accept.
 			class Accept < Split
+				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
+				SEPARATOR = /
+					(?:
+						"(?:[^"\\]|\\.)*" # Match quoted strings, including quoted pairs.
+						|
+						[^,"]+ # Match non-quoted strings until a comma or quote.
+					)+
+					(?=,|\z)
+				/x
+				
 				ParseError = Class.new(Error)
 				
 				MEDIA_RANGE = /\A(?<type>#{TOKEN})\/(?<subtype>#{TOKEN})(?<parameters>.*)\z/
@@ -104,34 +112,7 @@ module Protocol
 				def split_values(value)
 					raise TypeError, "Expected a String, got: #{value.class}" unless value.is_a?(String)
 					
-					return [] if value.empty?
-					
-					values = []
-					start = 0
-					quoted = false
-					escaped = false
-					
-					value.each_char.with_index do |character, index|
-						if quoted
-							if escaped
-								escaped = false
-							elsif character == "\\"
-								escaped = true
-							elsif character == '"'
-								quoted = false
-							end
-						elsif character == '"'
-							quoted = true
-						elsif character == ","
-							values << value[start...index].strip
-							start = index + 1
-						end
-					end
-					
-					raise ParseError, "Unterminated quoted string: #{value.inspect}" if quoted
-					
-					values << value[start..].strip
-					return values
+					value.scan(SEPARATOR).map(&:strip)
 				end
 				
 				def parse_media_range(value)
@@ -139,12 +120,15 @@ module Protocol
 						type = match[:type]
 						subtype = match[:subtype]
 						parameters = {}
-						scanner = StringScanner.new(match[:parameters])
+						parameters_string = match[:parameters]
+						offset = 0
 						
-						while scanner.scan(PARAMETER)
-							key = scanner[:key]
-							value = scanner[:value]
-							quoted_value = scanner[:quoted_value]
+						parameters_string.scan(PARAMETER) do |key, value, quoted_value|
+							parameter_match = Regexp.last_match
+							unless parameter_match.begin(0) == offset
+								raise ParseError, "Invalid media range parameters: #{parameters_string[offset..].inspect}"
+							end
+							offset = parameter_match.end(0)
 							
 							if key.casecmp?("q")
 								if quoted_value || parameters.key?("q") || !value.match?(/\A(?:#{QVALUE})\z/)
@@ -161,8 +145,8 @@ module Protocol
 							parameters[key] = value
 						end
 						
-						unless scanner.eos?
-							raise ParseError, "Invalid media range parameters: #{scanner.rest.inspect}"
+						unless offset == parameters_string.length
+							raise ParseError, "Invalid media range parameters: #{parameters_string[offset..].inspect}"
 						end
 						
 						if (type.include?("*") && type != "*") || (subtype.include?("*") && subtype != "*") || (type == "*" && subtype != "*")
