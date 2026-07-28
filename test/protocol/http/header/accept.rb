@@ -136,20 +136,10 @@ describe Protocol::HTTP::Header::Accept do
 			expect(subject.parse("").media_ranges).to be == []
 		end
 		
-		it "rejects nil" do
-			expect{subject.parse(nil)}.to raise_exception(TypeError)
-		end
-		
 		it "ignores empty list members" do
 			expect(subject.parse(", text/html,").media_ranges).to have_attributes(
 				length: be == 1,
 			)
-		end
-	end
-	
-	with "#<<" do
-		it "rejects nil" do
-			expect{subject.new << nil}.to raise_exception(TypeError)
 		end
 	end
 	

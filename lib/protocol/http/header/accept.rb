@@ -82,7 +82,7 @@ module Protocol
 				#
 				# @parameter value [String] a raw header value containing one or more media types separated by commas.
 				def << value
-					self.concat(split_values(value))
+					self.concat(value.scan(SEPARATOR).map(&:strip))
 				end
 				
 				# Converts the parsed header value into a raw header value.
@@ -108,12 +108,6 @@ module Protocol
 				end
 				
 				private
-				
-				def split_values(value)
-					raise TypeError, "Expected a String, got: #{value.class}" unless value.is_a?(String)
-					
-					value.scan(SEPARATOR).map(&:strip)
-				end
 				
 				def parse_media_range(value)
 					if match = value.match(MEDIA_RANGE)
