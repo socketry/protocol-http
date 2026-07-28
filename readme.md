@@ -30,6 +30,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.65.0
+
+  - Improve `Accept` header parsing for quoted pairs, malformed parameters, invalid wildcards, and invalid quality factors.
+  - Emit multiple `Set-Cookie` values as separate header fields and delimit combined `Cookie` values with a space after each semicolon.
+
 ### v0.64.0
 
   - Add `Protocol::HTTP::Request#rewind!` and `#retry!` for preparing requests to be sent again.
@@ -70,14 +75,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
   - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
   - Introduce `Protocol::HTTP::InvalidTrailerError` which is raised when a trailer header is not allowed by the current policy.
   - **Breaking**: `Headers#each` now yields parsed values according to the current policy. For the previous behaviour, use `Headers#fields`.
-
-### v0.56.0
-
-  - Introduce `Header::*.parse(value)` which parses a raw header value string into a header instance.
-  - Introduce `Header::*.coerce(value)` which coerces any value (`String`, `Array`, etc.) into a header instance with normalization.
-  - `Header::*#initialize` now accepts arrays without normalization for efficiency, or strings for backward compatibility.
-  - Update `Headers#[]=` to use `coerce(value)` for smart conversion of user input.
-  - Normalization (e.g., lowercasing) is applied by `parse`, `coerce`, and `<<` methods, but not by `new` when given arrays.
 
 ## See Also
 

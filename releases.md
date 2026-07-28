@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.65.0
 
   - Improve `Accept` header parsing for quoted pairs, malformed parameters, invalid wildcards, and invalid quality factors.
   - Emit multiple `Set-Cookie` values as separate header fields and delimit combined `Cookie` values with a space after each semicolon.
