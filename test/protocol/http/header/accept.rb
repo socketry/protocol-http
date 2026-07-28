@@ -101,6 +101,7 @@ describe Protocol::HTTP::Header::Accept do
 			[
 				"text/html;",
 				"text/html;invalid",
+				"text/html;invalid;q=0.5",
 				"text/html;charset=",
 				'text/html;charset="unterminated',
 			].each do |value|
