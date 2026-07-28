@@ -212,6 +212,14 @@ describe Protocol::HTTP::Headers do
 			expect(headers["accept-encoding"]).to be(:include?, "deflate")
 		end
 		
+		it "joins multiple cookie values into one field" do
+			headers["cookie"] = ["session=abc123", "theme=dark"]
+			
+			expect(headers.fields.select{|key, value| key == "cookie"}).to be == [
+				["cookie", "session=abc123; theme=dark"],
+			]
+		end
+		
 		it "adds multiple set-cookie values as separate fields" do
 			headers["set-cookie"] = ["session=abc123; Path=/", "theme=dark; HttpOnly"]
 			

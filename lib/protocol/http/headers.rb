@@ -9,6 +9,7 @@ require_relative "header/split"
 require_relative "header/multiple"
 
 require_relative "header/cookie"
+require_relative "header/set_cookie"
 require_relative "header/connection"
 require_relative "header/cache_control"
 require_relative "header/etag"
@@ -299,7 +300,7 @@ module Protocol
 				if @indexed
 					@indexed[key] = value
 				end
-
+				
 				if value.is_a?(Multiple)
 					value.each do |v|
 						@fields << [key, v.to_s]
