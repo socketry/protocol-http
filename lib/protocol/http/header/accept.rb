@@ -73,7 +73,7 @@ module Protocol
 				# @parameter value [String] a raw header value containing comma-separated media types.
 				# @returns [Accept] a new instance containing the parsed media types.
 				def self.parse(value)
-					self.new << value
+					self.new(value.scan(SEPARATOR).map(&:strip))
 				end
 				
 				# Adds one or more comma-separated values to the header.
