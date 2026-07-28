@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Improve `Accept` header parsing for quoted pairs, malformed parameters, invalid wildcards, and invalid quality factors.
+
 ## v0.64.0
 
   - Add `Protocol::HTTP::Request#rewind!` and `#retry!` for preparing requests to be sent again.

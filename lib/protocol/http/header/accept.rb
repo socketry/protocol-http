@@ -15,12 +15,12 @@ module Protocol
 			class Accept < Split
 				# Regular expression used to split values on commas, with optional surrounding whitespace, taking into account quoted strings.
 				SEPARATOR = /
-					(?:            # Start non-capturing group
-						"[^"\\]*"    # Match quoted strings (no escaping of quotes within)
-						|            # OR
-						[^,"]+       # Match non-quoted strings until a comma or quote
+					(?:                       # Start non-capturing group
+						"(?:[^"\\]|\\.)*"       # Match quoted strings, including quoted pairs
+						|                       # OR
+						[^,"]+                  # Match non-quoted strings until a comma or quote
 					)+
-					(?=,|\z)       # Match until a comma or end of string
+					(?=,|\z)                  # Match until a comma or end of string
 				/x
 				
 				ParseError = Class.new(Error)
@@ -114,13 +114,37 @@ module Protocol
 						type = match[:type]
 						subtype = match[:subtype]
 						parameters = {}
+						parameters_string = match[:parameters]
+						offset = 0
 						
-						match[:parameters].scan(PARAMETER) do |key, value, quoted_value|
+						parameters_string.scan(PARAMETER) do |key, value, quoted_value|
+							parameter_match = Regexp.last_match
+							unless parameter_match.begin(0) == offset
+								raise ParseError, "Invalid media range parameters: #{parameters_string[offset..].inspect}"
+							end
+							offset = parameter_match.end(0)
+							
+							if key.casecmp?("q")
+								if quoted_value || parameters.key?("q") || !value.match?(/\A(?:#{QVALUE})\z/)
+									raise ParseError, "Invalid quality factor: #{value.inspect}"
+								end
+								
+								key = "q"
+							end
+							
 							if quoted_value
 								value = QuotedString.unquote(quoted_value)
 							end
 							
 							parameters[key] = value
+						end
+						
+						unless offset == parameters_string.length
+							raise ParseError, "Invalid media range parameters: #{parameters_string[offset..].inspect}"
+						end
+						
+						if (type.include?("*") && type != "*") || (subtype.include?("*") && subtype != "*") || (type == "*" && subtype != "*")
+							raise ParseError, "Invalid wildcards in media range: #{type}/#{subtype}"
 						end
 						
 						return MediaRange.new(type, subtype, parameters)
