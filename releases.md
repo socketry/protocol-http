@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Introduce `Protocol::HTTP::RemoteError` for remote endpoint failures where application processing may have occurred.
+
 ## v0.65.0
 
   - Improve `Accept` header parsing for quoted pairs, malformed parameters, invalid wildcards, and invalid quality factors.

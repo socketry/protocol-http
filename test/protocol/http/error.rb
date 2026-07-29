@@ -23,6 +23,20 @@ describe Protocol::HTTP::RefusedError do
 	end
 end
 
+describe Protocol::HTTP::RemoteError do
+	let(:error) {subject.new("Remote endpoint encountered an internal error.")}
+	
+	with "#initialize" do
+		it "is an HTTP error" do
+			expect(error).to be_a(Protocol::HTTP::Error)
+		end
+		
+		it "has a descriptive message" do
+			expect(error.message).to be == "Remote endpoint encountered an internal error."
+		end
+	end
+end
+
 describe Protocol::HTTP::DuplicateHeaderError do
 	let(:key) {"content-length"}
 	let(:existing_value) {"100"}
