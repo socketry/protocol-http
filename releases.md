@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.66.0
 
   - Introduce `Protocol::HTTP::RemoteError` for remote endpoint failures where application processing may have occurred.
 

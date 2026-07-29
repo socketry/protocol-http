@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.66.0
+
+  - Introduce `Protocol::HTTP::RemoteError` for remote endpoint failures where application processing may have occurred.
+
 ### v0.65.0
 
   - Improve `Accept` header parsing for quoted pairs, malformed parameters, invalid wildcards, and invalid quality factors.
@@ -69,12 +73,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
   - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
   - Introduce `Headers#header` method to enumerate only the main headers, excluding trailers. This can be used after invoking `Headers#trailer!` to avoid race conditions.
   - Fix `Headers#to_h` so that indexed headers are not left in an inconsistent state if errors occur during processing.
-
-### v0.57.0
-
-  - Always use `#parse` when parsing header values from strings to ensure proper normalization and validation.
-  - Introduce `Protocol::HTTP::InvalidTrailerError` which is raised when a trailer header is not allowed by the current policy.
-  - **Breaking**: `Headers#each` now yields parsed values according to the current policy. For the previous behaviour, use `Headers#fields`.
 
 ## See Also
 
