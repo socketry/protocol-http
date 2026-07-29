@@ -14,6 +14,11 @@ module Protocol
 		class RefusedError < Error
 		end
 		
+		# Raised when the remote endpoint fails while processing an HTTP stream or request.
+		# This error does not indicate whether application processing occurred. Where available, the protocol-specific error should be attached as the cause.
+		class RemoteError < Error
+		end
+		
 		# @deprecated Use {RefusedError} instead.
 		RequestRefusedError = RefusedError
 		
