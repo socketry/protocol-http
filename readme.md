@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.68.0
+
+  - Add HTTP status descriptions.
+
 ### v0.67.0
 
   - Parse and resolve HTTP `Range` header values according to the default headers policy.
@@ -67,10 +71,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 
   - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
   - Prevent `ZLib::BufError` when deflating empty chunks by skipping deflation for empty chunks.
-
-### v0.58.1
-
-  - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
 
 ## See Also
 
