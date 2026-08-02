@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### Unreleased
+
+  - Introduce `Protocol::HTTP::InvalidHeaderError` for malformed or invalid headers, which can be treated as bad requests.
+
 ### v0.71.0
 
   - Parse all cookie pairs from `Cookie` header fields, including multiple semicolon-separated pairs within each field.

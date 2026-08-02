@@ -23,7 +23,7 @@ module Protocol
 					(?=,|\z)                  # Match until a comma or end of string
 				/x
 				
-				ParseError = Class.new(Error)
+				ParseError = Class.new(InvalidHeaderError)
 				
 				MEDIA_RANGE = /\A(?<type>#{TOKEN})\/(?<subtype>#{TOKEN})(?<parameters>.*)\z/
 				
