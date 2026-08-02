@@ -18,6 +18,7 @@ require_relative "header/vary"
 require_relative "header/authorization"
 require_relative "header/date"
 require_relative "header/priority"
+require_relative "header/range"
 require_relative "header/trailer"
 require_relative "header/server_timing"
 require_relative "header/digest"
@@ -347,7 +348,7 @@ module Protocol
 				"host" => false,
 				"location" => false,
 				"max-forwards" => false,
-				"range" => false,
+				"range" => Header::Range,
 				"referer" => false,
 				"retry-after" => false,
 				"server" => false,

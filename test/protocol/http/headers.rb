@@ -174,8 +174,34 @@ describe Protocol::HTTP::Headers do
 	end
 	
 	with "#to_h" do
+		it "parses range headers according to the policy" do
+			headers = subject[[["range", "bytes=1-4"]]]
+			range = headers["range"]
+			
+			expect(range).to be_a(Protocol::HTTP::Header::Range)
+			expect(range.resolve(12)).to be == [1..4]
+		end
+		
+		it "combines repeated range headers according to the policy" do
+			headers = subject[[
+				["range", "bytes=1-4"],
+				["range", "bytes=8-"],
+			]]
+			
+			expect(headers["range"].resolve(12)).to be == [1..4, 8..11]
+		end
+		
 		it "should generate array values for duplicate keys" do
 			expect(headers.to_h["set-cookie"]).to be == ["hello=world", "foo=bar"]
+		end
+	end
+	
+	with "#[]=" do
+		it "coerces range header values according to the policy" do
+			headers["range"] = "bytes=-4"
+			
+			expect(headers["range"]).to be_a(Protocol::HTTP::Header::Range)
+			expect(headers["range"].resolve(12)).to be == [8..11]
 		end
 	end
 	
