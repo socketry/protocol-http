@@ -6,6 +6,10 @@
 require "protocol/http/header/te"
 
 describe Protocol::HTTP::Header::TE do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	
 	with "chunked" do

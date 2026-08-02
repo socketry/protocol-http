@@ -12,7 +12,9 @@ module Protocol
 		module Header
 			# The `accept-encoding` header represents a list of encodings that the client can accept.
 			class AcceptEncoding < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				# https://tools.ietf.org/html/rfc7231#section-5.3.1
 				QVALUE = /0(\.[0-9]{0,3})?|1(\.[0]{0,3})?/

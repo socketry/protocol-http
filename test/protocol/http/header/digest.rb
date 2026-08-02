@@ -7,6 +7,10 @@ require "protocol/http/header/digest"
 require "sus"
 
 describe Protocol::HTTP::Header::Digest do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	
 	with "empty header" do

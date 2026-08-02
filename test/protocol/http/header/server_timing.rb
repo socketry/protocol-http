@@ -7,6 +7,10 @@ require "protocol/http/header/server_timing"
 require "sus"
 
 describe Protocol::HTTP::Header::ServerTiming do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	
 	with "empty header" do

@@ -23,7 +23,9 @@ module Protocol
 					(?=,|\z)                  # Match until a comma or end of string
 				/x
 				
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				MEDIA_RANGE = /\A(?<type>#{TOKEN})\/(?<subtype>#{TOKEN})(?<parameters>.*)\z/
 				

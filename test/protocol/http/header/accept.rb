@@ -20,6 +20,10 @@ describe Protocol::HTTP::Header::Accept::MediaRange do
 end
 
 describe Protocol::HTTP::Header::Accept do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	let(:media_ranges) {header.media_ranges.sort}
 	

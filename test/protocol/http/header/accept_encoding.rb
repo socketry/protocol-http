@@ -13,6 +13,10 @@ describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 end
 
 describe Protocol::HTTP::Header::AcceptEncoding do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	let(:encodings) {header.encodings.sort}
 	

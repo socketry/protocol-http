@@ -12,7 +12,9 @@ module Protocol
 		module Header
 			# The `accept-charset` header represents a list of character sets that the client can accept.
 			class AcceptCharset < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				# https://tools.ietf.org/html/rfc7231#section-5.3.3
 				CHARSET = /\A(?<name>#{TOKEN})(;q=(?<q>#{QVALUE}))?\z/
