@@ -30,7 +30,7 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
-### Unreleased
+### v0.67.0
 
   - Parse and resolve HTTP `Range` header values according to the default headers policy.
 
@@ -71,12 +71,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.58.1
 
   - `Protocol::HTTP::DuplicateHeaderError` now includes the existing and new values for better debugging.
-
-### v0.58.0
-
-  - Move trailer validation to `Headers#add` method to ensure all additions are checked at the time of addition as this is a hard requirement.
-  - Introduce `Headers#header` method to enumerate only the main headers, excluding trailers. This can be used after invoking `Headers#trailer!` to avoid race conditions.
-  - Fix `Headers#to_h` so that indexed headers are not left in an inconsistent state if errors occur during processing.
 
 ## See Also
 
