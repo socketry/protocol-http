@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### Unreleased
+
+  - Parse and resolve HTTP `Range` header values according to the default headers policy.
+
 ### v0.66.0
 
   - Introduce `Protocol::HTTP::RemoteError` for remote endpoint failures where application processing may have occurred.
