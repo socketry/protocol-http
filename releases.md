@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add HTTP status descriptions.
+
 ## v0.67.0
 
   - Parse and resolve HTTP `Range` header values according to the default headers policy.
