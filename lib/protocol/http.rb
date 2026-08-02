@@ -5,6 +5,7 @@
 
 require_relative "http/version"
 
+require_relative "http/status"
 require_relative "http/headers"
 require_relative "http/request"
 require_relative "http/response"
