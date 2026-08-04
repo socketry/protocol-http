@@ -4,6 +4,8 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2023, by Bruno Sutic.
 
+require_relative "stream"
+
 module Protocol
 	module HTTP
 		module Body
@@ -185,6 +187,12 @@ module Protocol
 				# @returns [String] The body as JSON.
 				def to_json(...)
 					as_json.to_json(...)
+				end
+				
+				# Return an IO-compatible stream for reading this body.
+				# @returns [Stream] The IO-compatible stream adapter.
+				def to_io
+					return Stream.new(self)
 				end
 			end
 		end

@@ -1,5 +1,10 @@
 # Releases
 
+## Unreleased
+
+  - Add `Protocol::HTTP::Body::Readable#to_io` for obtaining an IO-compatible stream adapter.
+  - Avoid creating an implicit buffered output for `Protocol::HTTP::Body::Stream`.
+
 ## v0.68.0
 
   - Add HTTP status descriptions.

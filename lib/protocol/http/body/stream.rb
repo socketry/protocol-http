@@ -5,8 +5,6 @@
 # Copyright, 2023, by Genki Takiuchi.
 # Copyright, 2025, by William T. Nelson.
 
-require_relative "buffered"
-
 module Protocol
 	module HTTP
 		module Body
@@ -17,13 +15,15 @@ module Protocol
 				
 				# Initialize the stream with the given input and output.
 				#
-				# @parameter input [Readable] The input stream.
-				# @parameter output [Writable] The output stream.
-				def initialize(input = nil, output = Buffered.new)
+				# @parameter input [Readable | Nil] The input stream.
+				# @parameter output [Writable | Nil] The output stream.
+				def initialize(input = nil, output = nil)
 					@input = input
 					@output = output
 					
-					raise ArgumentError, "Non-writable output!" unless output.respond_to?(:write)
+					if @output
+						raise ArgumentError, "Non-writable output!" unless output.respond_to?(:write)
+					end
 					
 					# Will hold remaining data in `#read`.
 					@buffer = nil
@@ -32,10 +32,10 @@ module Protocol
 					@closed_read = false
 				end
 				
-				# @attribute [Readable] The input stream.
+				# @attribute [Readable | Nil] The input stream.
 				attr :input
 				
-				# @attribute [Writable] The output stream.
+				# @attribute [Writable | Nil] The output stream.
 				attr :output
 				
 				# This provides a read-only interface for data, which is surprisingly tricky to implement correctly.
@@ -409,7 +409,11 @@ module Protocol
 				
 				# @returns [Boolean] Whether there are any output chunks remaining.
 				def empty?
-					@output.empty?
+					if @output
+						return @output.empty?
+					else
+						return true
+					end
 				end
 				
 				private
