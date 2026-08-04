@@ -9,6 +9,22 @@ require "protocol/http/body/readable"
 describe Protocol::HTTP::Body::Readable do
 	let(:body) {subject.new}
 	
+	with "#to_io" do
+		let(:body) {Protocol::HTTP::Body::Buffered.new(["Hello", "World"])}
+		
+		it "returns an IO-compatible stream" do
+			stream = body.to_io
+			
+			expect(stream).to be_a(Protocol::HTTP::Body::Stream)
+			expect(stream.output).to be_nil
+			expect(body.to_io).not.to be_equal(stream)
+			expect(stream.read(5)).to be == "Hello"
+			expect(stream.read(5)).to be == "World"
+			expect(stream.read(5)).to be_nil
+			expect{stream.write("!")}.to raise_exception(IOError)
+		end
+	end
+	
 	it "might not be empty" do
 		expect(body).not.to be(:empty?)
 	end
