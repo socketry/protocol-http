@@ -30,6 +30,11 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.69.0
+
+  - Add `Protocol::HTTP::Body::Readable#to_io` for obtaining an IO-compatible stream adapter.
+  - Avoid creating an implicit buffered output for `Protocol::HTTP::Body::Stream`.
+
 ### v0.68.0
 
   - Add HTTP status descriptions.
@@ -66,11 +71,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.60.0
 
   - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
-
-### v0.59.0
-
-  - Introduce `Protocol::HTTP::Middleware.load` method for loading middleware applications from files.
-  - Prevent `ZLib::BufError` when deflating empty chunks by skipping deflation for empty chunks.
 
 ## See Also
 
