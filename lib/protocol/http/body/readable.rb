@@ -138,17 +138,24 @@ module Protocol
 				# @parameter stream [IO | Object] An `IO`-like object that responds to `#read`, `#write` and `#flush`.
 				# @returns [Boolean] Whether the ownership of the stream was transferred.
 				def call(stream)
-					self.each do |chunk|
-						stream.write(chunk)
-						
-						# Flush the stream unless we are immediately expecting more data:
-						unless self.ready?
-							stream.flush
+					begin
+						self.each do |chunk|
+							stream.write(chunk)
+							
+							# Flush the stream unless we are immediately expecting more data:
+							unless self.ready?
+								stream.flush
+							end
+						end
+					rescue => error
+						raise
+					ensure
+						if error and stream.respond_to?(:close_with_error)
+							stream.close_with_error(error)
+						else
+							stream.close
 						end
 					end
-				ensure
-					# TODO Should this invoke close_write(error) instead?
-					stream.close
 				end
 				
 				# Read all remaining chunks into a buffered body and close the underlying input.

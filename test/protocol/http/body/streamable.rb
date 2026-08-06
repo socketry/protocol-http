@@ -4,6 +4,8 @@
 # Copyright, 2024-2025, by Samuel Williams.
 
 require "protocol/http/body/streamable"
+require "protocol/http/request"
+require "protocol/http/response"
 require "sus/fixtures/async"
 
 describe Protocol::HTTP::Body::Streamable do
@@ -134,6 +136,27 @@ describe Protocol::HTTP::Body::Streamable do
 				expect(stream.string).to be == "Hello"
 			end
 		end
+		
+		with "a stream that supports explicit error closure" do
+			let(:error) {RuntimeError.new("Oh no!")}
+			let(:block) {proc{|stream| raise error}}
+			
+			it "passes the exact error when closing the stream" do
+				closed_error = nil
+				stream = Object.new
+				stream.define_singleton_method(:close_with_error){|argument| closed_error = argument}
+				
+				raised_error = begin
+					body.call(stream)
+				rescue => exception
+					exception
+				end
+				
+				expect(raised_error).to be_equal(error)
+				expect(closed_error).to be_equal(error)
+			end
+		end
+		
 	end
 	
 	with "#close" do
@@ -300,6 +323,8 @@ describe Protocol::HTTP::Body::Streamable do
 		it "can stream an error" do
 			input.write("Hello")
 			input.close_write(RuntimeError.new("Oh no!"))
+			
+			expect(output.read).to be == "Hello"
 			
 			expect do
 				output.read

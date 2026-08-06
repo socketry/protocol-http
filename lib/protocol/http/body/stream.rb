@@ -375,6 +375,15 @@ module Protocol
 					end
 				end
 				
+				# Close the stream because an error occurred.
+				#
+				# This explicit operation allows IO-compatible consumers to propagate an error without passing an argument to {close}.
+				#
+				# @parameter error [Exception] The error that caused this stream to be closed.
+				def close_with_error(error)
+					self.close(error)
+				end
+				
 				# Close the input and output bodies.
 				#
 				# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.

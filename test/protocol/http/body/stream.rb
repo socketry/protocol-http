@@ -341,6 +341,20 @@ describe Protocol::HTTP::Body::Stream do
 			stream.close
 			expect(stream).to be(:closed?)
 		end
+		
+		it "can be closed with an explicit error" do
+			error = RuntimeError.new("Oh no!")
+			closed_error = nil
+			
+			mock(output) do |mock|
+				mock.replace(:close_write){|argument| closed_error = argument}
+			end
+			
+			stream.close_with_error(error)
+			
+			expect(closed_error).to be_equal(error)
+			expect(stream).to be(:closed?)
+		end
 	end
 	
 	with "IO.copy_stream" do

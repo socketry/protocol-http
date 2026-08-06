@@ -102,6 +102,71 @@ describe Protocol::HTTP::Body::Writable do
 			body.write("Hello")
 			expect(body).not.to be(:empty?)
 		end
+		
+		it "should not be empty if a terminal error is pending" do
+			body.close_write(RuntimeError.new("Oh no!"))
+			expect(body).not.to be(:empty?)
+		end
+	end
+	
+	with "#close" do
+		it "discards buffered chunks" do
+			body.write("Hello")
+			body.close
+			
+			expect(body.read).to be_nil
+			expect{body.write("World")}.to raise_exception(Protocol::HTTP::Body::Writable::Closed)
+		end
+	end
+	
+	with "#close_write" do
+		it "drains buffered chunks before raising the terminal error" do
+			error = RuntimeError.new("The body was truncated!")
+			
+			body.write("Hello")
+			body.write("World")
+			body.close_write(error)
+			
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be == "World"
+			
+			raised_error = begin
+				body.read
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
+		end
+		
+		it "does not replace clean completion with a later error" do
+			body.write("Hello")
+			body.close_write
+			body.close_write(RuntimeError.new("Too late!"))
+			
+			expect(body.read).to be == "Hello"
+			expect(body.read).to be_nil
+		end
+		
+		it "wakes a blocked reader with the exact error" do
+			error = RuntimeError.new("The body was truncated!")
+			started = Thread::Queue.new
+			
+			reader = Thread.new do
+				started << true
+				
+				begin
+					body.read
+				rescue => exception
+					exception
+				end
+			end
+			
+			started.pop
+			body.close_write(error)
+			
+			expect(reader.value).to be_equal(error)
+		end
 	end
 	
 	with "#write" do
@@ -233,6 +298,27 @@ describe Protocol::HTTP::Body::Writable do
 			expect do
 				body.read
 			end.to raise_exception(RuntimeError, message: be =~ /Oops/)
+		end
+		
+		it "drains buffered chunks before propagating errors" do
+			error = RuntimeError.new("Oops!")
+			
+			expect do
+				body.output do |output|
+					output.write("Hello")
+					raise error
+				end
+			end.to raise_exception(RuntimeError, message: be =~ /Oops/)
+			
+			expect(body.read).to be == "Hello"
+			
+			raised_error = begin
+				body.read
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
 		end
 	end
 end

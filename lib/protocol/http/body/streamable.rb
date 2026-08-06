@@ -129,7 +129,12 @@ module Protocol
 						block.call(stream)
 					rescue => error
 						# If, for some reason, the block raises an error, we assume it may not have closed the stream, so we close it here:
-						stream.close
+						if stream.respond_to?(:close_with_error)
+							stream.close_with_error(error)
+						else
+							stream.close
+						end
+						
 						raise
 					end
 					

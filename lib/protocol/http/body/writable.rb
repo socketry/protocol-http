@@ -21,6 +21,7 @@ module Protocol
 				def initialize(length = nil, queue: Thread::Queue.new)
 					@length = length
 					@queue = queue
+					@mutex = Thread::Mutex.new
 					@count = 0
 					@error = nil
 				end
@@ -31,19 +32,23 @@ module Protocol
 				# @attribute [Integer] The number of chunks written to the body.
 				attr :count
 				
-				# Stop generating output; cause the next call to write to fail with the given error. Does not prevent existing chunks from being read. In other words, this indicates both that no more data will be or should be written to the body.
+				# Stop consuming the body and discard any unread chunks. Future writes will fail with the given error, or {Closed} if no error is given.
 				#
-				# @parameter error [Exception] The error that caused this body to be closed, if any. Will be raised on the next call to {read}.
+				# @parameter error [Exception | Nil] The error that caused this body to be closed, if any.
 				def close(error = nil)
-					@error ||= error
-					
-					@queue.clear
-					@queue.close
+					@mutex.synchronize do
+						unless @queue.closed?
+							@error = error
+							@queue.close
+						end
+						
+						@queue.clear
+					end
 					
 					super
 				end
 				
-				# Whether the body is closed. A closed body can not be written to or read from.
+				# Whether the body is closed for writing. Buffered chunks may still be read.
 				#
 				# @returns [Boolean] Whether the body is closed.
 				def closed?
@@ -59,7 +64,7 @@ module Protocol
 				#
 				# @returns [Boolean] Whether the body is empty.
 				def empty?
-					@queue.empty? && @queue.closed?
+					@error.nil? && @queue.empty? && @queue.closed?
 				end
 				
 				# Read the next available chunk.
@@ -67,14 +72,9 @@ module Protocol
 				# @returns [String | Nil] The next chunk, or `nil` if the body is finished.
 				# @raises [Exception] If the body was closed due to an error.
 				def read
-					if @error
-						raise @error
-					end
-					
-					# This operation may result in @error being set.
 					chunk = @queue.pop
 					
-					if @error
+					if chunk.nil? and @error
 						raise @error
 					end
 					
@@ -87,20 +87,22 @@ module Protocol
 				# @raises [Closed] If the body has been closed without error.
 				# @raises [Exception] If the body has been closed due to an error.
 				def write(chunk)
-					if @queue.closed?
-						raise(@error || Closed)
-					end
-					
 					@queue.push(chunk)
 					@count += 1
+				rescue ClosedQueueError
+					raise(@error || Closed)
 				end
 				
 				# Signal that no more data will be written to the body.
 				#
 				# @parameter error [Exception] The error that caused this body to be closed, if any.
 				def close_write(error = nil)
-					@error ||= error
-					@queue.close
+					@mutex.synchronize do
+						unless @queue.closed?
+							@error = error
+							@queue.close
+						end
+					end
 				end
 				
 				# The output interface for writing chunks to the body.
@@ -127,23 +129,18 @@ module Protocol
 					
 					# Close the output stream.
 					#
-					# If an error is given, the error will be used to close the body by invoking {close} with the error. Otherwise, only the write side of the body will be closed.
+					# If an error is given, it will be raised by the reader after all buffered chunks have been consumed.
 					#
 					# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 					def close(error = nil)
 						@closed = true
-						
-						if error
-							@writable.close(error)
-						else
-							@writable.close_write
-						end
+						@writable.close_write(error)
 					end
 				end
 				
 				# Create an output wrapper which can be used to write chunks to the body.
 				#
-				# If a block is given, and the block raises an error, the error will used to close the body by invoking {close} with the error.
+				# If a block is given, and the block raises an error, the reader will receive all buffered chunks followed by that error.
 				#
 				# @yields {|output| ...} if a block is given.
 				# 	@parameter output [Output] The output wrapper.

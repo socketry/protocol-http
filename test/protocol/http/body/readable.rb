@@ -45,6 +45,47 @@ describe Protocol::HTTP::Body::Readable do
 		end
 	end
 	
+	with "#each" do
+		it "passes a read error to close" do
+			error = RuntimeError.new("Could not read the body!")
+			closed_error = nil
+			
+			mock(body) do |mock|
+				mock.replace(:read){raise error}
+				mock.replace(:close){|argument = nil| closed_error = argument}
+			end
+			
+			raised_error = begin
+				body.each{}
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
+			expect(closed_error).to be_equal(error)
+		end
+		
+		it "passes a consumer error to close" do
+			error = RuntimeError.new("Could not consume the body!")
+			closed_error = nil
+			chunks = ["Hello", nil]
+			
+			mock(body) do |mock|
+				mock.replace(:read){chunks.shift}
+				mock.replace(:close){|argument = nil| closed_error = argument}
+			end
+			
+			raised_error = begin
+				body.each{raise error}
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
+			expect(closed_error).to be_equal(error)
+		end
+	end
+	
 	with "#call" do
 		let(:output) {Protocol::HTTP::Body::Buffered.new}
 		let(:stream) {Protocol::HTTP::Body::Stream.new(nil, output)}
@@ -72,6 +113,45 @@ describe Protocol::HTTP::Body::Readable do
 			
 			body.call(stream)
 		end
+		
+		it "closes a plain IO normally when reading fails" do
+			error = RuntimeError.new("Could not read the body!")
+			stream = StringIO.new
+			
+			mock(body) do |mock|
+				mock.replace(:read){raise error}
+			end
+			
+			raised_error = begin
+				body.call(stream)
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
+			expect(stream).to be(:closed?)
+		end
+		
+		it "passes a read error to a stream with explicit error closure" do
+			error = RuntimeError.new("Could not read the body!")
+			closed_error = nil
+			stream = Object.new
+			stream.define_singleton_method(:close_with_error){|argument| closed_error = argument}
+			
+			mock(body) do |mock|
+				mock.replace(:read){raise error}
+			end
+			
+			raised_error = begin
+				body.call(stream)
+			rescue => exception
+				exception
+			end
+			
+			expect(raised_error).to be_equal(error)
+			expect(closed_error).to be_equal(error)
+		end
+		
 	end
 	
 	with "#join" do

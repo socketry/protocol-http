@@ -23,9 +23,34 @@ describe Protocol::HTTP::Body::Reader do
 	let(:body) {Protocol::HTTP::Body::Buffered.wrap("thequickbrownfox")}
 	let(:reader) {TestReader.new(body)}
 	
+	with "#each" do
+		it "detaches the body after failure" do
+			mock(body) {|mock| mock.replace(:each){raise "Could not read!"}}
+			
+			expect{reader.each{}}.to raise_exception(RuntimeError, message: be =~ /Could not read!/)
+			expect(reader.body).to be_nil
+		end
+	end
+	
+	with "#read" do
+		it "detaches the body after failure" do
+			mock(body) {|mock| mock.replace(:join){raise "Could not read!"}}
+			
+			expect{reader.read}.to raise_exception(RuntimeError, message: be =~ /Could not read!/)
+			expect(reader.body).to be_nil
+		end
+	end
+	
 	with "#finish" do
 		it "returns a buffered representation" do
 			expect(reader.finish).to be == body
+		end
+		
+		it "detaches the body after failure" do
+			mock(body) {|mock| mock.replace(:finish){raise "Could not read!"}}
+			
+			expect{reader.finish}.to raise_exception(RuntimeError, message: be =~ /Could not read!/)
+			expect(reader.body).to be_nil
 		end
 	end
 	
@@ -40,6 +65,13 @@ describe Protocol::HTTP::Body::Reader do
 		it "buffers the body" do
 			expect(reader.buffered!).to be_equal(reader)
 			expect(reader.body).to be == body
+		end
+		
+		it "detaches the body after failure" do
+			mock(body) {|mock| mock.replace(:finish){raise "Could not read!"}}
+			
+			expect{reader.buffered!}.to raise_exception(RuntimeError, message: be =~ /Could not read!/)
+			expect(reader.body).to be_nil
 		end
 	end
 	

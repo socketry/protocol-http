@@ -15,9 +15,9 @@ module Protocol
 				#
 				# @yields {|chunk| ...} chunks from the body.
 				def each(&block)
-					if @body
-						@body.each(&block)
+					if body = @body
 						@body = nil
+						body.each(&block)
 					end
 				end
 				
@@ -25,11 +25,10 @@ module Protocol
 				#
 				# @returns [String] the entire body as a string.
 				def read
-					if @body
-						buffer = @body.join
+					if body = @body
 						@body = nil
 						
-						return buffer
+						return body.join
 					end
 				end
 				
@@ -37,11 +36,10 @@ module Protocol
 				#
 				# @returns [Buffered] buffers the entire body.
 				def finish
-					if @body
-						body = @body.finish
+					if body = @body
 						@body = nil
 						
-						return body
+						return body.finish
 					end
 				end
 				
@@ -59,8 +57,9 @@ module Protocol
 				#
 				# @returns [Reader] itself.
 				def buffered!
-					if @body
-						@body = @body.finish
+					if body = @body
+						@body = nil
+						@body = body.finish
 					end
 					
 					# TODO Should this return @body instead? It seems more useful.
