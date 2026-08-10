@@ -14,7 +14,7 @@ end
 
 describe Protocol::HTTP::Header::AcceptCharset do
 	let(:header) {subject.parse(description)}
-	let(:charsets) {header.charsets.sort}
+	let(:charsets) {header.preferred_charsets}
 	
 	with "utf-8, iso-8859-1;q=0.5, windows-1252;q=0.25" do
 		it "can parse charsets" do

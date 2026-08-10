@@ -62,9 +62,16 @@ describe Protocol::HTTP::Header::TE do
 	
 	with "gzip;q=0.5, deflate;q=0.8" do
 		it "handles multiple quality factors" do
-			codings = header.transfer_codings.sort
+			codings = header.preferred_transfer_codings
 			expect(codings[0].name).to be == "deflate"  # higher quality first
 			expect(codings[1].name).to be == "gzip"
+		end
+	end
+	
+	with "gzip, deflate;q=0.5, compress;q=0.5" do
+		it "preserves relative order for equal quality factors" do
+			codings = header.preferred_transfer_codings
+			expect(codings.collect(&:name)).to be == %w{gzip deflate compress}
 		end
 	end
 	

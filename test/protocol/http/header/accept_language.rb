@@ -14,7 +14,7 @@ end
 
 describe Protocol::HTTP::Header::AcceptLanguage do
 	let(:header) {subject.parse(description)}
-	let(:languages) {header.languages.sort}
+	let(:languages) {header.preferred_languages}
 	
 	with "da, en-gb;q=0.5, en;q=0.25" do
 		it "can parse languages" do

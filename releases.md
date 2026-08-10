@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-  - Add stable preference ordering for `Accept` media ranges.
+  - Add stable preference ordering for weighted `Accept`, `Accept-Charset`, `Accept-Encoding`, `Accept-Language`, and `TE` values.
 
 ## v0.69.0
 

@@ -47,6 +47,15 @@ module Protocol
 						end
 					end
 				end
+				
+				# Parse the `accept-charset` header and order character sets by preference.
+				#
+				# Character sets with equal quality factors retain their original relative order.
+				#
+				# @returns [Array(Charset)] the preferred character sets.
+				def preferred_charsets
+					sort_by_quality_factor(charsets)
+				end
 			end
 		end
 	end

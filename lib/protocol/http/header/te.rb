@@ -113,6 +113,15 @@ module Protocol
 					end
 				end
 				
+				# Parse the `te` header and order transfer codings by preference.
+				#
+				# Transfer codings with equal quality factors retain their original relative order.
+				#
+				# @returns [Array(TransferCoding)] the preferred transfer codings.
+				def preferred_transfer_codings
+					sort_by_quality_factor(transfer_codings)
+				end
+				
 				# @returns [Boolean] whether the `chunked` encoding is accepted.
 				def chunked?
 					self.any?{|value| value.start_with?(CHUNKED)}

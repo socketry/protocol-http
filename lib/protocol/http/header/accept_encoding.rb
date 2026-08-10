@@ -50,6 +50,15 @@ module Protocol
 						end
 					end
 				end
+				
+				# Parse the `accept-encoding` header and order encodings by preference.
+				#
+				# Encodings with equal quality factors retain their original relative order.
+				#
+				# @returns [Array(Encoding)] the preferred encodings.
+				def preferred_encodings
+					sort_by_quality_factor(encodings)
+				end
 			end
 		end
 	end
