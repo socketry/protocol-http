@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.70.0
 
   - Add stable preference ordering for weighted `Accept`, `Accept-Charset`, `Accept-Encoding`, `Accept-Language`, and `TE` values.
 

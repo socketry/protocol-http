@@ -30,6 +30,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
+### v0.70.0
+
+  - Add stable preference ordering for weighted `Accept`, `Accept-Charset`, `Accept-Encoding`, `Accept-Language`, and `TE` values.
+
 ### v0.69.0
 
   - Add `Protocol::HTTP::Body::Readable#to_io` for obtaining an IO-compatible stream adapter.
@@ -67,10 +71,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.61.0
 
   - Introduce `Protocol::HTTP::RefusedError` for indicating a stream or request was refused before processing and can be safely retried. `RequestRefusedError` is provided as an alias for backwards compatibility.
-
-### v0.60.0
-
-  - Expose `Protocol::HTTP::Body::Writable#count` attribute to provide access to the number of chunks written to the body.
 
 ## See Also
 
