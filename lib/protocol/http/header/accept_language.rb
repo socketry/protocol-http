@@ -53,6 +53,15 @@ module Protocol
 						end
 					end
 				end
+				
+				# Parse the `accept-language` header and order languages by preference.
+				#
+				# Languages with equal quality factors retain their original relative order.
+				#
+				# @returns [Array(Language)] the preferred languages.
+				def preferred_languages
+					sort_by_quality_factor(languages)
+				end
 			end
 		end
 	end

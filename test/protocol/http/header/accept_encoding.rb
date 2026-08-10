@@ -14,7 +14,7 @@ end
 
 describe Protocol::HTTP::Header::AcceptEncoding do
 	let(:header) {subject.parse(description)}
-	let(:encodings) {header.encodings.sort}
+	let(:encodings) {header.preferred_encodings}
 	
 	with "gzip, deflate;q=0.5, identity;q=0.25" do
 		it "can parse charsets" do

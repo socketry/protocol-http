@@ -113,9 +113,7 @@ module Protocol
 				#
 				# @returns [Array(MediaRange)] the preferred media ranges.
 				def preferred_media_ranges
-					media_ranges.sort_by.with_index do |media_range, index|
-						[-media_range.quality_factor, index]
-					end
+					sort_by_quality_factor(media_ranges)
 				end
 				
 				private

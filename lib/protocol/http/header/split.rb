@@ -77,6 +77,14 @@ module Protocol
 				end
 				
 			protected
+				# Order weighted values by descending quality while preserving their relative order.
+				# @parameter values [Enumerable] The values which respond to `#quality_factor`.
+				# @returns [Array] The ordered values.
+				def sort_by_quality_factor(values)
+					values.sort_by.with_index do |value, index|
+						[-value.quality_factor, index]
+					end
+				end
 				
 				def reverse_find(&block)
 					reverse_each do |value|
