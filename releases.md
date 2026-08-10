@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add stable preference ordering for `Accept` media ranges.
+
 ## v0.69.0
 
   - Add `Protocol::HTTP::Body::Readable#to_io` for obtaining an IO-compatible stream adapter.

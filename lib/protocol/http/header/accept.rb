@@ -107,6 +107,17 @@ module Protocol
 					end
 				end
 				
+				# Parse the `accept` header and order media ranges by preference.
+				#
+				# Media ranges with equal quality factors retain their original relative order.
+				#
+				# @returns [Array(MediaRange)] the preferred media ranges.
+				def preferred_media_ranges
+					media_ranges.sort_by.with_index do |media_range, index|
+						[-media_range.quality_factor, index]
+					end
+				end
+				
 				private
 				
 				def parse_media_range(value)

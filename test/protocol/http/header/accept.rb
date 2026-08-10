@@ -21,7 +21,7 @@ end
 
 describe Protocol::HTTP::Header::Accept do
 	let(:header) {subject.parse(description)}
-	let(:media_ranges) {header.media_ranges.sort}
+	let(:media_ranges) {header.preferred_media_ranges}
 	
 	with "text/plain, text/html;q=0.5, text/xml;q=0.25" do
 		it "can parse media ranges" do
@@ -64,7 +64,7 @@ describe Protocol::HTTP::Header::Accept do
 	end
 	
 	with "text/html, text/plain;q=0.8, text/xml;q=0.6, application/json" do
-		it "should order based on quality factor" do
+		it "preserves relative order for equal quality factors" do
 			expect(media_ranges.collect(&:to_s)).to be == %w{text/html application/json text/plain;q=0.8 text/xml;q=0.6}
 		end
 	end
