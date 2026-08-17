@@ -16,40 +16,23 @@ describe Protocol::HTTP::Header::Cookie do
 		expect(header).to be == ["session=abc123"]
 	end
 	
-	with "session=123; secure" do
+	with "session=123; user_id=42" do
 		it "can parse cookies" do
-			expect(cookies).to have_keys("session")
+			expect(cookies).to have_keys("session", "user_id")
 			
 			session = cookies["session"]
 			expect(session).to have_attributes(
 				name: be == "session",
 				value: be == "123",
+				directives: be == {},
 			)
-			expect(session.directives).to have_keys("secure")
-		end
-	end
-	
-	with "session=123; path=/; secure" do
-		it "can parse cookies" do
-			session = cookies["session"]
-			expect(session).to have_attributes(
-				name: be == "session",
-				value: be == "123",
-				directives: be == {"path" => "/", "secure" => true},
-			)
-		end
-	end
-	
-	with "session=abc123; secure" do
-		it "can parse cookies" do
-			expect(cookies).to have_keys("session")
 			
-			session = cookies["session"]
-			expect(session).to have_attributes(
-				name: be == "session",
-				value: be == "abc123",
+			user_id = cookies["user_id"]
+			expect(user_id).to have_attributes(
+				name: be == "user_id",
+				value: be == "42",
+				directives: be == {},
 			)
-			expect(session.directives).to have_keys("secure")
 		end
 	end
 	
@@ -64,6 +47,10 @@ describe Protocol::HTTP::Header::Cookie do
 		
 		it "joins cookies with semicolons and spaces per RFC 6265" do
 			expect(header.to_s).to be == "session=abc123; user_id=42; token=xyz789"
+		end
+		
+		it "parses cookies from multiple header fields" do
+			expect(cookies).to have_keys("session", "user_id", "token")
 		end
 	end
 end

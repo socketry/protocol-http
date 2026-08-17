@@ -49,8 +49,11 @@ module Protocol
 				#
 				# @returns [Hash(String, HTTP::Cookie)] a hash where keys are cookie names and values are {HTTP::Cookie} objects.
 				def to_h
-					cookies = self.collect do |string|
-						HTTP::Cookie.parse(string)
+					cookies = self.flat_map do |string|
+						# Each header field can contain multiple cookie pairs separated by semicolons:
+						string.split(/\s*;\s*/).map do |pair|
+							HTTP::Cookie.parse(pair)
+						end
 					end
 					
 					cookies.map{|cookie| [cookie.name, cookie]}.to_h
