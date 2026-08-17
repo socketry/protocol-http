@@ -5,6 +5,7 @@
 # Copyright, 2022, by Herrick Fang.
 
 require "protocol/http/header/cookie"
+require "protocol/http/headers"
 
 describe Protocol::HTTP::Header::Cookie do
 	let(:header) {subject.parse(description)}
@@ -36,6 +37,29 @@ describe Protocol::HTTP::Header::Cookie do
 		end
 	end
 	
+	with "empty=; token=abc==" do
+		it "preserves empty values and equals signs" do
+			expect(cookies["empty"].value).to be == ""
+			expect(cookies["token"].value).to be == "abc=="
+		end
+	end
+	
+	with "first=1 ; second=2;\tthird=3" do
+		it "ignores whitespace around separators" do
+			expect(cookies.transform_values(&:value)).to be == {
+				"first" => "1",
+				"second" => "2",
+				"third" => "3",
+			}
+		end
+	end
+	
+	with "session=first; session=second" do
+		it "uses the last value for duplicate names" do
+			expect(cookies["session"].value).to be == "second"
+		end
+	end
+	
 	with "multiple cookies" do
 		let(:header) do
 			cookie = subject.new
@@ -52,5 +76,21 @@ describe Protocol::HTTP::Header::Cookie do
 		it "parses cookies from multiple header fields" do
 			expect(cookies).to have_keys("session", "user_id", "token")
 		end
+	end
+	
+	it "parses cookies through protocol headers" do
+		headers = Protocol::HTTP::Headers[[
+			["cookie", "session=abc123; user_id=42"],
+			["cookie", "token=xyz789"],
+		]]
+		
+		header = headers["cookie"]
+		
+		expect(header).to be_a(subject)
+		expect(header.to_h.transform_values(&:value)).to be == {
+			"session" => "abc123",
+			"user_id" => "42",
+			"token" => "xyz789",
+		}
 	end
 end
