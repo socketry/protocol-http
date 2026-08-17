@@ -1,5 +1,10 @@
 # Releases
 
+## v0.71.0
+
+  - Parse all cookie pairs from `Cookie` header fields, including multiple semicolon-separated pairs within each field.
+  - Preserve `Set-Cookie` parsing as one cookie plus attributes/directives per header field.
+
 ## v0.70.0
 
   - Add stable preference ordering for weighted `Accept`, `Accept-Charset`, `Accept-Encoding`, `Accept-Language`, and `TE` values.
