@@ -12,7 +12,9 @@ module Protocol
 		module Header
 			# The `accept-language` header represents a list of languages that the client can accept.
 			class AcceptLanguage < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				# https://tools.ietf.org/html/rfc3066#section-2.1
 				NAME = /\*|[A-Z]{1,8}(-[A-Z0-9]{1,8})*/i

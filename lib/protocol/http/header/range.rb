@@ -10,7 +10,9 @@ module Protocol
 		module Header
 			# Represents a `range` request header.
 			class Range
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				TOKEN = /[!#$%&'*+\-.0-9A-Z^_`a-z|~]+/
 				HEADER = /\A(?<unit>#{TOKEN})=(?<ranges>.*)\z/

@@ -51,6 +51,7 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.67.0
 
   - Parse and resolve HTTP `Range` header values according to the default headers policy.
+  - Classify malformed header values as bad requests.
 
 ### v0.66.0
 

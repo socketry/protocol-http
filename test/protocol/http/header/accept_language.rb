@@ -13,6 +13,10 @@ describe Protocol::HTTP::Header::AcceptLanguage::Language do
 end
 
 describe Protocol::HTTP::Header::AcceptLanguage do
+	it "classifies parse errors as bad requests" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::BadRequest)
+	end
+	
 	let(:header) {subject.parse(description)}
 	let(:languages) {header.preferred_languages}
 	

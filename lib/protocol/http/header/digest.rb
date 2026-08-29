@@ -23,7 +23,9 @@ module Protocol
 			# # => "sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=, md5=9bb58f26192e4ba00f01e2e7b136bbd8"
 			# ```
 			class Digest < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(Error) do
+					include BadRequest
+				end
 				
 				# https://tools.ietf.org/html/rfc3230#section-4.3.2
 				ENTRY = /\A(?<algorithm>[a-zA-Z0-9][a-zA-Z0-9\-]*)\s*=\s*(?<value>.*)\z/
