@@ -15,7 +15,7 @@ module Protocol
 			#
 			# In some cases, it's advantageous to directly read and write to the underlying stream if possible. For example, HTTP/1 upgrade requests, WebSockets, and similar. To handle that case, response bodies can implement {stream?} and return `true`. When {stream?} returns true, the body **should** be consumed by calling `call(stream)`. Server implementations may choose to always invoke `call(stream)` if it's efficient to do so. Bodies that don't support it will fall back to using {each}.
 			#
-			# When invoking `call(stream)`, the stream can be read from and written to, and closed. However, the stream is only guaranteed to be open for the duration of the `call(stream)` call. Once the method returns, the stream **should** be closed by the server.
+			# Invoking `call(stream)` transfers ownership of the stream to the called body. The body may read from and write to the stream, and **must** close it before returning. The caller must consider the stream closed and unusable after `call(stream)` returns.
 			module Streamable
 				# Generate a new streaming request body using the given block to generate the body.
 				#
@@ -113,7 +113,7 @@ module Protocol
 						@output.read
 					end
 					
-					# Invoke the block with the given stream. The block can read and write to the stream, and must close the stream when finishing.
+					# Invoke the block with the given stream. The block owns the stream for the duration of the call and must close it before returning.
 					#
 					# @parameter stream [Stream] The stream to read and write to.
 					def call(stream)

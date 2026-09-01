@@ -259,6 +259,23 @@ content = uppercase.join  # => "HELLO WORLD"
 
 ## Life-cycle
 
+Bodies model application-facing streams. Their close operations describe what the application will do next; protocol implementations are responsible for mapping those operations to the wire protocol safely.
+
+### Directional Closure
+
+Request and response bodies are independent, so a bidirectional {ruby Protocol::HTTP::Body::Stream} can close either direction without implicitly closing the other:
+
+| Operation | Application-level meaning | Typical protocol consequence |
+| --- | --- | --- |
+| `read` returns `nil` | The peer or producer completed the input normally. | The inbound body has reached end-of-stream. |
+| `close_read` before end-of-stream | The application will not consume the remaining input, but may continue writing. | Discard unread data, terminate the exchange, or make the connection non-reusable. |
+| `close_write` without an error | The application has finished producing output, but may continue reading. | Preserve previously written data and send a normal end-of-stream. |
+| `close` without an error | The application has finished with both directions. | Complete or terminate the exchange without reporting an application error. |
+| `close` with an error | The application cannot continue the exchange successfully. | Propagate the error or terminate the exchange using an appropriate protocol error. |
+| `discard` | Consume input without processing it. | Prefer preserving the exchange or connection for reuse. |
+
+These operations update local application-facing state. Returning from a close operation does not guarantee that the peer has observed it or that the underlying transport has been closed synchronously. Those details depend on the protocol and may be completed later.
+
 ### Initialization
 
 Bodies are typically initialized with the data they need to process. For example:

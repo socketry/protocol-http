@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.
+
 ## v0.71.0
 
   - Parse all cookie pairs from `Cookie` header fields, including multiple semicolon-separated pairs within each field.
