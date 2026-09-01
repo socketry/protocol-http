@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2025, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 # Copyright, 2023, by Genki Takiuchi.
 # Copyright, 2025, by William T. Nelson.
 
@@ -347,7 +347,11 @@ module Protocol
 				def flush
 				end
 				
-				# Close the input body.
+				# Close the application-facing input body. This does not close the output body, which may continue to be written independently.
+				#
+				# If the input has not reached end-of-file, any remaining data is abandoned. The protocol implementation must ensure that unread data cannot interfere with subsequent exchanges. Depending on the protocol, it may discard the remaining data, terminate the current exchange, or make the connection non-reusable.
+				#
+				# Closing without an error represents orderly application-level abandonment, not a protocol failure.
 				#
 				# If, while processing the data that was read from this stream, an error is encountered, it should be passed to this method.
 				#
@@ -362,7 +366,9 @@ module Protocol
 					end
 				end
 				
-				# Close the output body.
+				# Close the application-facing output body. This does not close the input body, which may continue to be read independently.
+				#
+				# Closing without an error indicates that no more output will be produced and should be represented as a normal end-of-stream by the protocol implementation. If an error is provided, the protocol implementation may terminate the exchange instead.
 				#
 				# If, while generating the data that is written to this stream, an error is encountered, it should be passed to this method.
 				#
@@ -376,6 +382,8 @@ module Protocol
 				end
 				
 				# Close the input and output bodies.
+				#
+				# Closing without an error represents orderly completion or abandonment of both application-facing directions, not cancellation. If the peer has not completed the exchange, the protocol implementation may need to terminate it without reporting an application error.
 				#
 				# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 				def close(error = nil)

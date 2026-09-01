@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2024, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 # Copyright, 2023, by Bruno Sutic.
 
 require_relative "stream"
@@ -22,7 +22,11 @@ module Protocol
 			class Readable
 				# Close the stream immediately. After invoking this method, the stream should be considered closed, and all internal resources should be released.
 				#
-				# If an error occured while handling the output, it can be passed as an argument. This may be propagated to the client, for example the client may be informed that the stream was not fully read correctly.
+				# Closing the stream before it reaches end-of-file abandons any remaining input. The protocol implementation must account for that unread data before the associated exchange or connection can be reused. Depending on the protocol, it may discard the remaining data, terminate the exchange, or make the connection non-reusable. Use {discard} when preserving the exchange or connection is preferred.
+				#
+				# When closing before end-of-file, omitting the error represents deliberate application-level abandonment, not a protocol failure.
+				#
+				# If an error occurred while handling the output, it can be passed as an argument. This may be propagated to the client, for example the client may be informed that the stream was not fully read correctly.
 				#
 				# Invoking {read} after {close} will return `nil`.
 				#
