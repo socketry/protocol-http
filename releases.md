@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-  - Clarified the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, including how premature input closure affects the associated HTTP exchange.
+  - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.
 
 ## v0.71.0
 

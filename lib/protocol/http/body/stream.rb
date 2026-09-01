@@ -353,6 +353,8 @@ module Protocol
 				#
 				# Closing without an error represents orderly application-level abandonment, not a protocol failure.
 				#
+				# This method is idempotent. After the first call, subsequent calls have no effect.
+				#
 				# If, while processing the data that was read from this stream, an error is encountered, it should be passed to this method.
 				#
 				# @parameter error [Exception | Nil] The error that was encountered, if any.
@@ -368,7 +370,9 @@ module Protocol
 				
 				# Close the application-facing output body. This does not close the input body, which may continue to be read independently.
 				#
-				# Closing without an error indicates that no more output will be produced and should be represented as a normal end-of-stream by the protocol implementation. If an error is provided, the protocol implementation may terminate the exchange instead.
+				# Closing without an error indicates that no more output will be produced. Previously written data remains part of the output and should be followed by a normal end-of-stream from the protocol implementation. If an error is provided, the protocol implementation may terminate the exchange instead.
+				#
+				# This method is idempotent. After the first call, subsequent calls have no effect.
 				#
 				# If, while generating the data that is written to this stream, an error is encountered, it should be passed to this method.
 				#
@@ -384,6 +388,8 @@ module Protocol
 				# Close the input and output bodies.
 				#
 				# Closing without an error represents orderly completion or abandonment of both application-facing directions, not cancellation. If the peer has not completed the exchange, the protocol implementation may need to terminate it without reporting an application error.
+				#
+				# Repeated calls are safe; each underlying direction will be closed at most once.
 				#
 				# @parameter error [Exception | Nil] The error that caused this stream to be closed, if any.
 				def close(error = nil)
