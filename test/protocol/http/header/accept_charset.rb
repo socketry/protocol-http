@@ -10,6 +10,12 @@ describe Protocol::HTTP::Header::AcceptCharset::Charset do
 		charset = subject.new("utf-8", nil)
 		expect(charset.quality_factor).to be == 1.0
 	end
+	
+	it "compares by quality factor" do
+		high = subject.new("utf-8", "0.9")
+		low = subject.new("iso-8859-1", "0.5")
+		expect(high <=> low).to be == -1
+	end
 end
 
 describe Protocol::HTTP::Header::AcceptCharset do

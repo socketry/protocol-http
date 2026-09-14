@@ -10,6 +10,12 @@ describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 		encoding = subject.new("utf-8", nil)
 		expect(encoding.quality_factor).to be == 1.0
 	end
+	
+	it "compares by quality factor" do
+		high = subject.new("gzip", "0.9")
+		low = subject.new("deflate", "0.5")
+		expect(high <=> low).to be == -1
+	end
 end
 
 describe Protocol::HTTP::Header::AcceptEncoding do

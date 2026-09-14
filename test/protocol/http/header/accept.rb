@@ -11,6 +11,12 @@ describe Protocol::HTTP::Header::Accept::MediaRange do
 		expect(media_range.quality_factor).to be == 1.0
 	end
 	
+	it "compares by quality factor" do
+		high = subject.new("text", "html", {"q" => "0.9"})
+		low = subject.new("text", "plain", {"q" => "0.5"})
+		expect(high <=> low).to be == -1
+	end
+	
 	with "#to_s" do
 		it "can convert to string" do
 			media_range = subject.new("text", "plain", {"q" => "0.5"})

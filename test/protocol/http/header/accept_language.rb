@@ -10,6 +10,12 @@ describe Protocol::HTTP::Header::AcceptLanguage::Language do
 		language = subject.new("utf-8", nil)
 		expect(language.quality_factor).to be == 1.0
 	end
+	
+	it "compares by quality factor" do
+		high = subject.new("en", "0.9")
+		low = subject.new("fr", "0.5")
+		expect(high <=> low).to be == -1
+	end
 end
 
 describe Protocol::HTTP::Header::AcceptLanguage do
