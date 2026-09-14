@@ -30,8 +30,9 @@ Please see the [project documentation](https://socketry.github.io/protocol-http/
 
 Please see the [project releases](https://socketry.github.io/protocol-http/releases/index) for all releases.
 
-### Unreleased
+### v0.72.0
 
+  - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.
   - Introduce `Protocol::HTTP::InvalidHeaderError` for malformed or invalid headers, which can be treated as bad requests.
 
 ### v0.71.0
@@ -72,14 +73,6 @@ Please see the [project releases](https://socketry.github.io/protocol-http/relea
 ### v0.63.0
 
   - Add support for the HTTP `QUERY` method.
-
-### v0.62.1
-
-  - Fix handling of `Stream#read(0)`, it must return a mutable string (or clear the given buffer).
-
-### v0.61.0
-
-  - Introduce `Protocol::HTTP::RefusedError` for indicating a stream or request was refused before processing and can be safely retried. `RequestRefusedError` is provided as an alias for backwards compatibility.
 
 ## See Also
 
