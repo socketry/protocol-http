@@ -19,6 +19,10 @@ describe Protocol::HTTP::Header::AcceptEncoding::Encoding do
 end
 
 describe Protocol::HTTP::Header::AcceptEncoding do
+	it "classifies parse errors as invalid headers" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::InvalidHeaderError)
+	end
+	
 	let(:header) {subject.parse(description)}
 	let(:encodings) {header.preferred_encodings}
 	

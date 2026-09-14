@@ -6,6 +6,10 @@
 require "protocol/http/header/range"
 
 describe Protocol::HTTP::Header::Range do
+	it "classifies parse errors as invalid headers" do
+		expect(subject::ParseError.new).to be_a(Protocol::HTTP::InvalidHeaderError)
+	end
+	
 	with ".parse" do
 		it "parses byte ranges" do
 			header = subject.parse("bytes=0-4, 10-, -5")

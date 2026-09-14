@@ -14,7 +14,7 @@ module Protocol
 			#
 			# The `te` header allows a client to indicate which transfer encodings it can handle, and in what order of preference using quality factors.
 			class TE < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(InvalidHeaderError)
 				
 				# Transfer encoding token pattern
 				TOKEN = /[!#$%&'*+\-.0-9A-Z^_`a-z|~]+/

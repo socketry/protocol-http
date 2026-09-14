@@ -22,15 +22,17 @@ module Protocol
 		# @deprecated Use {RefusedError} instead.
 		RequestRefusedError = RefusedError
 		
-		# Represents a bad request error (as opposed to a server error).
-		# This is used to indicate that the request was malformed or invalid.
+		# Marks errors which may indicate a malformed or invalid request when raised while processing an incoming request.
 		module BadRequest
 		end
 		
-		# Raised when a singleton (e.g. `content-length`) header is duplicated in a request or response.
-		class DuplicateHeaderError < Error
+		# Raised when an HTTP header is malformed or invalid. When raised while processing an incoming request, it may be treated as a bad request.
+		class InvalidHeaderError < Error
 			include BadRequest
-			
+		end
+		
+		# Raised when a singleton (e.g. `content-length`) header is duplicated in a request or response.
+		class DuplicateHeaderError < InvalidHeaderError
 			# @parameter key [String] The header key that was duplicated.
 			def initialize(key, existing_value, new_value)
 				super("Duplicate singleton header key: #{key.inspect}")
@@ -62,9 +64,7 @@ module Protocol
 		end
 		
 		# Raised when an invalid trailer header is encountered in headers.
-		class InvalidTrailerError < Error
-			include BadRequest
-			
+		class InvalidTrailerError < InvalidHeaderError
 			# @parameter key [String] The trailer key that is invalid.
 			def initialize(key)
 				super("Invalid trailer key: #{key.inspect}")

@@ -37,6 +37,18 @@ describe Protocol::HTTP::RemoteError do
 	end
 end
 
+describe Protocol::HTTP::InvalidHeaderError do
+	let(:error) {subject.new("Invalid header.")}
+	
+	it "is an HTTP error" do
+		expect(error).to be_a(Protocol::HTTP::Error)
+	end
+	
+	it "can be treated as a bad request" do
+		expect(error).to be_a(Protocol::HTTP::BadRequest)
+	end
+end
+
 describe Protocol::HTTP::DuplicateHeaderError do
 	let(:key) {"content-length"}
 	let(:existing_value) {"100"}
@@ -44,6 +56,10 @@ describe Protocol::HTTP::DuplicateHeaderError do
 	let(:error) {subject.new(key, existing_value, new_value)}
 	
 	with "#initialize" do
+		it "is an invalid header error" do
+			expect(error).to be_a(Protocol::HTTP::InvalidHeaderError)
+		end
+		
 		it "should set the key and values" do
 			expect(error.key).to be == key
 			expect(error.existing_value).to be == existing_value
@@ -71,5 +87,13 @@ describe Protocol::HTTP::DuplicateHeaderError do
 			expect(message).to be =~ /Existing value: "100"/
 			expect(message).to be =~ /New value: "200"/
 		end
+	end
+end
+
+describe Protocol::HTTP::InvalidTrailerError do
+	let(:error) {subject.new("content-length")}
+	
+	it "is an invalid header error" do
+		expect(error).to be_a(Protocol::HTTP::InvalidHeaderError)
 	end
 end

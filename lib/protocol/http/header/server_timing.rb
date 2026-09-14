@@ -23,7 +23,7 @@ module Protocol
 			# # => "db;dur=53.2, cache;dur=12.1;desc=\"Redis lookup\""
 			# ```
 			class ServerTiming < Split
-				ParseError = Class.new(Error)
+				ParseError = Class.new(InvalidHeaderError)
 				
 				# https://www.w3.org/TR/server-timing/
 				METRIC = /\A(?<name>[a-zA-Z0-9][a-zA-Z0-9_\-]*)(;(?<parameters>.*))?\z/
