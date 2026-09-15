@@ -27,6 +27,14 @@ describe Protocol::HTTP::Body::Stream do
 		it "should be empty" do
 			expect(stream).to be(:empty?)
 		end
+		
+		with "no output" do
+			let(:output) {nil}
+			
+			it "should be empty" do
+				expect(stream).to be(:empty?)
+			end
+		end
 	end
 	
 	with "#read" do
