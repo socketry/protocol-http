@@ -2,6 +2,7 @@
 
 # Released under the MIT License.
 # Copyright, 2018-2026, by Samuel Williams.
+# Copyright, 2026, by Robin Schroer.
 
 require "protocol/http/headers"
 require "protocol/http/cookie"

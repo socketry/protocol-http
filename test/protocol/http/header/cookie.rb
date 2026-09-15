@@ -3,6 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2021-2026, by Samuel Williams.
 # Copyright, 2022, by Herrick Fang.
+# Copyright, 2026, by Robin Schroer.
 
 require "protocol/http/header/cookie"
 require "protocol/http/headers"
