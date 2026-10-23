@@ -10,9 +10,6 @@ Gem::Specification.new do |spec|
 	spec.authors = ["Samuel Williams", "Thomas Morgan", "Bruno Sutic", "Herrick Fang", "William T. Nelson", "Bryan Powell", "Dan Olson", "Earlopain", "Genki Takiuchi", "Marcelo Junior", "Olle Jonsson", "Robin Schroer", "Yuta Iwama"]
 	spec.license = "MIT"
 	
-	spec.cert_chain  = ["release.cert"]
-	spec.signing_key = File.expand_path("~/.gem/release.pem")
-	
 	spec.homepage = "https://github.com/socketry/protocol-http"
 	
 	spec.metadata = {

@@ -105,11 +105,13 @@ $ bundle exec sus
 
 ### Making Releases
 
-To make a new release:
+To prepare a release branch and open a pull request from an up-to-date `main`:
 
 ``` bash
-$ bundle exec bake gem:release:patch # or minor or major
+$ bundle exec bake gem:github:release:patch # or minor or major
 ```
+
+See [bake-gem-github](https://github.com/socketry/bake-gem-github) for setup, remote releases, and recovery.
 
 ### Developer Certificate of Origin
 
