@@ -2,6 +2,7 @@
 
 # Released under the MIT License.
 # Copyright, 2026, by Robin Schroer.
+# Copyright, 2026, by Samuel Williams.
 
 require_relative "multiple"
 require_relative "../cookie"
