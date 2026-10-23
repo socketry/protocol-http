@@ -3,6 +3,8 @@
 ---
 description: Provides abstractions to handle HTTP protocols.
 metadata:
+  bug_tracker_uri: https://github.com/socketry/protocol-http/issues
+  changelog_uri: https://github.com/socketry/protocol-http/blob/main/releases.md
   documentation_uri: https://socketry.github.io/protocol-http/
   source_code_uri: https://github.com/socketry/protocol-http.git
 files:
