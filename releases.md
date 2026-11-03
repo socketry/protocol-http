@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - `Protocol::HTTP::Headers#[]=` now validates trailers in the same way as `#add`, raising `InvalidTrailerError` when a forbidden header (e.g. `content-length`, `transfer-encoding`, `authorization`) is assigned after `#trailer!` has been called.
+
 ## v0.72.0
 
   - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.

@@ -274,6 +274,71 @@ describe Protocol::HTTP::Headers do
 			headers["Content-Length"] = "1"
 			expect(headers["content-length"]).to be == "1"
 		end
+		
+		with "trailer" do
+			it "can assign a permitted trailer" do
+				trailer = headers.trailer!
+				
+				headers["ETag"] = "abcd"
+				
+				expect(trailer.to_a).to be == [["etag", "abcd"]]
+				expect(headers["etag"]).to be == "abcd"
+			end
+			
+			%w[content-length transfer-encoding authorization].each do |key|
+				with "forbidden trailer #{key.inspect}", unique: key do
+					it "can't assign a #{key.inspect} header in the trailer" do
+						headers.trailer!
+						
+						expect do
+							headers[key] = "example"
+						end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+						
+						expect(headers.trailer.to_a).to be(:empty?)
+						expect(headers).not.to be(:include?, key)
+					end
+				end
+			end
+			
+			it "does not delete an existing header when the trailer is rejected" do
+				headers["content-length"] = "1"
+				headers.trailer!
+				
+				expect do
+					headers["content-length"] = "999"
+				end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+				
+				expect(headers["content-length"]).to be == "1"
+				expect(headers.trailer.to_a).to be(:empty?)
+			end
+			
+			it "can assign a forbidden trailer before the trailer section starts" do
+				headers["content-length"] = "1"
+				
+				expect(headers).not.to be(:trailer?)
+				expect(headers["content-length"]).to be == "1"
+			end
+		end
+	end
+	
+	with "#set" do
+		it "can't set a forbidden header in the trailer" do
+			headers.trailer!
+			
+			expect do
+				headers.set("content-length", "999")
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+		end
+	end
+	
+	with "#merge!" do
+		it "can't merge a forbidden header into the trailer" do
+			headers.trailer!
+			
+			expect do
+				headers.merge!("content-length" => "999")
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+		end
 	end
 	
 	with "#add" do

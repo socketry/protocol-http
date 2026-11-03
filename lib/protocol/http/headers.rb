@@ -251,15 +251,12 @@ module Protocol
 			# @parameter key [String] the header key.
 			# @parameter value [String] the header value to assign.
 			# @parameter trailer [Boolean] whether this header is being added as a trailer.
+			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
 			def add(key, value, trailer: self.trailer?)
 				value = value.to_s
 				
 				if trailer
-					policy = @policy[key.downcase]
-					
-					if !policy or !policy.trailer?
-						raise InvalidTrailerError, key
-					end
+					validate_trailer!(key, @policy[key.downcase])
 				end
 				
 				if @indexed
@@ -284,13 +281,20 @@ module Protocol
 			#
 			# @parameter key [String] the header key.
 			# @parameter value [String | Array] the header value to assign.
+			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
 			def []=(key, value)
 				key = key.downcase
+				policy = @policy[key]
+				
+				# Validate before deleting, so that a rejected assignment leaves the headers unchanged:
+				if self.trailer?
+					validate_trailer!(key, policy)
+				end
 				
 				# Delete existing value if any:
 				self.delete(key)
 				
-				if policy = @policy[key]
+				if policy
 					unless value.is_a?(policy)
 						value = policy.coerce(value)
 					end
@@ -445,6 +449,19 @@ module Protocol
 				else
 					key, value = deleted.last
 					return value
+				end
+			end
+			
+			# Ensure the given header is permitted in the trailer section.
+			#
+			# Headers which affect framing, routing, connection handling or authorization must not appear in trailers, as they could otherwise be used for request smuggling or to bypass processing that occurred while the header section was being handled.
+			#
+			# @parameter key [String] The header key.
+			# @parameter policy [Class | Boolean] The policy for the header key, or `false` if the header is a simple singleton string.
+			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
+			protected def validate_trailer!(key, policy)
+				if !policy or !policy.trailer?
+					raise InvalidTrailerError, key
 				end
 			end
 			
