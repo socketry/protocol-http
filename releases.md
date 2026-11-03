@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Preserve the trailer boundary when `Protocol::HTTP::Headers#delete` or `#extract` removes fields from the header section, so existing trailers are no longer sent as headers.
+
 ## v0.72.0
 
   - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.

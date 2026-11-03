@@ -233,7 +233,7 @@ module Protocol
 			#
 			# @parameter keys [Array] The keys to extract.
 			def extract(keys)
-				deleted, @fields = @fields.partition do |field|
+				deleted = remove_fields do |field|
 					keys.include?(field.first.downcase)
 				end
 				
@@ -425,7 +425,7 @@ module Protocol
 					return nil
 				end
 				
-				deleted, @fields = @fields.partition do |field|
+				deleted = remove_fields do |field|
 					field.first.downcase == key
 				end
 				
@@ -446,6 +446,35 @@ module Protocol
 					key, value = deleted.last
 					return value
 				end
+			end
+			
+			# Remove all fields for which the block returns true, preserving the trailer boundary.
+			#
+			# The trailer boundary `@tail` is an index into `@fields`, so removing a field from the header section (before `@tail`) must shift the boundary down by one, otherwise the first trailer field would be treated as a header. Removing a field from the trailer section leaves the boundary unchanged.
+			#
+			# @yields {|field| ...} Each `[key, value]` pair; return true to remove it.
+			# @returns [Array] The removed fields, in their original order.
+			private def remove_fields
+				deleted = []
+				kept = []
+				tail = @tail
+				
+				@fields.each_with_index do |field, index|
+					if yield(field)
+						deleted << field
+						
+						if @tail and index < @tail
+							tail -= 1
+						end
+					else
+						kept << field
+					end
+				end
+				
+				@fields = kept
+				@tail = tail
+				
+				return deleted
 			end
 			
 			# Merge the value into the hash according to the policy for the given key.
