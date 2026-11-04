@@ -270,7 +270,13 @@ module Protocol
 			#
 			# @parameter key [String] the header key to replace.
 			# @parameter value [String] the header value to assign.
+			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
 			def set(key, value)
+				# Validate before deleting, so that a rejected assignment leaves the headers unchanged:
+				if self.trailer?
+					validate_trailer!(key, @policy[key.downcase])
+				end
+				
 				self.delete(key)
 				self.add(key, value)
 			end

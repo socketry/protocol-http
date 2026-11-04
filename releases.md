@@ -3,6 +3,7 @@
 ## Unreleased
 
   - `Protocol::HTTP::Headers#[]=` now validates trailers in the same way as `#add`, raising `InvalidTrailerError` when a forbidden header (e.g. `content-length`, `transfer-encoding`, `authorization`) is assigned after `#trailer!` has been called.
+  - `Protocol::HTTP::Headers#set` now validates the trailer before deleting the existing header, so a rejected assignment no longer removes the existing value.
 
 ## v0.72.0
 

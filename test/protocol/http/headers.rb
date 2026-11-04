@@ -329,6 +329,18 @@ describe Protocol::HTTP::Headers do
 				headers.set("content-length", "999")
 			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
 		end
+		
+		it "does not delete an existing header when the trailer is rejected" do
+			headers.set("content-length", "1")
+			headers.trailer!
+			
+			expect do
+				headers.set("content-length", "999")
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+			
+			expect(headers["content-length"]).to be == "1"
+			expect(headers.trailer.to_a).to be(:empty?)
+		end
 	end
 	
 	with "#merge!" do
