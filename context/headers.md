@@ -74,12 +74,13 @@ headers.trailer!
 headers.add("etag", '"12345"')
 headers.add("date", Time.now.httpdate)
 
-# These will be silently ignored for security
-headers.add("authorization", "Bearer token") # Ignored - credential leakage risk
-headers.add("connection", "close") # Ignored - hop-by-hop header
+# Each of these will raise InvalidTrailerError for security:
+headers.add("authorization", "Bearer token") # => raises InvalidTrailerError (credential leakage risk)
+headers.add("connection", "close") # => raises InvalidTrailerError (hop-by-hop header)
+headers["content-length"] = "0" # => raises InvalidTrailerError (framing header)
 ```
 
-The trailer security system prevents HTTP request smuggling by restricting which headers can appear in trailers:
+The trailer security system prevents HTTP request smuggling by restricting which headers can appear in trailers. Once `trailer!` has been called, every method which appends fields (`add`, `set`, `[]=` and `merge!`) validates the header against the policy before modifying the headers, and raises {ruby Protocol::HTTP::InvalidTrailerError} if it is not permitted:
 
 **Allowed headers** (return `true` for `trailer?`):
 - `date` - Response generation timestamps.
