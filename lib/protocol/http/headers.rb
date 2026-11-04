@@ -464,7 +464,7 @@ module Protocol
 			# Headers which affect framing, routing, connection handling or authorization must not appear in trailers, as they could otherwise be used for request smuggling or to bypass processing that occurred while the header section was being handled.
 			#
 			# @parameter key [String] The header key.
-			# @parameter policy [Class | Boolean] The policy for the header key, or `false` if the header is a simple singleton string.
+			# @parameter policy [Class | Boolean | Nil] The policy for the header key, `false` if the header is a simple singleton string, or `nil` if the policy has no entry for the key.
 			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
 			protected def validate_trailer!(key, policy)
 				if !policy or !policy.trailer?
