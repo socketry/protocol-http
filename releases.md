@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Preserve the trailer boundary when `Protocol::HTTP::Headers#delete` or `#extract` removes fields from the header section, so existing trailers are no longer sent as headers.
+  - `Protocol::HTTP::Headers#delete` (and therefore `#set`) now normalizes the key to lowercase, so mixed case keys remove the matching fields instead of leaving them in place.
 
 ## v0.72.0
 

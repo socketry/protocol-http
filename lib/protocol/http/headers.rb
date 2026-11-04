@@ -231,7 +231,7 @@ module Protocol
 			
 			# Extract the specified keys from the headers.
 			#
-			# @parameter keys [Array] The keys to extract.
+			# @parameter keys [Array] The keys to extract, which must be lowercase.
 			def extract(keys)
 				deleted = remove_fields do |field|
 					keys.include?(field.first.downcase)
@@ -420,8 +420,10 @@ module Protocol
 			# @parameter key [String] The header key.
 			# @returns [String | Array | Object] The merged header value.
 			def delete(key)
+				key = key.downcase
+				
 				# If we've indexed the headers, we can bail out early if the key is not present:
-				if @indexed && !@indexed.key?(key.downcase)
+				if @indexed && !@indexed.key?(key)
 					return nil
 				end
 				

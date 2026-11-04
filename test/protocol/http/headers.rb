@@ -293,6 +293,13 @@ describe Protocol::HTTP::Headers do
 			
 			expect(headers["accept-encoding"]).to be == ["gzip"]
 		end
+		
+		it "can replace an existing field using a mixed case key" do
+			headers.set("Content-Type", "text/plain")
+			
+			expect(headers.fields.count{|key, value| key.downcase == "content-type"}).to be == 1
+			expect(headers["content-type"]).to be == "text/plain"
+		end
 	end
 	
 	with "#extract" do
@@ -328,6 +335,22 @@ describe Protocol::HTTP::Headers do
 		
 		it "can delete non-existant fields" do
 			expect(headers.delete("transfer-encoding")).to be_nil
+		end
+		
+		it "can delete fields using a mixed case key" do
+			expect(headers.delete("Content-Type")).to be == "text/html"
+			
+			expect(headers.fields).to be == fields[1..-1]
+		end
+		
+		it "can delete indexed fields using a mixed case key" do
+			# Force the headers to be indexed:
+			headers.to_h
+			
+			expect(headers.delete("Content-Type")).to be == "text/html"
+			
+			expect(headers.fields).to be == fields[1..-1]
+			expect(headers["content-type"]).to be_nil
 		end
 	end
 	
