@@ -452,27 +452,32 @@ module Protocol
 			#
 			# The trailer boundary `@tail` is an index into `@fields`, so removing a field from the header section (before `@tail`) must shift the boundary down by one, otherwise the first trailer field would be treated as a header. Removing a field from the trailer section leaves the boundary unchanged.
 			#
+			# Most headers never have a trailer boundary, so that case is kept on the fast `partition` path and the indexed loop only runs when a boundary exists.
+			#
 			# @yields {|field| ...} Each `[key, value]` pair; return true to remove it.
 			# @returns [Array] The removed fields, in their original order.
-			private def remove_fields
-				deleted = []
-				kept = []
-				tail = @tail
-				
-				@fields.each_with_index do |field, index|
-					if yield(field)
-						deleted << field
-						
-						if @tail and index < @tail
-							tail -= 1
+			private def remove_fields(&block)
+				if tail = @tail
+					deleted = []
+					kept = []
+					
+					@fields.each_with_index do |field, index|
+						if yield(field)
+							deleted << field
+							
+							if index < @tail
+								tail -= 1
+							end
+						else
+							kept << field
 						end
-					else
-						kept << field
 					end
+					
+					@fields = kept
+					@tail = tail
+				else
+					deleted, @fields = @fields.partition(&block)
 				end
-				
-				@fields = kept
-				@tail = tail
 				
 				return deleted
 			end
