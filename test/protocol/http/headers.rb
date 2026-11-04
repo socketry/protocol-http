@@ -321,7 +321,24 @@ describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	with "#add" do
+		it "can add field" do
+			headers.add("Content-Length", 1)
+			
+			expect(headers.fields.last).to be == ["Content-Length", "1"]
+			expect(headers["content-length"]).to be == "1"
+		end
+	end
+	
 	with "#set" do
+		it "can replace an existing field" do
+			headers.add("accept-encoding", "gzip,deflate")
+			
+			headers.set("accept-encoding", "gzip")
+			
+			expect(headers["accept-encoding"]).to be == ["gzip"]
+		end
+		
 		it "can't set a forbidden header in the trailer" do
 			headers.trailer!
 			
@@ -340,35 +357,6 @@ describe Protocol::HTTP::Headers do
 			
 			expect(headers["content-length"]).to be == "1"
 			expect(headers.trailer.to_a).to be(:empty?)
-		end
-	end
-	
-	with "#merge!" do
-		it "can't merge a forbidden header into the trailer" do
-			headers.trailer!
-			
-			expect do
-				headers.merge!("content-length" => "999")
-			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
-		end
-	end
-	
-	with "#add" do
-		it "can add field" do
-			headers.add("Content-Length", 1)
-			
-			expect(headers.fields.last).to be == ["Content-Length", "1"]
-			expect(headers["content-length"]).to be == "1"
-		end
-	end
-	
-	with "#set" do
-		it "can replace an existing field" do
-			headers.add("accept-encoding", "gzip,deflate")
-			
-			headers.set("accept-encoding", "gzip")
-			
-			expect(headers["accept-encoding"]).to be == ["gzip"]
 		end
 	end
 	
@@ -413,6 +401,16 @@ describe Protocol::HTTP::Headers do
 			headers.merge!("content-length" => 2)
 			
 			expect(headers["content-length"]).to be == "2"
+		end
+	end
+	
+	with "#merge!" do
+		it "can't merge a forbidden header into the trailer" do
+			headers.trailer!
+			
+			expect do
+				headers.merge!("content-length" => "999")
+			end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
 		end
 	end
 	
