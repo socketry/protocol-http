@@ -68,6 +68,8 @@ module Protocol
 			# @parameter key [String] The trailer key that is invalid.
 			def initialize(key)
 				super("Invalid trailer key: #{key.inspect}")
+				
+				@key = key
 			end
 			
 			# @attribute [String] key The trailer key that is invalid.

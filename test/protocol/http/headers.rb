@@ -292,7 +292,7 @@ describe Protocol::HTTP::Headers do
 						
 						expect do
 							headers[key] = "example"
-						end.to raise_exception(Protocol::HTTP::InvalidTrailerError)
+						end.to raise_exception(Protocol::HTTP::InvalidTrailerError).and(have_attributes(key: be == key))
 						
 						expect(headers.trailer.to_a).to be(:empty?)
 						expect(headers).not.to be(:include?, key)
