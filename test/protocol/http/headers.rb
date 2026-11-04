@@ -300,6 +300,14 @@ describe Protocol::HTTP::Headers do
 				end
 			end
 			
+			it "reports the key as given in the error" do
+				headers.trailer!
+				
+				expect do
+					headers["Content-Length"] = "1"
+				end.to raise_exception(Protocol::HTTP::InvalidTrailerError, message: be == 'Invalid trailer key: "Content-Length"').and(have_attributes(key: be == "Content-Length"))
+			end
+			
 			it "does not delete an existing header when the trailer is rejected" do
 				headers["content-length"] = "1"
 				headers.trailer!

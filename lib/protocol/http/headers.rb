@@ -289,13 +289,14 @@ module Protocol
 			# @parameter value [String | Array] the header value to assign.
 			# @raises [InvalidTrailerError] If the header is not permitted in the trailer section.
 			def []=(key, value)
-				key = key.downcase
-				policy = @policy[key]
+				policy = @policy[key.downcase]
 				
 				# Validate before deleting, so that a rejected assignment leaves the headers unchanged:
 				if self.trailer?
 					validate_trailer!(key, policy)
 				end
+				
+				key = key.downcase
 				
 				# Delete existing value if any:
 				self.delete(key)
