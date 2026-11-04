@@ -553,7 +553,7 @@ describe Protocol::HTTP::Headers do
 			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
 		end
 		
-		it "preserves trailers when deleting multiple fields of a header" do
+		it "preserves trailers when deleting multiple fields with the same key" do
 			headers.delete("set-cookie")
 			
 			expect(headers.tail).to be == 3
@@ -620,25 +620,76 @@ describe Protocol::HTTP::Headers do
 			expect(headers.trailer.to_a).to be == []
 		end
 		
-		it "preserves trailers when replacing a header" do
-			headers["content-type"] = "text/plain"
-			
-			expect(headers).to be(:trailer?)
-			expect(headers.tail).to be == 4
-			expect(headers.header.to_a).to be == header_fields
-			expect(headers.trailer.to_a).to be == [
-				["etag", "abcd"],
-				["digest", "sha-256=xyz"],
-				["content-type", "text/plain"],
-			]
-		end
-		
 		it "preserves the boundary when deleting a missing header" do
 			expect(headers.delete("transfer-encoding")).to be_nil
 			
 			expect(headers.tail).to be == 5
 			expect(headers.header.to_a).to be == fields
 			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		with "a header that is permitted as a trailer" do
+			let(:fields) do
+				[
+					["Content-Type", "text/html"],
+					["Server-Timing", "db;dur=1"],
+					["Accept", "*/*"],
+				]
+			end
+			
+			it "preserves trailers when replacing the header" do
+				headers["server-timing"] = "db;dur=2"
+				
+				expect(headers).to be(:trailer?)
+				expect(headers.tail).to be == 2
+				expect(headers.header.to_a).to be == [
+					["Content-Type", "text/html"],
+					["Accept", "*/*"],
+				]
+				expect(headers.trailer.to_a).to be == [
+					["etag", "abcd"],
+					["digest", "sha-256=xyz"],
+					["server-timing", "db;dur=2"],
+				]
+			end
+		end
+		
+		with "a key that appears in both the header and trailer sections" do
+			let(:fields) do
+				[
+					["Content-Type", "text/html"],
+					["ETag", "wxyz"],
+					["Accept", "*/*"],
+				]
+			end
+			
+			it "only moves the boundary for the field in the header section" do
+				expect(headers.delete("etag")).to be == "abcd"
+				
+				expect(headers.tail).to be == 2
+				expect(headers.header.to_a).to be == [
+					["Content-Type", "text/html"],
+					["Accept", "*/*"],
+				]
+				expect(headers.trailer.to_a).to be == [["digest", "sha-256=xyz"]]
+			end
+		end
+	end
+	
+	with "trailer boundary and no trailers" do
+		before do
+			headers.trailer!
+		end
+		
+		it "keeps the boundary at the end of the fields when deleting a header" do
+			expect(headers.tail).to be == fields.size
+			
+			headers.delete("content-type")
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == headers.fields.size
+			expect(headers.header.to_a).to be == fields[1..-1]
+			expect(headers.trailer.to_a).to be == []
 		end
 	end
 	
