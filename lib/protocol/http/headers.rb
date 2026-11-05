@@ -452,7 +452,7 @@ module Protocol
 			
 			# Remove all fields for which the block returns true, preserving the trailer boundary.
 			#
-			# The trailer boundary `@tail` is an index into `@fields`, so removing a field from the header section (before `@tail`) must shift the boundary down by one, otherwise the first trailer field would be treated as a header. Removing a field from the trailer section leaves the boundary unchanged.
+			# Removing a field before the trailer boundary `@tail` must shift the boundary down, otherwise the first trailer would be treated as a header.
 			#
 			# Most headers never have a trailer boundary, so that case is kept on the fast `partition` path and the indexed loop only runs when a boundary exists.
 			#
