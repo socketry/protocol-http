@@ -293,6 +293,13 @@ describe Protocol::HTTP::Headers do
 			
 			expect(headers["accept-encoding"]).to be == ["gzip"]
 		end
+		
+		it "can replace an existing field using a mixed case key" do
+			headers.set("Content-Type", "text/plain")
+			
+			expect(headers.fields.count{|key, value| key.downcase == "content-type"}).to be == 1
+			expect(headers["content-type"]).to be == "text/plain"
+		end
 	end
 	
 	with "#extract" do
@@ -328,6 +335,22 @@ describe Protocol::HTTP::Headers do
 		
 		it "can delete non-existant fields" do
 			expect(headers.delete("transfer-encoding")).to be_nil
+		end
+		
+		it "can delete fields using a mixed case key" do
+			expect(headers.delete("Content-Type")).to be == "text/html"
+			
+			expect(headers.fields).to be == fields[1..-1]
+		end
+		
+		it "can delete indexed fields using a mixed case key" do
+			# Force the headers to be indexed:
+			headers.to_h
+			
+			expect(headers.delete("Content-Type")).to be == "text/html"
+			
+			expect(headers.fields).to be == fields[1..-1]
+			expect(headers["content-type"]).to be_nil
 		end
 	end
 	
@@ -509,6 +532,164 @@ describe Protocol::HTTP::Headers do
 			headers.add("etag", "abcd")
 			
 			expect(headers.trailer.to_a).to be == [["etag", "abcd"]]
+		end
+	end
+	
+	with "trailer boundary" do
+		let(:header_fields) {fields[1..-1]}
+		
+		before do
+			headers.trailer!
+			headers.add("etag", "abcd")
+			headers.add("digest", "sha-256=xyz")
+		end
+		
+		it "preserves trailers when deleting a header" do
+			expect(headers.delete("content-type")).to be == "text/html"
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == 4
+			expect(headers.header.to_a).to be == header_fields
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		it "preserves trailers when deleting multiple fields with the same key" do
+			headers.delete("set-cookie")
+			
+			expect(headers.tail).to be == 3
+			expect(headers.header.to_a).to be == [
+				["Content-Type", "text/html"],
+				["connection", "Keep-Alive"],
+				["Accept", "*/*"],
+			]
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		it "preserves trailers when deleting a header with an index" do
+			# Force the headers to be indexed:
+			headers.to_h
+			
+			headers.delete("content-type")
+			
+			expect(headers.tail).to be == 4
+			expect(headers.header.to_a).to be == header_fields
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+			expect(headers["etag"]).to be == "abcd"
+		end
+		
+		it "preserves trailers when extracting headers" do
+			expect(headers.extract(["content-type", "set-cookie"])).to be == [
+				["Content-Type", "text/html"],
+				["Set-Cookie", "hello=world"],
+				["set-cookie", "foo=bar"],
+			]
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == 2
+			expect(headers.header.to_a).to be == [
+				["connection", "Keep-Alive"],
+				["Accept", "*/*"],
+			]
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		it "preserves trailers when extracting all headers" do
+			headers.extract(["content-type", "connection", "set-cookie", "accept"])
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == 0
+			expect(headers.header.to_a).to be == []
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		it "does not move the boundary when deleting a trailer" do
+			expect(headers.delete("etag")).to be == "abcd"
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == 5
+			expect(headers.header.to_a).to be == fields
+			expect(headers.trailer.to_a).to be == [["digest", "sha-256=xyz"]]
+		end
+		
+		it "does not move the boundary when extracting trailers" do
+			expect(headers.extract(["etag", "digest"])).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == 5
+			expect(headers.header.to_a).to be == fields
+			expect(headers.trailer.to_a).to be == []
+		end
+		
+		it "preserves the boundary when deleting a missing header" do
+			expect(headers.delete("transfer-encoding")).to be_nil
+			
+			expect(headers.tail).to be == 5
+			expect(headers.header.to_a).to be == fields
+			expect(headers.trailer.to_a).to be == [["etag", "abcd"], ["digest", "sha-256=xyz"]]
+		end
+		
+		with "a header that is permitted as a trailer" do
+			let(:fields) do
+				[
+					["Content-Type", "text/html"],
+					["Server-Timing", "db;dur=1"],
+					["Accept", "*/*"],
+				]
+			end
+			
+			it "preserves trailers when replacing the header" do
+				headers["server-timing"] = "db;dur=2"
+				
+				expect(headers).to be(:trailer?)
+				expect(headers.tail).to be == 2
+				expect(headers.header.to_a).to be == [
+					["Content-Type", "text/html"],
+					["Accept", "*/*"],
+				]
+				expect(headers.trailer.to_a).to be == [
+					["etag", "abcd"],
+					["digest", "sha-256=xyz"],
+					["server-timing", "db;dur=2"],
+				]
+			end
+		end
+		
+		with "a key that appears in both the header and trailer sections" do
+			let(:fields) do
+				[
+					["Content-Type", "text/html"],
+					["ETag", "wxyz"],
+					["Accept", "*/*"],
+				]
+			end
+			
+			it "only moves the boundary for the field in the header section" do
+				expect(headers.delete("etag")).to be == "abcd"
+				
+				expect(headers.tail).to be == 2
+				expect(headers.header.to_a).to be == [
+					["Content-Type", "text/html"],
+					["Accept", "*/*"],
+				]
+				expect(headers.trailer.to_a).to be == [["digest", "sha-256=xyz"]]
+			end
+		end
+	end
+	
+	with "trailer boundary and no trailers" do
+		before do
+			headers.trailer!
+		end
+		
+		it "keeps the boundary at the end of the fields when deleting a header" do
+			expect(headers.tail).to be == fields.size
+			
+			headers.delete("content-type")
+			
+			expect(headers).to be(:trailer?)
+			expect(headers.tail).to be == headers.fields.size
+			expect(headers.header.to_a).to be == fields[1..-1]
+			expect(headers.trailer.to_a).to be == []
 		end
 	end
 	

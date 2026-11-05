@@ -231,9 +231,9 @@ module Protocol
 			
 			# Extract the specified keys from the headers.
 			#
-			# @parameter keys [Array] The keys to extract.
+			# @parameter keys [Array] The keys to extract, which must be lowercase.
 			def extract(keys)
-				deleted, @fields = @fields.partition do |field|
+				deleted = remove_fields do |field|
 					keys.include?(field.first.downcase)
 				end
 				
@@ -420,12 +420,14 @@ module Protocol
 			# @parameter key [String] The header key.
 			# @returns [String | Array | Object] The merged header value.
 			def delete(key)
+				key = key.downcase
+				
 				# If we've indexed the headers, we can bail out early if the key is not present:
-				if @indexed && !@indexed.key?(key.downcase)
+				if @indexed && !@indexed.key?(key)
 					return nil
 				end
 				
-				deleted, @fields = @fields.partition do |field|
+				deleted = remove_fields do |field|
 					field.first.downcase == key
 				end
 				
@@ -446,6 +448,40 @@ module Protocol
 					key, value = deleted.last
 					return value
 				end
+			end
+			
+			# Remove all fields for which the block returns true, preserving the trailer boundary.
+			#
+			# Removing a field before the trailer boundary `@tail` must shift the boundary down, otherwise the first trailer would be treated as a header.
+			#
+			# Most headers never have a trailer boundary, so that case is kept on the fast `partition` path and the indexed loop only runs when a boundary exists.
+			#
+			# @yields {|field| ...} Each `[key, value]` pair; return true to remove it.
+			# @returns [Array] The removed fields, in their original order.
+			private def remove_fields(&block)
+				if tail = @tail
+					deleted = []
+					kept = []
+					
+					@fields.each_with_index do |field, index|
+						if yield(field)
+							deleted << field
+							
+							if index < @tail
+								tail -= 1
+							end
+						else
+							kept << field
+						end
+					end
+					
+					@fields = kept
+					@tail = tail
+				else
+					deleted, @fields = @fields.partition(&block)
+				end
+				
+				return deleted
 			end
 			
 			# Merge the value into the hash according to the policy for the given key.
